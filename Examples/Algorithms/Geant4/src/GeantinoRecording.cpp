@@ -41,7 +41,7 @@ GeantinoRecording::GeantinoRecording(GeantinoRecording::Config&& cfg,
   m_runManager->SetUserAction(new RunAction());
   m_runManager->SetUserAction(new EventAction());
   m_runManager->SetUserAction(
-      new PrimaryGeneratorAction("geantino", 1000., m_cfg.seed1, m_cfg.seed2));
+      new PrimaryGeneratorAction("geantino", 1000., m_cfg.seed1, m_cfg.seed2, m_cfg.etaRange));
   m_runManager->SetUserAction(new SteppingAction());
   m_runManager->Initialize();
 }

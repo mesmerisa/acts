@@ -29,9 +29,10 @@ PrimaryGeneratorAction* PrimaryGeneratorAction::instance() {
 PrimaryGeneratorAction::PrimaryGeneratorAction(const G4String& particleName,
                                                G4double energy,
                                                G4int randomSeed1,
-                                               G4int randomSeed2)
+                                               G4int randomSeed2,
+                                               std::array<double, 2> etaRange)
     : G4VUserPrimaryGeneratorAction(),
-      m_particleGun(std::make_unique<G4ParticleGun>(1)) {
+      m_particleGun(std::make_unique<G4ParticleGun>(1)), m_eta(etaRange) {
   if (s_instance) {
     throw std::logic_error(
         "Attempted to duplicate the PrimaryGeneratorAction singleton");
@@ -57,7 +58,9 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   // this function is called at the begining of event
   G4double phi = -M_PI + G4UniformRand() * 2. * M_PI;
-  G4double theta = G4UniformRand() * M_PI;
+  //G4double theta = G4UniformRand() * M_PI;   
+  G4double eta = m_eta[0] + G4UniformRand()*(m_eta[1] - m_eta[0]);
+  G4double theta = 2.0 * atan(exp(-eta)); 
   // build a direction
   m_direction =
       G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
