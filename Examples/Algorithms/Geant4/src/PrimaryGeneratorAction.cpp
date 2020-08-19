@@ -59,8 +59,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   // this function is called at the begining of event
   G4double phi = -M_PI + G4UniformRand() * 2. * M_PI;
   //G4double theta = G4UniformRand() * M_PI;   
-  G4double eta = m_eta[0] + G4UniformRand()*(m_eta[1] - m_eta[0]);
-  G4double theta = 2.0 * atan(exp(-eta)); 
+  
+  G4double theta_min = 2.0 * atan(exp(-m_eta[0])); 
+  G4double theta_max = 2.0 * atan(exp(-m_eta[1]));
+  
+  G4double theta = theta_min + G4UniformRand()*(theta_max - theta_min);
+  
   // build a direction
   m_direction =
       G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
