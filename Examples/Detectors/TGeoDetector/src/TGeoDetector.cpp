@@ -20,14 +20,16 @@ void TGeoDetector::addOptions(
 }
 
 auto TGeoDetector::finalize(const boost::program_options::variables_map& vm,
-                            std::shared_ptr<const Acts::IMaterialDecorator>)
-    -> std::pair<TrackingGeometryPtr, ContextDecorators> {
-  Acts::GeometryContext tGeoContext;
-  TrackingGeometryPtr tgeoTrackingGeometry =
-      FW::TGeo::buildTGeoDetector(vm, tGeoContext, detectorStore);
+std::shared_ptr<const Acts::IMaterialDecorator> mdecorator)
 
-  ContextDecorators tgeoContextDeocrators = {};
-  // return the pair of geometry and empty decorators
-  return std::make_pair<TrackingGeometryPtr, ContextDecorators>(
-      std::move(tgeoTrackingGeometry), std::move(tgeoContextDeocrators));
+-> std::pair<TrackingGeometryPtr, ContextDecorators> {
+Acts::GeometryContext tGeoContext;
+TrackingGeometryPtr tgeoTrackingGeometry =
+FW::TGeo::buildTGeoDetector(vm, tGeoContext, detectorStore, mdecorator);
+
+ContextDecorators tgeoContextDecorators = {};
+// return the pair of geometry and empty decorators
+return std::make_pair<TrackingGeometryPtr, ContextDecorators>(
+std::move(tgeoTrackingGeometry), std::move(tgeoContextDecorators));
+
 }
