@@ -27,7 +27,7 @@ void FW::Options::addGeant4Options(FW::Options::Description& desc) {
   opt("g4-material-tracks",
       value<std::string>()->default_value("geant4-material-tracks"),
       "The output collection for material tracks");
-  opt("g4-pg-eta-range", value<read_range>()->multitoken()->default_value({-4., 4.}),
+  opt("g4-pg-eta-range", value<read_range>()->multitoken()->default_value({-5., 5.}),
       "range in which the eta parameter of particles " 
       "produced by the g4 particle gun is simulated. " 
       "Please hand over by simply seperating the values by space.");    

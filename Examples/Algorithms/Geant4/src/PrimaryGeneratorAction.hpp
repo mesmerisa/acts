@@ -38,7 +38,7 @@ class PrimaryGeneratorAction final : public G4VUserPrimaryGeneratorAction {
   PrimaryGeneratorAction(const G4String& particleName = "geantino",
                          G4double energy = 1000. * MeV,
                          G4int randomSeed1 = 12345, G4int randomSeed2 = 23456,
-                         std::array<double, 2> etaRange = {{-4, 4}});
+                         std::array<double, 2> etaRange = {{-5, 5}});
   ~PrimaryGeneratorAction() final override;
 
   /// Interface method to generate the primary
