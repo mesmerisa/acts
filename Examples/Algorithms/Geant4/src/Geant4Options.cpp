@@ -13,7 +13,8 @@
 
 #include <string>
 
-void FW::Options::addGeant4Options(FW::Options::Description& desc) {
+void ActsExamples::Options::addGeant4Options(
+    ActsExamples::Options::Description& desc) {
   using boost::program_options::bool_switch;
   using boost::program_options::value;
 
@@ -34,7 +35,8 @@ void FW::Options::addGeant4Options(FW::Options::Description& desc) {
 }
 
 ActsExamples::GeantinoRecording::Config
-FW::Options::readGeantinoRecordingConfig(const Variables& variables) {
+ActsExamples::Options::readGeantinoRecordingConfig(
+    const ActsExamples::Options::Variables& variables) {
   ActsExamples::GeantinoRecording::Config gRecConfig;
   
   auto eta = variables["g4-pg-eta-range"].template as<read_range>();
