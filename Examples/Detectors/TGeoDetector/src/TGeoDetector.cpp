@@ -25,10 +25,11 @@ std::shared_ptr<const Acts::IMaterialDecorator> mdecorator)
 -> std::pair<TrackingGeometryPtr, ContextDecorators> {
 Acts::GeometryContext tGeoContext;
 TrackingGeometryPtr tgeoTrackingGeometry =
-FW::TGeo::buildTGeoDetector(vm, tGeoContext, detectorStore, mdecorator);
+ActsExamples::TGeo::buildTGeoDetector(vm, tGeoContext, detectorStore, mdecorator);
 
 ContextDecorators tgeoContextDecorators = {};
 // return the pair of geometry and empty decorators
 return std::make_pair<TrackingGeometryPtr, ContextDecorators>(
 std::move(tgeoTrackingGeometry), std::move(tgeoContextDecorators));
+}
 

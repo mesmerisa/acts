@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ActsExamples/Geant4/Geant4Options.hpp"
-#include "ACTFW/Utilities/Options.hpp"
+#include "ActsExamples/Utilities/Options.hpp"
 
 #include <boost/program_options.hpp>
 
