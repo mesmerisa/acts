@@ -60,12 +60,11 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   // this function is called at the begining of event
-  //G4double phi = -M_PI + G4UniformRand() * 2. * M_PI;
+ // G4double phi = -M_PI + G4UniformRand() * 2. * M_PI;
   //G4double theta = G4UniformRand() * M_PI;   
-
   //G4double eta = CLHEP::RandFlat::shoot(2,4);
   
-  G4double phi = CLHEP::RandFlat::shoot(0.*degree, 360.*degree);
+  G4double phi = CLHEP::RandFlat::shoot(0.0, 2. * M_PI);
 
   G4double theta_1 = 2.0 * atan(exp(-m_eta[0])); 
   G4double theta_2 = 2.0 * atan(exp(-m_eta[1]));
@@ -73,41 +72,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   
   if (theta_1 < theta_2) theta = CLHEP::RandFlat::shoot(theta_1, theta_2);
   else theta = CLHEP::RandFlat::shoot(theta_2, theta_1);
-  
-  //G4double theta = CLHEP::RandFlat::shoot(theta_min,theta_max);
+
   //std::cout << m_eta[0] << " " << m_eta[1] << " " << theta_1 << " " << theta_2 << " " << theta << std::endl;
   //std::cout << G4UniformRand() * M_PI << std::endl;
   
-  //theta = G4UniformRand() * M_PI;
- // G4double theta_rand = theta_min + G4UniformRand()*(theta_max - theta_min);
-  
-  G4double randomX = std::sin(theta)*std::cos(phi);
-  G4double randomY = std::sin(theta)*std::sin(phi);
-  G4double randomZ = std::cos(theta);
-
-  //std::cout << randomX << " " << randomY << " " << randomZ << std::endl;
-  
-  m_direction =
-      G4ThreeVector(randomX, randomY, randomZ); 
-  /*G4double alphaMin =  0.*deg;
-  G4double alphaMax = 60.*deg;
-  G4double fCosAlphaMin = std::cos(alphaMin);
-  G4double fCosAlphaMax = std::cos(alphaMax);
-        
-  G4double cosAlpha = fCosAlphaMin-G4UniformRand()*(fCosAlphaMin-fCosAlphaMax);
-  G4double sinAlpha = std::sqrt(1. - cosAlpha*cosAlpha);
-  G4double psi      = 2 * M_PI * G4UniformRand();  //psi uniform in (0,2*pi)  
-  G4ThreeVector dirtest(sinAlpha*std::cos(psi),sinAlpha*std::sin(psi),cosAlpha);
-  
-  //2- rotate dir   (rotateUz transforms uz to ur)
-  //dir.rotateUz(ur);           
-
-  m_particleGun->SetParticleMomentumDirection(dirtest);   
-      
-      */
   // build a direction
-  //m_direction =
-  //    G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+  m_direction =
+      G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
   m_position = G4ThreeVector(0., 0., 0.);
   // set to the particle gun and
   m_particleGun->SetParticleMomentumDirection(m_direction);
