@@ -39,3 +39,24 @@ install(
   ActsExampleCKFTracks
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+
+add_executable(
+  ActsExampleTruthTracksBGV
+  RecTruthTracksBGV.cpp)
+
+target_link_libraries(
+  ActsExampleTruthTracksBGV
+  PRIVATE
+    ActsExamplesFramework
+    ActsExamplesCommon
+    ActsExamplesDigitization
+    ActsExamplesFitting
+    ActsExamplesDetectorTGeo
+    ActsExamplesMagneticField
+    ActsExamplesTruthTracking
+    ActsExamplesIoCsv
+    ActsExamplesIoPerformance)
+
+install(
+  TARGETS ActsExampleTruthTracksBGV
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
