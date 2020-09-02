@@ -181,7 +181,7 @@ void Acts::TGeoLayerBuilder::buildLayers(const GeometryContext& gctx,
 
       TGeoParser::select(tgpState, tgpOptions);
 
-      ACTS_DEBUG("- number of selsected nodes found : "
+      ACTS_DEBUG("- number of selected nodes found : "
                  << tgpState.selectedNodes.size());
 
       for (auto& snode : tgpState.selectedNodes) {

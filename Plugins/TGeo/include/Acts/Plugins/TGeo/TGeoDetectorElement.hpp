@@ -63,11 +63,18 @@ class TGeoDetectorElement : public IdentifiedDetectorElement {
   /// @param material Possible material of detector element
   /// @param digitizationModule Shared pointer to the geometric digitization
   /// description
+  /*TGeoDetectorElement(
+      const Identifier& identifier, const TGeoNode& tGeoNode,
+      const TGeoMatrix& tGeoMatrix = TGeoIdentity(),
+      const std::string& axes = "XYZ", double scalor = 10.,
+      std::shared_ptr<const Acts::ISurfaceMaterial> material = nullptr);*/
+      
   TGeoDetectorElement(
       const Identifier& identifier, const TGeoNode& tGeoNode,
       const TGeoMatrix& tGeoMatrix = TGeoIdentity(),
       const std::string& axes = "XYZ", double scalor = 10.,
-      std::shared_ptr<const Acts::ISurfaceMaterial> material = nullptr);
+      std::shared_ptr<const Acts::ISurfaceMaterial> material = nullptr,    
+      std::shared_ptr<const DigitizationModule> digitzationModule = nullptr);
 
   ~TGeoDetectorElement() override;
 
@@ -84,7 +91,9 @@ class TGeoDetectorElement : public IdentifiedDetectorElement {
   /// Retrieve the DigitizationModule
   const std::shared_ptr<const DigitizationModule> digitizationModule()
       const final {
-    return nullptr;
+        std::cout << "tgeo return digi module " << std::endl;
+    //return nullptr;
+    return m_digitizationModule;
   };
 
   /// Returns the thickness of the module
@@ -107,6 +116,9 @@ class TGeoDetectorElement : public IdentifiedDetectorElement {
   double m_thickness{0.};
   /// Corresponding Surface
   std::shared_ptr<Surface> m_surface{nullptr};
+  /// The Digitization module
+  std::shared_ptr<const Acts::DigitizationModule> m_digitizationModule =
+      nullptr;
 };
 
 inline Identifier TGeoDetectorElement::identifier() const {

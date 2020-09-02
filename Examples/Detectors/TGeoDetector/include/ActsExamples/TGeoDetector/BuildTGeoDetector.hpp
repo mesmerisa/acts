@@ -228,6 +228,7 @@ detElementStore, std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) {
   auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry(context);
   // collect the detector element store
   for (auto& lBuilder : tgLayerBuilders) {
+    std::cout << "det elements when building TGeo Detector " << std::endl;
     auto detElements = lBuilder->detectorElements();
     detElementStore.insert(detElementStore.begin(), detElements.begin(),
                            detElements.end());
