@@ -50,6 +50,7 @@ ActsExamples::CsvPlanarClusterReader::CsvPlanarClusterReader(
   // fill the geo id to surface map once to speed up lookups later on
   m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
     this->m_surfaces[surface->geometryId()] = surface;
+    std::cout << "constructor surface->geometryId() " << surface->geometryId() << std::endl;
   });
 }
 
@@ -65,7 +66,7 @@ ActsExamples::CsvPlanarClusterReader::availableEvents() const {
 
 namespace {
 struct CompareHitId {
-  // support transparent comparision between identifiers and full objects
+  // support transparent comparison between identifiers and full objects
   using is_transparent = void;
   template <typename T>
   constexpr bool operator()(const T& left, const T& right) const {
@@ -84,14 +85,25 @@ struct CompareHitId {
 /// Convert separate volume/layer/module id into a single geometry identifier.
 inline Acts::GeometryID extractGeometryId(const ActsExamples::HitData& data) {
   // if available, use the encoded geometry directly
+  //std::cout << "start --------------------------------------------------------------------------- " << std::endl;
+  //std::cout << "---------------- extract geo id: " << data.geometry_id << std::endl;
   if (data.geometry_id != 0u) {
+    
     return data.geometry_id;
   }
+  //std::cout << "---------------- extract geo id: not return: vol: " << data.volume_id << " lay: "<< data.layer_id << " mod: " << data.module_id << std::endl;
   // otherwise, reconstruct it from the available components
   Acts::GeometryID geoId;
-  geoId.setVolume(data.volume_id);
-  geoId.setLayer(data.layer_id);
   geoId.setSensitive(data.module_id);
+  geoId.setVolume(data.volume_id);
+  //std::cout << "---------------- get vol: " << geoId.volume() << std::endl;
+  geoId.setLayer(data.layer_id);
+  //std::cout << "---------------- get lay: " << geoId.layer() << std::endl;
+  
+  //std::cout << "---------------- get mod: " << geoId.sensitive() << std::endl;
+  
+  //std::cout << "---------------- extract return not in if:  " << geoId << " " << geoId.value() << std::endl;
+  //std::cout << "end --------------------------------------------------------------------------- " << std::endl;
   return geoId;
 }
 
@@ -179,7 +191,8 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
 
   for (const HitData& hit : hits) {
     Acts::GeometryID geoId = extractGeometryId(hit);
-
+    std::cout << "read fct, in hit loop... geo id:  " << geoId << std::endl; 
+    
     // find associated truth/ simulation hits
     std::vector<std::size_t> simHitIndices;
     {
@@ -187,7 +200,10 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
                                               hit.hit_id, CompareHitId{}));
       simHitIndices.reserve(range.size());
       for (const auto& truth : range) {
+      
         const auto simGeometryId = Acts::GeometryID(truth.geometry_id);
+        
+        //std::cout << "truth hit loop... geo id:  " << simGeometryId << std::endl; 
         // TODO validate geo id consistency
         const auto simParticleId = ActsFatras::Barcode(truth.particle_id);
         const auto simIndex = truth.index;
@@ -225,7 +241,6 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
         simHitIndices.push_back(simHits.index_of(inserted));
       }
     }
-
     // find matching pixel cell information
     std::vector<Acts::DigitizationCell> digitizationCells;
     {
@@ -235,7 +250,7 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
         digitizationCells.emplace_back(c.ch0, c.ch1, c.value);
       }
     }
-
+    
     // identify hit surface
     auto it = m_surfaces.find(geoId);
     if (it == m_surfaces.end() or not it->second) {
@@ -243,7 +258,7 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
       return ProcessCode::ABORT;
     }
     const Acts::Surface& surface = *(it->second);
-
+    
     // transform global hit coordinates into local coordinates on the surface
     Acts::Vector3D pos(hit.x * Acts::UnitConstants::mm,
                        hit.y * Acts::UnitConstants::mm,
@@ -273,20 +288,28 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
     auto hitIndex = clusters.index_of(inserted);
     auto truthRange = makeRange(std::equal_range(truths.begin(), truths.end(),
                                                  hit.hit_id, CompareHitId{}));
+                                                 
     for (const auto& truth : truthRange) {
       hitParticlesMap.emplace_hint(hitParticlesMap.end(), hitIndex,
                                    truth.particle_id);
-    }
-
+      std::cout << "------------------" <<  std::endl;                               
+      std::cout << "csv reader .... hit particle map hitindex: " <<     hitIndex << " " << truth.particle_id << std::endl;   
+      std::cout << "hit id: " << hit.hit_id <<  std::endl;  
+      ACTS_FATAL("Test hit: " << hit);               
+      std::cout << "------------------" <<  std::endl;     
+    }  
     // map internal hit/cluster index back to original, non-monotonic hit id
     hitIds.push_back(hit.hit_id);
   }
-
+  
   // write the data to the EventStore
   ctx.eventStore.add(m_cfg.outputClusters, std::move(clusters));
+  
   ctx.eventStore.add(m_cfg.outputHitIds, std::move(hitIds));
+  
   ctx.eventStore.add(m_cfg.outputHitParticlesMap, std::move(hitParticlesMap));
+  
   ctx.eventStore.add(m_cfg.outputSimulatedHits, std::move(simHits));
-
+ 
   return ActsExamples::ProcessCode::SUCCESS;
 }

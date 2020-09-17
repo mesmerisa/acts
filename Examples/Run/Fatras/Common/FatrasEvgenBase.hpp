@@ -21,3 +21,4 @@ void setupEvgenInput(const Options::Variables& variables, Sequencer& sequencer,
                      std::shared_ptr<const RandomNumbers> randomNumbers);
 
 }  // namespace ActsExamples
+ 

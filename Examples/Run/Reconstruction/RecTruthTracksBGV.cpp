@@ -91,8 +91,8 @@ int main(int argc, char* argv[]) {
   HitSmearing::Config hitSmearingCfg;
   hitSmearingCfg.inputSimulatedHits = clusterReaderCfg.outputSimulatedHits;
   hitSmearingCfg.outputSourceLinks = "sourcelinks";
-  hitSmearingCfg.sigmaLoc0 = 25_um;
-  hitSmearingCfg.sigmaLoc1 = 100_um;
+  hitSmearingCfg.sigmaLoc0 = 50_um;
+  hitSmearingCfg.sigmaLoc1 = 50_um;
   hitSmearingCfg.randomNumbers = rnd;
   hitSmearingCfg.trackingGeometry = trackingGeometry;
   sequencer.addAlgorithm(

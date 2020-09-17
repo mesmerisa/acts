@@ -32,7 +32,7 @@ class SimSourceLink {
         m_dim(dim),
         m_geometryId(truthHit.geometryId()),
         m_surface(&surface),
-        m_truthHit(&truthHit) {}
+        m_truthHit(&truthHit) {std::cout << "test " << m_dim << std::endl;}
   /// Must be default_constructible to satisfy SourceLinkConcept.
   SimSourceLink() = default;
   SimSourceLink(SimSourceLink&&) = default;
@@ -45,6 +45,8 @@ class SimSourceLink {
   constexpr const ActsFatras::Hit& truthHit() const { return *m_truthHit; }
 
   Acts::FittableMeasurement<SimSourceLink> operator*() const {
+  
+    
     if (m_dim == 0) {
       throw std::runtime_error("Cannot create dim 0 measurement");
     } else if (m_dim == 1) {

@@ -64,28 +64,46 @@ ActsExamples::ProcessCode ActsExamples::FittingAlgorithm::execute(
     // The list of hits and the initial start parameters
     const auto& protoTrack = protoTracks[itrack];
     const auto& initialParams = initialParameters[itrack];
-
+    
+    std::cout << "execute fitter, track number: " << itrack << ", size of prototracks: " << protoTracks.size() << std::endl;
+    
     // We can have empty tracks which must give empty fit results
     if (protoTrack.empty()) {
       trajectories.push_back(SimMultiTrajectory());
       ACTS_WARNING("Empty track " << itrack << " found.");
       continue;
     }
-
+   
     // Clear & reserve the right size
     trackSourceLinks.clear();
     trackSourceLinks.reserve(protoTrack.size());
-
+    std::cout << "execute fitter test 1.1, size of prototrack: " <<  protoTrack.size() << std::endl;
+    std::cout << "hits of prototrack: " <<   std::endl;
+    
+    for (int i = 0; i < protoTrack.size(); i++) {
+		std::cout << protoTrack.at(i) << " hit id ";
+	}  
+    std::cout << std::endl;
+    
     // Fill the source links via their indices from the container
-    for (auto hitIndex : protoTrack) {
+    for (auto hitIndex : protoTrack) {      
+     std::cout << "execute fitter test 1.2, hit index: " << hitIndex << std::endl;
       auto sourceLink = sourceLinks.nth(hitIndex);
+      
+      std::cout << "source link : " << std::endl;
+      
+      
+      
       if (sourceLink == sourceLinks.end()) {
         ACTS_FATAL("Proto track " << itrack << " contains invalid hit index"
                                   << hitIndex);
         return ProcessCode::ABORT;
-      }
+      } 
+      std::cout << "execute fitter test 1.4" << std::endl;
       trackSourceLinks.push_back(*sourceLink);
+      std::cout << "execute fitter test 1.5" << std::endl;
     }
+    std::cout << "execute fitter test 2" << std::endl;
 
     // Set the KalmanFitter options
     Acts::KalmanFitterOptions<Acts::VoidOutlierFinder> kfOptions(
@@ -94,6 +112,7 @@ ActsExamples::ProcessCode ActsExamples::FittingAlgorithm::execute(
 
     ACTS_DEBUG("Invoke fitter");
     auto result = m_cfg.fit(trackSourceLinks, initialParams, kfOptions);
+    std::cout << "execute fitter test 3" << std::endl;
     if (result.ok()) {
       // Get the fit output object
       const auto& fitOutput = result.value();

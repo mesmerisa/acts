@@ -33,3 +33,4 @@ void setupSimulation(
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry);
 
 }  // namespace ActsExamples
+ 
