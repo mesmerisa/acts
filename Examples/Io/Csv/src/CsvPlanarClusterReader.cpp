@@ -83,7 +83,8 @@ struct CompareHitId {
 };
 
 /// Convert separate volume/layer/module id into a single geometry identifier.
-inline Acts::GeometryID extractGeometryId(const ActsExamples::HitData& data) {
+inline Acts::GeometryIdentifier extractGeometryId(
+    const ActsExamples::HitData& data) {
   // if available, use the encoded geometry directly
   //std::cout << "start --------------------------------------------------------------------------- " << std::endl;
   //std::cout << "---------------- extract geo id: " << data.geometry_id << std::endl;
@@ -93,8 +94,8 @@ inline Acts::GeometryID extractGeometryId(const ActsExamples::HitData& data) {
   }
   //std::cout << "---------------- extract geo id: not return: vol: " << data.volume_id << " lay: "<< data.layer_id << " mod: " << data.module_id << std::endl;
   // otherwise, reconstruct it from the available components
-  Acts::GeometryID geoId;
-  geoId.setSensitive(data.module_id);
+
+  Acts::GeometryIdentifier geoId;
   geoId.setVolume(data.volume_id);
   //std::cout << "---------------- get vol: " << geoId.volume() << std::endl;
   geoId.setLayer(data.layer_id);
@@ -204,9 +205,8 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
   simHits.reserve(truths.size());
 
   for (const HitData& hit : hits) {
-    Acts::GeometryID geoId = extractGeometryId(hit);
-    std::cout << "read fct, in hit loop... geo id:  " << geoId << std::endl; 
-    
+    Acts::GeometryIdentifier geoId = extractGeometryId(hit);
+
     // find associated truth/ simulation hits
     std::vector<std::size_t> simHitIndices;
     {
@@ -214,10 +214,7 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
                                               hit.hit_id, CompareHitId{}));
       simHitIndices.reserve(range.size());
       for (const auto& truth : range) {
-      
-        const auto simGeometryId = Acts::GeometryID(truth.geometry_id);
-        
-        //std::cout << "truth hit loop... geo id:  " << simGeometryId << std::endl; 
+        const auto simGeometryId = Acts::GeometryIdentifier(truth.geometry_id);
         // TODO validate geo id consistency
         const auto simParticleId = ActsFatras::Barcode(truth.particle_id);
         const auto simIndex = truth.index;
@@ -280,7 +277,13 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
     double time = hit.t * Acts::UnitConstants::ns;
     Acts::Vector3D mom(1, 1, 1);  // fake momentum
     Acts::Vector2D local(0, 0);
-    surface.globalToLocal(ctx.geoContext, pos, mom, local);
+    auto lpResult = surface.globalToLocal(ctx.geoContext, pos, mom);
+    if (not lpResult.ok()) {
+      ACTS_FATAL("Global to local transformation did not succeed.");
+      return ProcessCode::ABORT;
+    }
+    local = lpResult.value();
+
     // TODO what to use as cluster uncertainty?
     Acts::ActsSymMatrixD<3> cov = Acts::ActsSymMatrixD<3>::Identity();
     // create the planar cluster
