@@ -7,6 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ActsExamples/Geant4/Geant4Options.hpp"
+#include "ActsExamples/Utilities/Options.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -27,18 +28,25 @@ void ActsExamples::Options::addGeant4Options(
   opt("g4-material-tracks",
       value<std::string>()->default_value("geant4-material-tracks"),
       "The output collection for material tracks");
+  opt("g4-pg-eta-range", value<read_range>()->multitoken()->default_value({-5., 5.}),
+      "range in which the eta parameter of particles " 
+      "produced by the g4 particle gun is simulated. " 
+      "Please hand over by simply seperating the values by space.");    
 }
 
 ActsExamples::GeantinoRecording::Config
 ActsExamples::Options::readGeantinoRecordingConfig(
     const ActsExamples::Options::Variables& variables) {
   ActsExamples::GeantinoRecording::Config gRecConfig;
+  
+  auto eta = variables["g4-pg-eta-range"].template as<read_range>();
 
   gRecConfig.tracksPerEvent = variables["g4-pg-nparticles"].as<unsigned int>();
   gRecConfig.seed1 = variables["g4-rnd-seed1"].as<unsigned int>();
   gRecConfig.seed2 = variables["g4-rnd-seed2"].as<unsigned int>();
   gRecConfig.outputMaterialTracks =
       variables["g4-material-tracks"].as<std::string>();
+  gRecConfig.etaRange = {{eta[0], eta[1]}};
 
   return gRecConfig;
 }

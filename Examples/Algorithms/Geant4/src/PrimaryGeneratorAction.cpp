@@ -18,6 +18,9 @@
 #include <G4UnitsTable.hh>
 #include <Randomize.hh>
 
+#include <CLHEP/Random/RandFlat.h>
+#include "G4Exp.hh"
+
 using namespace ActsExamples;
 
 PrimaryGeneratorAction* PrimaryGeneratorAction::s_instance = nullptr;
@@ -29,9 +32,10 @@ PrimaryGeneratorAction* PrimaryGeneratorAction::instance() {
 PrimaryGeneratorAction::PrimaryGeneratorAction(const G4String& particleName,
                                                G4double energy,
                                                G4int randomSeed1,
-                                               G4int randomSeed2)
+                                               G4int randomSeed2,
+                                               std::array<double, 2> etaRange)
     : G4VUserPrimaryGeneratorAction(),
-      m_particleGun(std::make_unique<G4ParticleGun>(1)) {
+      m_particleGun(std::make_unique<G4ParticleGun>(1)), m_eta(etaRange) {
   if (s_instance) {
     throw std::logic_error(
         "Attempted to duplicate the PrimaryGeneratorAction singleton");
@@ -56,8 +60,22 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   // this function is called at the begining of event
-  G4double phi = -M_PI + G4UniformRand() * 2. * M_PI;
-  G4double theta = G4UniformRand() * M_PI;
+ // G4double phi = -M_PI + G4UniformRand() * 2. * M_PI;
+  //G4double theta = G4UniformRand() * M_PI;   
+  //G4double eta = CLHEP::RandFlat::shoot(2,4);
+  
+  G4double phi = CLHEP::RandFlat::shoot(0.0, 2. * M_PI);
+
+  G4double theta_1 = 2.0 * atan(exp(-m_eta[0])); 
+  G4double theta_2 = 2.0 * atan(exp(-m_eta[1]));
+  G4double theta = 0.0;
+  
+  if (theta_1 < theta_2) theta = CLHEP::RandFlat::shoot(theta_1, theta_2);
+  else theta = CLHEP::RandFlat::shoot(theta_2, theta_1);
+
+  //std::cout << m_eta[0] << " " << m_eta[1] << " " << theta_1 << " " << theta_2 << " " << theta << std::endl;
+  //std::cout << G4UniformRand() * M_PI << std::endl;
+  
   // build a direction
   m_direction =
       G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));

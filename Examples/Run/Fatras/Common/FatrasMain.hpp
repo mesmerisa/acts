@@ -22,3 +22,4 @@ class IBaseDetector;
 int fatrasMain(int argc, char* argv[], std::shared_ptr<IBaseDetector> detector);
 
 }  // namespace ActsExamples
+ 

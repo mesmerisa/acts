@@ -45,9 +45,9 @@ namespace TGeo {
 /// @param vm is the variable map from the options
 template <typename variable_maps_t>
 std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
-    variable_maps_t& vm, const Acts::GeometryContext& context,
-    std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>>&
-        detElementStore) {
+variable_maps_t& vm, const Acts::GeometryContext& context,
+std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>>&
+detElementStore, std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) {
   Acts::Logging::Level surfaceLogLevel =
       Acts::Logging::Level(vm["geo-surface-loglevel"].template as<size_t>());
   Acts::Logging::Level layerLogLevel =
@@ -209,6 +209,8 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
   //-------------------------------------------------------------------------------------
   // create the tracking geometry
   Acts::TrackingGeometryBuilder::Config tgConfig;
+  // Add decorator
+  tgConfig.materialDecorator = mdecorator;
   // Add the builders
   for (auto& vb : volumeBuilders) {
     tgConfig.trackingVolumeBuilders.push_back(
@@ -226,6 +228,7 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
   auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry(context);
   // collect the detector element store
   for (auto& lBuilder : tgLayerBuilders) {
+    std::cout << "det elements when building TGeo Detector " << std::endl;
     auto detElements = lBuilder->detectorElements();
     detElementStore.insert(detElementStore.begin(), detElements.begin(),
                            detElements.end());

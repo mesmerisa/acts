@@ -23,7 +23,7 @@ setHistStyle(TH1F* hist, short color);
 // z0, phi, theta, q/p, t) from root file produced by the TrackFitterPerformanceWriter 
 //
 void
-perigeeParamResolution(const std::string& inFile)
+perigeeParamResolutionBGV(const std::string& inFile)
 {
   gStyle->SetOptFit(0000);
   gStyle->SetOptStat(0000);
@@ -77,9 +77,16 @@ perigeeParamResolution(const std::string& inFile)
 void
 setHistStyle(TH1F* hist, short color = 1)
 {
-  std::cout << "test " << hist->GetName() << std::endl;
+
+  string hist_n = hist->GetName();
+
+  if (hist_n.find("res_z0") != std::string::npos) {
+      hist->GetXaxis()->SetLimits(-1, 1);
+  
+  }
+
   hist->GetXaxis()->SetTitleSize(0.05);
-  //hist->GetXaxis()->SetLimits(0.05);
+  //
   hist->GetYaxis()->SetTitleSize(0.05);
   hist->GetXaxis()->SetLabelSize(0.05);
   hist->GetYaxis()->SetLabelSize(0.05);

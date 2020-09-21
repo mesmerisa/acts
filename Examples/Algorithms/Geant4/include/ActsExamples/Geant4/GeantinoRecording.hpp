@@ -45,6 +45,8 @@ class GeantinoRecording final : public BareAlgorithm {
     unsigned int seed1 = 12345;
     /// random number seed 2.
     unsigned int seed2 = 45678;
+    /// range in eta of geantinos
+    std::array<double, 2> etaRange = {{-4, 4}};
   };
 
   GeantinoRecording(Config&& cfg, Acts::Logging::Level lvl);

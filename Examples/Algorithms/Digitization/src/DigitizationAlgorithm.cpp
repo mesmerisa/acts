@@ -59,33 +59,41 @@ ActsExamples::DigitizationAlgorithm::DigitizationAlgorithm(
     // require an associated detector element
     dg.detectorElement = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
         dg.surface->associatedDetectorElement());
+ 
     if (not dg.detectorElement) {
       return;
     }
     // require an associated digitization module
     dg.digitizer = dg.detectorElement->digitizationModule().get();
     if (not dg.digitizer) {
+      std::cout << "digi alg -- module return " << std::endl;
       return;
     }
     // record all valid surfaces
+    std::cout << "digi alg -- add surfaces " << std::endl;
     this->m_digitizables.insert_or_assign(surface->geometryId(), dg);
   });
 }
 
 ActsExamples::ProcessCode ActsExamples::DigitizationAlgorithm::execute(
     const AlgorithmContext& ctx) const {
+      
+  std::cout << "start of digiiser execute " << std::endl;   
   // Prepare the input and output collections
   const auto& hits =
       ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimulatedHits);
   ActsExamples::GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
 
   for (auto&& [moduleGeoId, moduleHits] : groupByModule(hits)) {
+    
+    std::cout << "loop digitiser start " << std::endl; 
+    
     // can only digitize hits on digitizable surfaces
     const auto it = m_digitizables.find(moduleGeoId);
     if (it == m_digitizables.end()) {
       continue;
     }
-
+    std::cout << "loop digitiser -- after check " << std::endl; 
     const auto& dg = it->second;
     // local intersection / direction
     const auto invTransfrom = dg.surface->transform(ctx.geoContext).inverse();

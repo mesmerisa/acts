@@ -45,11 +45,16 @@ ActsExamples::HitSmearing::HitSmearing(const Config& cfg,
 
 ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
     const AlgorithmContext& ctx) const {
+    
+  //std::cout << "Hit smearing execute " << std::endl;  
+    
   // setup input and output containers
   const auto& hits =
       ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimulatedHits);
   SimSourceLinkContainer sourceLinks;
   sourceLinks.reserve(hits.size());
+  
+  //std::cout << "Hit smearing execute hit size " << hits.size() << std::endl;  
 
   // setup random number generator
   auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
@@ -64,7 +69,11 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
   for (auto&& [moduleGeoId, moduleHits] : groupByModule(hits)) {
     // check if we should create hits for this surface
     const auto is = m_surfaces.find(moduleGeoId);
+    
+    //std::cout << "Hit smearing execute module geo id " << moduleGeoId << std::endl;  
+    
     if (is == m_surfaces.end()) {
+    //std::cout << "if continue, Hit smearing execute module geo id " << moduleGeoId << std::endl;
       continue;
     }
 
@@ -76,10 +85,14 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       surface->globalToLocal(ctx.geoContext, hit.position(),
                              hit.unitDirection(), pos);
 
+      //std::cout << "Hit smearing loop, global to local:  " << pos[0] << " " << pos[1] << std::endl;  
+      
       // smear truth to create local measurement
       Acts::BoundVector loc = Acts::BoundVector::Zero();
       loc[Acts::eLOC_0] = pos[0] + m_cfg.sigmaLoc0 * stdNormal(rng);
       loc[Acts::eLOC_1] = pos[1] + m_cfg.sigmaLoc1 * stdNormal(rng);
+      
+      //std::cout << "Hit smearing loop, smear truth, loc:  " << loc[Acts::eLOC_0]  << " " << loc[Acts::eLOC_1]  << std::endl; 
 
       // create source link at the end of the container
       auto it = sourceLinks.emplace_hint(sourceLinks.end(), *surface, hit, 2,

@@ -22,7 +22,12 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
                               const TGeoMatrix& gmatrix) {
   // Volume is present
   if (state.volume != nullptr) {
+  
+  
+  
     std::string volumeName = state.volume->GetName();
+    
+    std::cout << "test 1 vol: " << volumeName << std::endl;
     // If you are on branch, you stay on branch
     state.onBranch =
         state.onBranch or
@@ -40,9 +45,14 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
       }
     }
   } else if (state.node != nullptr) {
+  
+  
     // The node name for checking
     std::string nodeName = state.node->GetName();
     std::string nodeVolName = state.node->GetVolume()->GetName();
+    
+    std::cout << "test 2 node vol: " << nodeVolName << std::endl;
+    
     // Get the matrix of the current node for positioning
     const TGeoMatrix* nmatrix = state.node->GetMatrix();
     TGeoHMatrix transform = TGeoCombiTrans(gmatrix) * TGeoCombiTrans(*nmatrix);
@@ -51,6 +61,9 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
     // Check if you had found the target node
     if (state.onBranch and
         TGeoPrimitivesHelper::match(options.targetNames, nodeVolName.c_str())) {
+        
+        std::cout << "test 3 " << std::endl;
+        
       // Get the placement and orientation in respect to its mother
       const Double_t* rotation = transform.GetRotationMatrix();
       const Double_t* translation = transform.GetTranslation();
@@ -65,6 +78,8 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
 
       bool accept = true;
       if (not options.parseRanges.empty()) {
+      
+       std::cout << "test 4 " << std::endl;
         auto shape =
             dynamic_cast<TGeoBBox*>(state.node->GetVolume()->GetShape());
         // It uses the bounding box of TGeoBBox
@@ -89,6 +104,7 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
         }
       }
       if (accept) {
+         std::cout << "accept " << std::endl;
         state.selectedNodes.push_back(
             {state.node, std::make_unique<TGeoHMatrix>(transform)});
       }

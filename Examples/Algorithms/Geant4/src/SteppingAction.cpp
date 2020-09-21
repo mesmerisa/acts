@@ -41,7 +41,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
   G4Material* material = step->GetPreStepPoint()->GetMaterial();
 
   if (material && material->GetName() != "Vacuum" &&
-      material->GetName() != "Air") {
+      material->GetName() != "Air" && material->GetName() != "Galactic") {
     // go through the elements of the material & weigh it with its fraction
     const G4ElementVector* elements = material->GetElementVector();
     const G4double* fraction = material->GetFractionVector();

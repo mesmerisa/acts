@@ -27,3 +27,4 @@ void setupDigitization(
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry);
 
 }  // namespace ActsExamples
+ 

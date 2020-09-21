@@ -94,26 +94,26 @@ void Draw_ratio(TCanvas* c, TProfile* h1, TProfile* h2, TLegend* leg, std::strin
 /// Draw the ammont of material (in X0) encounter by tracks as function of eta and phi.
 /// Plot the ratio between the two set to help identify inconsistency.
 
-void Mat_map(std::string Val = "", std::string geantino = "", std::string name = ""){
+void Mat_map_bgv(std::string Val = "", std::string geantino = "", std::string name = ""){
 
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
 
   TProfile * Val_X0_Eta = new TProfile("Val_X0_Eta","Val_X0_Eta",160,2,4);
-  TProfile * Val_X0_Phi = new TProfile("Val_X0_Phi","Val_X0_Phi",160,2,4);
+  TProfile * Val_X0_Phi = new TProfile("Val_X0_Phi","Val_X0_Phi",160,-4,4);
   TH2F * Val_X0_Eta_spread = new TH2F("Val_X0_Eta_spread","Val_X0_Eta_spread",160,2,4,160,0,4);
-  TH2F * Val_X0_Phi_spread = new TH2F("Val_X0_Phi_spread","Val_X0_Phi_spread",160,2,4,160,0,4);
-  TH2F * Val_X0 = new TH2F("Val_X0","Val_X0",160,2,4,160,2,4);
+  TH2F * Val_X0_Phi_spread = new TH2F("Val_X0_Phi_spread","Val_X0_Phi_spread",160,-4,4,160,0,4);
+  TH2F * Val_X0 = new TH2F("Val_X0","Val_X0",160,-4,4,160,-4,4);
 
   TProfile * geantino_X0_Eta = new TProfile("geantino_X0_Eta","geantino_X0_Eta",160,2,4);
-  TProfile * geantino_X0_Phi = new TProfile("geantino_X0_Phi","geantino_X0_Phi",160,2,4);
+  TProfile * geantino_X0_Phi = new TProfile("geantino_X0_Phi","geantino_X0_Phi",160,-4,4);
   TH2F * geantino_X0_Eta_spread = new TH2F("geantino_X0_Eta_spread","geantino_X0_Eta_spread",160,2,4,160,0,4);
-  TH2F * geantino_X0_Phi_spread = new TH2F("geantino_X0_Phi_spread","geantino_X0_Phi_spread",160,2,4,160,0,4);
-  TH2F * geantino_X0 = new TH2F("geantino_X0","geantinol_X0",160,2,4,160,2,4);
+  TH2F * geantino_X0_Phi_spread = new TH2F("geantino_X0_Phi_spread","geantino_X0_Phi_spread",160,-4,4,160,0,4);
+  TH2F * geantino_X0 = new TH2F("geantino_X0","geantinol_X0",160,-4,4,160,-4,4);
 
   TH1F * comp_X0_Eta = new TH1F("comp_X0_Eta","comp_X0_Eta",160,2,4);
-  TH1F * comp_X0_Phi = new TH1F("comp_X0_Phi","comp_X0_Phi",160,2,4);
-  TH2F * comp_X0 = new TH2F("comp_X0","comp_X0",160,2,4,160,2,4);
+  TH1F * comp_X0_Phi = new TH1F("comp_X0_Phi","comp_X0_Phi",160,-4,4);
+  TH2F * comp_X0 = new TH2F("comp_X0","comp_X0",160,-4,4,160,-4,4);
 
   TChain *Val_file = new TChain("material-tracks");
   TChain *geantino_file = new TChain("material-tracks");

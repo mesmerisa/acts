@@ -18,6 +18,6 @@ GdmlDetectorConstruction::GdmlDetectorConstruction(std::string path)
 G4VPhysicalVolume* GdmlDetectorConstruction::Construct() {
   G4GDMLParser parser;
   // TODO how to handle errors
-  parser.Read(m_path);
+  parser.Read(m_path, false);
   return parser.GetWorldVolume();
 }
