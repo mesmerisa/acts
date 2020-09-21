@@ -126,7 +126,7 @@ std::vector<ActsExamples::HitData> readHitsByGeometryId(
   auto hits = readEverything<ActsExamples::HitData>(
       inputDir, "hits.csv", {"geometry_id", "t"}, event);
   // sort same way they will be sorted in the output container
-  std::sort(hits.begin(), hits.end(), CompareGeometryId{});
+  //std::sort(hits.begin(), hits.end(), CompareGeometryId{}); // XXX this results in a wrong ordering of my hits to tracks
   return hits;
 }
 
@@ -166,6 +166,20 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
   auto hits = readHitsByGeometryId(m_cfg.inputDir, ctx.eventNumber);
   auto cells = readCellsByHitId(m_cfg.inputDir, ctx.eventNumber);
   auto truths = readTruthHitsByHitId(m_cfg.inputDir, ctx.eventNumber);
+  /*for(auto hit: hits) {
+    ACTS_FATAL("Start of function, hit: " << hit);       
+  }
+  
+  std::cout << "------------------------------------------" << std::endl;
+  
+  
+  
+  
+  for(auto truth: truths) {
+    ACTS_FATAL("Start of function, truth: " << truth);       
+  }
+  
+  std::cout << "------------------------------------------" << std::endl;*/
 
   // prepare containers for the hit data using the framework event data types
   GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
@@ -276,6 +290,11 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
     for (const auto& truth : truthRange) {
       hitParticlesMap.emplace_hint(hitParticlesMap.end(), hitIndex,
                                    truth.particle_id);
+      std::cout << "------------------" <<  std::endl;                               
+      std::cout << "csv reader .... hit particle map hitindex: " <<     hitIndex << " " << truth.particle_id << std::endl;   
+      std::cout << "hit id: " << hit.hit_id <<  std::endl;  
+      ACTS_FATAL("Test hit: " << hit);               
+      std::cout << "------------------" <<  std::endl;     
     }
 
     // map internal hit/cluster index back to original, non-monotonic hit id
