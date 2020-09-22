@@ -21,26 +21,10 @@ target_link_libraries(
   ActsExampleMaterialMappingGeneric
   PRIVATE ${_common_libraries} ActsExamplesMaterialMapping ActsExamplesDetectorGeneric)
 
-add_executable(
-  ActsExampleMaterialMappingTGeo
-  TGeoMaterialMapping.cpp)
-target_link_libraries(
-  ActsExampleMaterialMappingTGeo
-  PRIVATE ${_common_libraries} ActsExamplesMaterialMapping ActsExamplesDetectorTGeo)
-
-add_executable(
-  ActsExampleMaterialValidationTGeo
-  TGeoMaterialValidation.cpp)
-target_link_libraries(
-  ActsExampleMaterialValidationTGeo
-  PRIVATE ${_common_libraries} ActsExamplesPropagation ActsExamplesDetectorTGeo)
-
 install(
   TARGETS
     ActsExampleMaterialValidationGeneric
-    ActsExampleMaterialMappingGeneric
-    ActsExampleMaterialMappingTGeo
-    ActsExampleMaterialValidationTGeo    
+    ActsExampleMaterialMappingGeneric 
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory_if(DD4hep ACTS_BUILD_EXAMPLES_DD4HEP)

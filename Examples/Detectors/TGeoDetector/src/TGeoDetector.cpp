@@ -27,10 +27,6 @@ auto TGeoDetector::finalize(
   TrackingGeometryPtr tgeoTrackingGeometry =
       ActsExamples::TGeo::buildTGeoDetector(vm, tGeoContext, detectorStore,
                                             mdecorator);
--> std::pair<TrackingGeometryPtr, ContextDecorators> {
-Acts::GeometryContext tGeoContext;
-TrackingGeometryPtr tgeoTrackingGeometry =
-ActsExamples::TGeo::buildTGeoDetector(vm, tGeoContext, detectorStore, mdecorator);
 
 ContextDecorators tgeoContextDecorators = {};
 // return the pair of geometry and empty decorators
