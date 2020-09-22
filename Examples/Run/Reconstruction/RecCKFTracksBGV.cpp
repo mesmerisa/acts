@@ -7,7 +7,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ActsExamples/Digitization/HitSmearing.hpp"
-#include "ActsExamples/Fitting/FittingAlgorithm.hpp"
 #include "ActsExamples/Framework/Sequencer.hpp"
 #include "ActsExamples/Framework/WhiteBoard.hpp"
 #include "ActsExamples/TGeoDetector/TGeoDetector.hpp"
@@ -15,13 +14,13 @@
 #include "ActsExamples/Io/Csv/CsvOptionsReader.hpp"
 #include "ActsExamples/Io/Csv/CsvParticleReader.hpp"
 #include "ActsExamples/Io/Csv/CsvPlanarClusterReader.hpp"
-#include "ActsExamples/Io/Performance/TrackFinderPerformanceWriter.hpp"
-#include "ActsExamples/Io/Performance/TrackFitterPerformanceWriter.hpp"
-#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
+#include "ActsExamples/Io/Performance/CKFPerformanceWriter.hpp"
 #include "ActsExamples/Options/CommonOptions.hpp"
 #include "ActsExamples/Plugins/BField/BFieldOptions.hpp"
+#include "ActsExamples/TrackFinding/TrackFindingAlgorithm.hpp"
+#include "ActsExamples/TrackFinding/TrackFindingOptions.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
-#include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
+#include "ActsExamples/TruthTracking/TruthSeedSelector.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Utilities/Units.hpp>
@@ -44,6 +43,7 @@ int main(int argc, char* argv[]) {
   Options::addOutputOptions(desc);
   detector.addOptions(desc);
   Options::addBFieldOptions(desc);
+  Options::addTrackFindingOptions(desc);
 
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) {
@@ -85,7 +85,20 @@ int main(int argc, char* argv[]) {
   sequencer.addReader(
       std::make_shared<CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
 
-  // TODO pre-select particles
+  // Pre-select particles
+  // The pre-selection will select truth particles satisfying provided criteria
+  // from all particles read in by particle reader for further processing. It
+  // has no impact on the truth hits read-in by the cluster reader.
+  // @TODO: add options for truth particle selection criteria
+  /*TruthSeedSelector::Config particleSelectorCfg;
+  particleSelectorCfg.inputParticles = particleReader.outputParticles;
+  particleSelectorCfg.inputHitParticlesMap =
+      clusterReaderCfg.outputHitParticlesMap;
+  particleSelectorCfg.outputParticles = "particles_selected";
+  particleSelectorCfg.ptMin = 1_GeV;
+  particleSelectorCfg.nHitsMin = 9;
+  sequencer.addAlgorithm(
+      std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));*/
 
   // Create smeared measurements
   HitSmearing::Config hitSmearingCfg;
@@ -98,17 +111,7 @@ int main(int argc, char* argv[]) {
   sequencer.addAlgorithm(
       std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
 
-  // The fitter needs the measurements (proto tracks) and initial
-  // track states (proto states). The elements in both collections
-  // must match and must be created from the same input particles.
   const auto& inputParticles = particleReader.outputParticles;
-  // Create truth tracks
-  TruthTrackFinder::Config trackFinderCfg;
-  trackFinderCfg.inputParticles = inputParticles;
-  trackFinderCfg.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
-  trackFinderCfg.outputProtoTracks = "prototracks";
-  sequencer.addAlgorithm(
-      std::make_shared<TruthTrackFinder>(trackFinderCfg, logLevel));
   // Create smeared particles states
   ParticleSmearing::Config particleSmearingCfg;
   particleSmearingCfg.inputParticles = inputParticles;
@@ -128,41 +131,26 @@ int main(int argc, char* argv[]) {
   sequencer.addAlgorithm(
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
 
-  // setup the fitter
-  FittingAlgorithm::Config fitter;
-  fitter.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
-  fitter.inputProtoTracks = trackFinderCfg.outputProtoTracks;
-  fitter.inputInitialTrackParameters =
+  // Setup the track finding algorithm with CKF
+  // It takes all the source links created from truth hit smearing, seeds from
+  // truth particle smearing and source link selection config
+  auto trackFindingCfg = Options::readTrackFindingConfig(vm);
+  trackFindingCfg.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
+  trackFindingCfg.inputInitialTrackParameters =
       particleSmearingCfg.outputTrackParameters;
-  fitter.outputTrajectories = "trajectories";
-  fitter.fit =
-      FittingAlgorithm::makeFitterFunction(trackingGeometry, magneticField);
-  sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitter, logLevel));
+  trackFindingCfg.outputTrajectories = "trajectories";
+  trackFindingCfg.findTracks = TrackFindingAlgorithm::makeTrackFinderFunction(
+      trackingGeometry, magneticField);
+  sequencer.addAlgorithm(
+      std::make_shared<TrackFindingAlgorithm>(trackFindingCfg, logLevel));
 
-  // write tracks from fitting
-  RootTrajectoryWriter::Config trackWriter;
-  trackWriter.inputParticles = inputParticles;
-  trackWriter.inputTrajectories = fitter.outputTrajectories;
-  trackWriter.outputDir = outputDir;
-  trackWriter.outputFilename = "tracks.root";
-  trackWriter.outputTreename = "tracks";
+  // Write CKF performance data
+  CKFPerformanceWriter::Config perfWriterCfg;
+  perfWriterCfg.inputParticles = inputParticles;
+  perfWriterCfg.inputTrajectories = trackFindingCfg.outputTrajectories;
+  perfWriterCfg.outputDir = outputDir;
   sequencer.addWriter(
-      std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
-
-  // write reconstruction performance data
-  TrackFinderPerformanceWriter::Config perfFinder;
-  perfFinder.inputParticles = inputParticles;
-  perfFinder.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
-  perfFinder.inputProtoTracks = trackFinderCfg.outputProtoTracks;
-  perfFinder.outputDir = outputDir;
-  sequencer.addWriter(
-      std::make_shared<TrackFinderPerformanceWriter>(perfFinder, logLevel));
-  TrackFitterPerformanceWriter::Config perfFitter;
-  perfFitter.inputParticles = inputParticles;
-  perfFitter.inputTrajectories = fitter.outputTrajectories;
-  perfFitter.outputDir = outputDir;
-  sequencer.addWriter(
-      std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
+      std::make_shared<CKFPerformanceWriter>(perfWriterCfg, logLevel));
 
   return sequencer.run();
 }

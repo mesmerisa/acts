@@ -138,7 +138,7 @@ std::vector<ActsExamples::HitData> readHitsByGeometryId(
   auto hits = readEverything<ActsExamples::HitData>(
       inputDir, "hits.csv", {"geometry_id", "t"}, event);
   // sort same way they will be sorted in the output container
-  std::sort(hits.begin(), hits.end(), CompareGeometryId{});
+  //std::sort(hits.begin(), hits.end(), CompareGeometryId{});
   return hits;
 }
 
