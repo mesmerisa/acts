@@ -22,20 +22,41 @@
 #include "ActsExamples/Plugins/BField/BFieldOptions.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 #include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
+#include "ActsExamples/TruthTracking/TrackSelector.hpp"
+#include "ActsExamples/TruthTracking/TruthVerticesToTracks.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Utilities/Units.hpp>
+#include "ActsExamples/Vertexing/TutorialAMVFAlgorithm.hpp"
+#include "ActsExamples/Io/Root/RootVertexAndTracksWriter.hpp"
+#include "ActsExamples/Io/Root/RootTrackParameterWriter.hpp"
+
+
+/*#include "Acts/EventData/TrackParameters.hpp"
+#include "ActsExamples/Framework/Sequencer.hpp"
+#include "ActsExamples/Generators/FlattenEvent.hpp"
+#include "ActsExamples/Generators/ParticleSelector.hpp"
+#include "ActsExamples/Generators/Pythia8ProcessGenerator.hpp"
+#include "ActsExamples/Io/Csv/CsvParticleWriter.hpp"
+#include "ActsExamples/Io/Root/RootParticleWriter.hpp"
+#include "ActsExamples/Options/CommonOptions.hpp"
+#include "ActsExamples/Options/Pythia8Options.hpp"
+#include "ActsExamples/Utilities/Paths.hpp"
+#include "ActsExamples/Vertexing/TutorialAMVFAlgorithm.hpp"*/
+
 
 #include <memory>
+
+#include <boost/program_options.hpp>
 
 using namespace Acts::UnitLiterals;
 using namespace ActsExamples;
 
 int main(int argc, char* argv[]) {
   TGeoDetector detector;
-
+  using namespace boost::program_options;
   // setup and parse options
-  auto desc = ActsExamples::Options::makeDefaultOptions();
+  auto desc = Options::makeDefaultOptions();
   Options::addSequencerOptions(desc);
   Options::addRandomNumbersOptions(desc);
   Options::addGeometryOptions(desc);
@@ -44,11 +65,22 @@ int main(int argc, char* argv[]) {
   Options::addOutputOptions(desc);
   detector.addOptions(desc);
   Options::addBFieldOptions(desc);
-
+  //desc.add_options()("input", value<std::string>()->default_value(""),
+  //                   "Input root file to read.");
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
+  }  
+  // Set file to read data from
+  /*std::string fileString = vm["input"].template as<std::string>();
+
+  if (fileString.empty()) {
+    std::cout << "Error: Input file not set." << std::endl;
+    return EXIT_FAILURE;
   }
+  RootVertexAndTracksReader::Config vtxAndTracksReaderCfg;
+  vtxAndTracksReaderCfg.fileList.push_back(fileString);*/
+  
 
   Sequencer sequencer(Options::readSequencerConfig(vm));
 
@@ -148,6 +180,19 @@ int main(int argc, char* argv[]) {
   trackWriter.outputTreename = "tracks";
   sequencer.addWriter(
       std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
+      
+  /*RootVertexAndTracksWriter::Config vtxAndTrackWriter;    
+  vtxAndTrackWriter.collection = particleReader.outputParticles;
+  vtxAndTrackWriter.filePath = joinPaths(outputDir, fitter.outputTrajectories + "_test.root");
+  sequencer.addWriter(
+      std::make_shared<RootVertexAndTracksWriter>(vtxAndTrackWriter, logLevel));
+      */
+        
+  RootTrackParameterWriter::Config trackParaWriter;    
+  trackParaWriter.collection = "trajectories";
+  trackParaWriter.filePath = joinPaths(outputDir, fitter.outputTrajectories + "_test.root");
+  sequencer.addWriter(
+      std::make_shared<RootTrackParameterWriter>(trackParaWriter, logLevel));  
 
   // write reconstruction performance data
   TrackFinderPerformanceWriter::Config perfFinder;
@@ -164,6 +209,28 @@ int main(int argc, char* argv[]) {
   perfFitter.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
+      
+      
+      
+  // Set up track selector
+  /*TrackSelector::Config selectorConfig;
+  selectorConfig.input = fitter.outputTrajectories;
+  selectorConfig.output = "tracks_selected";
+  selectorConfig.absEtaMax = 4;
+  selectorConfig.rhoMax = 4_mm;
+  selectorConfig.ptMin = 1_MeV;
+  selectorConfig.keepNeutral = false;
+  sequencer.addAlgorithm(
+      std::make_shared<TrackSelector>(selectorConfig, logLevel));
+
+  // Add the finding algorithm
+  ActsExamples::TutorialAMVFAlgorithm::Config vertexFindingCfg;
+  vertexFindingCfg.trackCollection = fitter.outputTrajectories; //selectorConfig.output;
+  sequencer.addAlgorithm(std::make_shared<ActsExamples::TutorialAMVFAlgorithm>(
+      vertexFindingCfg, logLevel));*/
+   
+      
+      
 
   return sequencer.run();
 }

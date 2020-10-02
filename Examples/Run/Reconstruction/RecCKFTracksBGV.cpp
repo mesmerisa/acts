@@ -21,6 +21,7 @@
 #include "ActsExamples/TrackFinding/TrackFindingOptions.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 #include "ActsExamples/TruthTracking/TruthSeedSelector.hpp"
+#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Utilities/Units.hpp>
@@ -90,15 +91,19 @@ int main(int argc, char* argv[]) {
   // from all particles read in by particle reader for further processing. It
   // has no impact on the truth hits read-in by the cluster reader.
   // @TODO: add options for truth particle selection criteria
-  /*TruthSeedSelector::Config particleSelectorCfg;
+  TruthSeedSelector::Config particleSelectorCfg;
   particleSelectorCfg.inputParticles = particleReader.outputParticles;
   particleSelectorCfg.inputHitParticlesMap =
       clusterReaderCfg.outputHitParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.ptMin = 1_GeV;
-  particleSelectorCfg.nHitsMin = 9;
+  particleSelectorCfg.ptMin = 1_MeV;
+  particleSelectorCfg.nHitsMin = 3;
+  //particleSelectorCfg.nHitsMax = 30;
+  particleSelectorCfg.etaMin = 1.9;
+  particleSelectorCfg.etaMax = 4.5;
+  //particleSelectorCfg.keepNeutral = true;
   sequencer.addAlgorithm(
-      std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));*/
+      std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
 
   // Create smeared measurements
   HitSmearing::Config hitSmearingCfg;
@@ -111,7 +116,7 @@ int main(int argc, char* argv[]) {
   sequencer.addAlgorithm(
       std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
 
-  const auto& inputParticles = particleReader.outputParticles;
+  const auto& inputParticles = particleSelectorCfg.outputParticles; //   particleReader.outputParticles; // 
   // Create smeared particles states
   ParticleSmearing::Config particleSmearingCfg;
   particleSmearingCfg.inputParticles = inputParticles;
@@ -124,8 +129,8 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaZ0 = 20_um;
   particleSmearingCfg.sigmaZ0PtA = 30_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaPhi = 0.01_degree;
-  particleSmearingCfg.sigmaTheta = 0.01_degree;
+  particleSmearingCfg.sigmaPhi = 0.001_degree;
+  particleSmearingCfg.sigmaTheta = 0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(
@@ -143,6 +148,17 @@ int main(int argc, char* argv[]) {
       trackingGeometry, magneticField);
   sequencer.addAlgorithm(
       std::make_shared<TrackFindingAlgorithm>(trackFindingCfg, logLevel));
+      
+      
+  // write tracks from fitting
+  RootTrajectoryWriter::Config trackWriter;
+  trackWriter.inputParticles = inputParticles;
+  trackWriter.inputTrajectories = trackFindingCfg.outputTrajectories;
+  trackWriter.outputDir = outputDir;
+  trackWriter.outputFilename = "tracks_ckf.root";
+  trackWriter.outputTreename = "tracks";
+  sequencer.addWriter(std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
+    
 
   // Write CKF performance data
   CKFPerformanceWriter::Config perfWriterCfg;

@@ -52,9 +52,9 @@ class CKFPerformanceWriter final : public WriterT<TrajectoryContainer> {
     /// Min reco-truth matching probability
     double truthMatchProbMin = 0.5;
     /// Min number of measurements
-    size_t nMeasurementsMin = 9;
+    size_t nMeasurementsMin = 3;
     /// Min transverse momentum
-    double ptMin = 1_GeV;
+    double ptMin = 1_MeV;
   };
 
   /// Construct from configuration and log level.
