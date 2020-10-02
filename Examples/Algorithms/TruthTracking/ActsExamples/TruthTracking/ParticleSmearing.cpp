@@ -9,6 +9,7 @@
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 
 #include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/detail/periodic.hpp"
 #include "ActsExamples/EventData/SimParticle.hpp"
 #include "ActsExamples/EventData/Track.hpp"
@@ -30,8 +31,6 @@ ActsExamples::ParticleSmearing::ParticleSmearing(const Config& cfg,
 
 ActsExamples::ProcessCode ActsExamples::ParticleSmearing::execute(
     const AlgorithmContext& ctx) const {
-  namespace vh = Acts::VectorHelpers;
-
   // setup input and output containers
   const auto& particles =
       ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
@@ -42,68 +41,64 @@ ActsExamples::ProcessCode ActsExamples::ParticleSmearing::execute(
   auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
   std::normal_distribution<double> stdNormal(0.0, 1.0);
 
-  for (const auto& particle : particles) {
-    const auto pt = particle.transverseMomentum();
-    const auto p = particle.absMomentum();
-    const auto theta = vh::theta(particle.unitDirection());
-    const auto phi = vh::phi(particle.unitDirection());
+  for (auto&& [vtxId, vtxParticles] : groupBySecondaryVertex(particles)) {
+    // a group contains at least one particle by construction. assume that all
+    // particles within the group originate from the same position and use it to
+    // as the refernce position for the perigee frame.
+    auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(
+        vtxParticles.begin()->position());
 
-    // compute momentum-dependent resolutions
-    const auto sigmaD0 =
-        m_cfg.sigmaD0 +
-        m_cfg.sigmaD0PtA * std::exp(-1.0 * std::abs(m_cfg.sigmaD0PtB) * pt);
-    const auto sigmaZ0 =
-        m_cfg.sigmaZ0 +
-        m_cfg.sigmaZ0PtA * std::exp(-1.0 * std::abs(m_cfg.sigmaZ0PtB) * pt);
-    const auto sigmaP = m_cfg.sigmaPRel * p;
-    // var(q/p) = (d(1/p)/dp)² * var(p) = (-1/p²)² * var(p)
-    const auto sigmaQOverP = sigmaP / (p * p);
-    // shortcuts for other resolutions
-    const auto sigmaT0 = m_cfg.sigmaT0;
-    const auto sigmaPhi = m_cfg.sigmaPhi;
-    const auto sigmaTheta = m_cfg.sigmaTheta;
-    // converstion from perigee d0,z0 to curvilinear u,v
-    // d0 and u differ only by a sign
-    const auto sigmaU = sigmaD0;
-    // project from z0 to the second axes orthogonal to the track direction
-    const auto sigmaV = sigmaZ0 * std::sin(theta);
+    for (const auto& particle : vtxParticles) {
+      const auto time = particle.time();
+      const auto phi = Acts::VectorHelpers::phi(particle.unitDirection());
+      const auto theta = Acts::VectorHelpers::theta(particle.unitDirection());
+      const auto pt = particle.transverseMomentum();
+      const auto p = particle.absMomentum();
+      const auto q = particle.charge();
 
-    // draw random noise
-    const auto deltaD0 = sigmaD0 * stdNormal(rng);
-    const auto deltaZ0 = sigmaZ0 * stdNormal(rng);
-    const auto deltaT0 = sigmaT0 * stdNormal(rng);
-    const auto deltaPhi = sigmaPhi * stdNormal(rng);
-    const auto deltaTheta = sigmaTheta * stdNormal(rng);
-    const auto deltaP = sigmaP * stdNormal(rng);
+      // compute momentum-dependent resolutions
+      const double sigmaD0 =
+          m_cfg.sigmaD0 +
+          m_cfg.sigmaD0PtA * std::exp(-1.0 * std::abs(m_cfg.sigmaD0PtB) * pt);
+      const double sigmaZ0 =
+          m_cfg.sigmaZ0 +
+          m_cfg.sigmaZ0PtA * std::exp(-1.0 * std::abs(m_cfg.sigmaZ0PtB) * pt);
+      const double sigmaP = m_cfg.sigmaPRel * p;
+      // var(q/p) = (d(1/p)/dp)² * var(p) = (-1/p²)² * var(p)
+      const double sigmaQOverP = sigmaP / (p * p);
+      // shortcuts for other resolutions
+      const double sigmaT0 = m_cfg.sigmaT0;
+      const double sigmaPhi = m_cfg.sigmaPhi;
+      const double sigmaTheta = m_cfg.sigmaTheta;
 
-    // smear the position
-    const Acts::Vector3D pos =
-        particle.position() + Acts::Vector3D(deltaD0 * std::sin(phi),
-                                             deltaD0 * -std::cos(phi), deltaZ0);
-    // smear the time
-    const auto time = particle.time() + deltaT0;
-    // smear direction angles phi,theta ensuring correct bounds
-    const auto angles =
-        Acts::detail::ensureThetaBounds(phi + deltaPhi, theta + deltaTheta);
-    // compute smeared direction vector
-    const Acts::Vector3D dir(std::sin(angles.second) * std::cos(angles.first),
-                             std::sin(angles.second) * std::sin(angles.first),
-                             std::cos(angles.second));
-    // compute smeared momentum vector
-    const Acts::Vector3D mom = (p + deltaP) * dir;
+      Acts::BoundVector params = Acts::BoundVector::Zero();
+      // smear the position/time
+      params[Acts::eBoundLoc0] = sigmaD0 * stdNormal(rng);
+      params[Acts::eBoundLoc1] = sigmaZ0 * stdNormal(rng);
+      params[Acts::eBoundTime] = time + sigmaT0 * stdNormal(rng);
+      // smear direction angles phi,theta ensuring correct bounds
+      const double deltaPhi = sigmaPhi * stdNormal(rng);
+      const double deltaTheta = sigmaTheta * stdNormal(rng);
+      const auto [newPhi, newTheta] =
+          Acts::detail::ensureThetaBounds(phi + deltaPhi, theta + deltaTheta);
+      params[Acts::eBoundPhi] = newPhi;
+      params[Acts::eBoundTheta] = newTheta;
+      // compute smeared absolute momentum vector
+      const double newP = std::max(0.0, p + sigmaP * stdNormal(rng));
+      params[Acts::eBoundQOverP] = (q != 0) ? (q / newP) : (1 / newP);
 
-    // build the track covariance matrix using the smearing sigmas
-    Acts::BoundSymMatrix cov = Acts::BoundSymMatrix::Zero();
-    cov(Acts::eLOC_0, Acts::eLOC_0) = sigmaU * sigmaU;
-    cov(Acts::eLOC_1, Acts::eLOC_1) = sigmaV * sigmaV;
-    cov(Acts::ePHI, Acts::ePHI) = sigmaPhi * sigmaPhi;
-    cov(Acts::eTHETA, Acts::eTHETA) = sigmaTheta * sigmaTheta;
-    cov(Acts::eQOP, Acts::eQOP) = sigmaQOverP * sigmaQOverP;
-    cov(Acts::eT, Acts::eT) = sigmaT0 * sigmaT0;
+      // build the track covariance matrix using the smearing sigmas
+      Acts::BoundSymMatrix cov = Acts::BoundSymMatrix::Zero();
+      cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = sigmaD0 * sigmaD0;
+      cov(Acts::eBoundLoc1, Acts::eBoundLoc1) = sigmaZ0 * sigmaZ0;
+      cov(Acts::eBoundTime, Acts::eBoundTime) = sigmaT0 * sigmaT0;
+      cov(Acts::eBoundPhi, Acts::eBoundPhi) = sigmaPhi * sigmaPhi;
+      cov(Acts::eBoundTheta, Acts::eBoundTheta) = sigmaTheta * sigmaTheta;
+      cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = sigmaQOverP * sigmaQOverP;
 
-    parameters.emplace_back(std::make_optional(std::move(cov)), pos, mom,
-                            particle.charge(), time);
-  };
+      parameters.emplace_back(perigee, params, q, cov);
+    }
+  }
 
   ctx.eventStore.add(m_cfg.outputTrackParameters, std::move(parameters));
   return ProcessCode::SUCCESS;

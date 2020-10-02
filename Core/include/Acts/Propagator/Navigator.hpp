@@ -672,8 +672,7 @@ class Navigator {
 
         /*
         Vector3D pos = stepper.position(state.stepping);
-        double mom =
-            units::Nat2SI<units::MOMENTUM>(stepper.momentum(state.stepping));
+        double mom = stepper.momentum(state.stepping) / UnitConstants::GeV;
         double q = stepper.charge(state.stepping);
         Vector3D dir = stepper.direction(state.stepping);
         Vector3D B = stepper.getField(state.stepping, pos);
@@ -707,8 +706,7 @@ class Navigator {
 
           // Check: are we on the first surface?
           if (state.navigation.currentSurface == nullptr ||
-              state.navigation.currentSurface !=
-                  protoNavSurfaces.front().object) {
+              protoNavSurfaces.front().intersection.pathLength > 1_um) {
             // we are not, go on
             state.navigation.navSurfaces = std::move(protoNavSurfaces);
 
