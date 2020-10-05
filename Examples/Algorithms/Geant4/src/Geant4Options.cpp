@@ -58,7 +58,7 @@ ActsExamples::Options::readGeantinoRecordingConfig(
     const ActsExamples::Options::Variables& variables) {
   ActsExamples::GeantinoRecording::Config gRecConfig;
   
-  auto eta = variables["g4-pg-eta-range"].template as<read_range>();
+  //auto eta = variables["g4-pg-eta-range"].template as<read_range>();
 
   gRecConfig.tracksPerEvent = variables["g4-pg-nparticles"].as<unsigned int>();
   gRecConfig.generationConfig.randomSeed1 =
