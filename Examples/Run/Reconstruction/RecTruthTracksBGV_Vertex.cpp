@@ -23,12 +23,12 @@
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 #include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
 #include "ActsExamples/TruthTracking/TrackSelector.hpp"
-#include "ActsExamples/TruthTracking/TruthVerticesToTracks.hpp"
+//#include "ActsExamples/TruthTracking/TruthVerticesToTracks.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Utilities/Units.hpp>
-#include "ActsExamples/Vertexing/TutorialAMVFAlgorithm.hpp"
-#include "ActsExamples/Io/Root/RootVertexAndTracksWriter.hpp"
+//#include "ActsExamples/Vertexing/TutorialAMVFAlgorithm.hpp"
+//#include "ActsExamples/Io/Root/RootVertexAndTracksWriter.hpp"
 #include "ActsExamples/Io/Root/RootTrackParameterWriter.hpp"
 
 

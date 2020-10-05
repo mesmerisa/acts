@@ -95,9 +95,11 @@ inline Acts::GeometryIdentifier extractGeometryId(
   //std::cout << "---------------- extract geo id: not return: vol: " << data.volume_id << " lay: "<< data.layer_id << " mod: " << data.module_id << std::endl;
   // otherwise, reconstruct it from the available components
 
-  geoId.setSensitive(data.module_id);
+  
 
   Acts::GeometryIdentifier geoId;
+
+  geoId.setSensitive(data.module_id);
 
   geoId.setVolume(data.volume_id);
   //std::cout << "---------------- get vol: " << geoId.volume() << std::endl;
