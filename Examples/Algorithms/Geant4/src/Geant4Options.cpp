@@ -67,10 +67,6 @@ ActsExamples::Options::readGeantinoRecordingConfig(
       variables["g4-rnd-seed2"].as<unsigned int>();
   gRecConfig.outputMaterialTracks =
       variables["g4-material-tracks"].as<std::string>();
-<<<<<<< HEAD
-=======
-
->>>>>>> bernie-bgv
   gRecConfig.generationConfig.vertexPosX =
       variables["g4-vertex-posX"].as<double>();
   gRecConfig.generationConfig.vertexPosY =
