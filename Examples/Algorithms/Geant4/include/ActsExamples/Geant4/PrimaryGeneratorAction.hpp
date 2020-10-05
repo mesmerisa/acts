@@ -65,6 +65,7 @@ class PrimaryGeneratorAction final : public G4VUserPrimaryGeneratorAction {
 
   /// Construct the action and ensure singleton usage.
   PrimaryGeneratorAction(const Config& cfg);
+
   ~PrimaryGeneratorAction() final override;
 
   /// Interface method to generate the primary

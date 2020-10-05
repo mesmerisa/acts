@@ -32,7 +32,7 @@ class SimSourceLink {
         m_dim(dim),
         m_geometryId(truthHit.geometryId()),
         m_surface(&surface),
-        m_truthHit(&truthHit) {std::cout << "test " << m_dim << std::endl;}
+        m_truthHit(&truthHit) {}
   /// Must be default_constructible to satisfy SourceLinkConcept.
   SimSourceLink() = default;
   SimSourceLink(SimSourceLink&&) = default;

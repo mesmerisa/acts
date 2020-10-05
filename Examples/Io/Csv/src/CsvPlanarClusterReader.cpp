@@ -96,6 +96,9 @@ inline Acts::GeometryIdentifier extractGeometryId(
   // otherwise, reconstruct it from the available components
 
   Acts::GeometryIdentifier geoId;
+
+  geoId.setSensitive(data.module_id);
+
   geoId.setVolume(data.volume_id);
   //std::cout << "---------------- get vol: " << geoId.volume() << std::endl;
   geoId.setLayer(data.layer_id);
@@ -206,7 +209,6 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
 
   for (const HitData& hit : hits) {
     Acts::GeometryIdentifier geoId = extractGeometryId(hit);
-
     // find associated truth/ simulation hits
     std::vector<std::size_t> simHitIndices;
     {
@@ -214,7 +216,9 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
                                               hit.hit_id, CompareHitId{}));
       simHitIndices.reserve(range.size());
       for (const auto& truth : range) {
+
         const auto simGeometryId = Acts::GeometryIdentifier(truth.geometry_id);
+
         // TODO validate geo id consistency
         const auto simParticleId = ActsFatras::Barcode(truth.particle_id);
         const auto simIndex = truth.index;

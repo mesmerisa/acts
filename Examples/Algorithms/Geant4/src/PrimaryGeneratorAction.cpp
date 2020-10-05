@@ -59,7 +59,6 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   // this function is called at the begining of event
-
   G4double phi =
       m_cfg.phiRange.first +
       G4UniformRand() * (m_cfg.phiRange.second - m_cfg.phiRange.first);

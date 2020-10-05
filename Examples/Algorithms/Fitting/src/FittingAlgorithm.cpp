@@ -83,9 +83,6 @@ ActsExamples::ProcessCode ActsExamples::FittingAlgorithm::execute(
     // Clear & reserve the right size
     trackSourceLinks.clear();
     trackSourceLinks.reserve(protoTrack.size());
-    std::cout << "execute fitter test 1.1, size of prototrack: " <<  protoTrack.size() << std::endl;
-
-    std::cout << "hits of prototrack: " <<   std::endl;
     
     for (int i = 0; i < protoTrack.size(); i++) {
 		std::cout << protoTrack.at(i) << " hit id ";
@@ -94,11 +91,9 @@ ActsExamples::ProcessCode ActsExamples::FittingAlgorithm::execute(
     
     // Fill the source links via their indices from the container
     for (auto hitIndex : protoTrack) {      
-     std::cout << "execute fitter test 1.2, hit index: " << hitIndex << std::endl;
+     //std::cout << "execute fitter test 1.2, hit index: " << hitIndex << std::endl;
       auto sourceLink = sourceLinks.nth(hitIndex);
       
-      std::cout << "source link : " << std::endl;
-
       if (sourceLink == sourceLinks.end()) {
         ACTS_FATAL("Proto track " << itrack << " contains invalid hit index"
                                   << hitIndex);

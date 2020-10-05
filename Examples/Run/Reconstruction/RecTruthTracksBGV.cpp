@@ -121,8 +121,8 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaZ0 = 20_um;
   particleSmearingCfg.sigmaZ0PtA = 30_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaPhi = 1_degree;
-  particleSmearingCfg.sigmaTheta = 1_degree;
+  particleSmearingCfg.sigmaPhi = 0.001_degree;
+  particleSmearingCfg.sigmaTheta = 0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(
@@ -157,6 +157,7 @@ int main(int argc, char* argv[]) {
   perfFinder.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<TrackFinderPerformanceWriter>(perfFinder, logLevel));
+      
   TrackFitterPerformanceWriter::Config perfFitter;
   perfFitter.inputParticles = inputParticles;
   perfFitter.inputTrajectories = fitter.outputTrajectories;

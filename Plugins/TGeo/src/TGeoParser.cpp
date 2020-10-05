@@ -51,7 +51,7 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
     std::string nodeName = state.node->GetName();
     std::string nodeVolName = state.node->GetVolume()->GetName();
     
-    std::cout << "test 2 node vol: " << nodeVolName << std::endl;
+    //std::cout << "test 2 node vol: " << nodeVolName << std::endl;
     
     // Get the matrix of the current node for positioning
     const TGeoMatrix* nmatrix = state.node->GetMatrix();
@@ -62,7 +62,7 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
     if (state.onBranch and
         TGeoPrimitivesHelper::match(options.targetNames, nodeVolName.c_str())) {
         
-        std::cout << "test 3 " << std::endl;
+        //std::cout << "test 3 " << std::endl;
         
       // Get the placement and orientation in respect to its mother
       const Double_t* rotation = transform.GetRotationMatrix();
@@ -79,7 +79,7 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
       bool accept = true;
       if (not options.parseRanges.empty()) {
       
-       std::cout << "test 4 " << std::endl;
+       //std::cout << "test 4 " << std::endl;
         auto shape =
             dynamic_cast<TGeoBBox*>(state.node->GetVolume()->GetShape());
         // It uses the bounding box of TGeoBBox
@@ -104,7 +104,7 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
         }
       }
       if (accept) {
-         std::cout << "accept " << std::endl;
+         //std::cout << "accept " << std::endl;
         state.selectedNodes.push_back(
             {state.node, std::make_unique<TGeoHMatrix>(transform)});
       }
