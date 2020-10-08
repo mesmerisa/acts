@@ -39,3 +39,22 @@ install(
   ActsExampleCKFTracks
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(
+    ActsExampleCKFTracksBGV
+    RecCKFTracksBGV.cpp)
+target_link_libraries(
+    ActsExampleCKFTracksBGV
+    PRIVATE
+    ActsExamplesFramework
+    ActsExamplesCommon
+    ActsExamplesDigitization
+    ActsExamplesTrackFinding
+    ActsExamplesDetectorTGeo
+    ActsExamplesMagneticField
+    ActsExamplesIoCsv
+    ActsExamplesIoPerformance)
+
+install(
+  TARGETS
+  ActsExampleCKFTracksBGV
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
