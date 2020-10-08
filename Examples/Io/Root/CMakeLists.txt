@@ -10,6 +10,7 @@ add_library(
   src/RootPropagationStepsWriter.cpp
   src/RootSimHitWriter.cpp
   src/RootTrackParameterWriter.cpp
+  src/RootVertexAndTrackWriterBGV.cpp
   src/RootTrajectoryWriter.cpp
 )
 target_include_directories(
@@ -26,3 +27,6 @@ target_link_libraries(
 install(
   TARGETS ActsExamplesIoRoot
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+
+

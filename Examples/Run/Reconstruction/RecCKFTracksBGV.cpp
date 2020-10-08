@@ -148,8 +148,7 @@ int main(int argc, char* argv[]) {
       trackingGeometry, magneticField);
   sequencer.addAlgorithm(
       std::make_shared<TrackFindingAlgorithm>(trackFindingCfg, logLevel));
-      
-      
+ 
   // write tracks from fitting
   RootTrajectoryWriter::Config trackWriter;
   trackWriter.inputParticles = inputParticles;
@@ -159,7 +158,6 @@ int main(int argc, char* argv[]) {
   trackWriter.outputTreename = "tracks";
   sequencer.addWriter(std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
     
-
   // Write CKF performance data
   CKFPerformanceWriter::Config perfWriterCfg;
   perfWriterCfg.inputParticles = inputParticles;

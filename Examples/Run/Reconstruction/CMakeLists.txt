@@ -39,7 +39,6 @@ install(
   ActsExampleCKFTracks
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-
 add_executable(
   ActsExampleTruthTracksBGV
   RecTruthTracksBGV.cpp)
@@ -83,7 +82,7 @@ install(
   TARGETS ActsExampleTruthTracksBGV_Vertex
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})  
   
-  
+
 add_executable(
     ActsExampleCKFTracksBGV
     RecCKFTracksBGV.cpp)
