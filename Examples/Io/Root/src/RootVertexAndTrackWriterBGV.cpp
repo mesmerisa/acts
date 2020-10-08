@@ -182,25 +182,88 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
     return ProcessCode::SUCCESS;
   }
 
-  /*ProtoVertexContainer protoVertices; // a proto vertex contains indices of the tracks belong to the vertex
-
-  std::vector<const Acts::BoundTrackParameters*> inputTrackPtrCollection;
-
-  for (const auto& protoVertex : protoVertices) {
-  inputTrackPtrCollection.clear();
-    inputTrackPtrCollection.reserve(protoVertex.size());
-    for (const auto& trackIdx : protoVertex) {
-      inputTrackPtrCollection.push_back(&trackParameters[trackIdx]);
-    }*/
-
+  ClearAll();
 
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
-
-  ClearAll();
-
   // Get the event number
-  m_eventNr = context.eventNumber;
+  m_eventNr = context.eventNumber; 
+
+  for(auto vertex : vertexAndTracksCollection) {
+    std::cout << "teeeeeeeeeeeeeeeeeeeeeeeeeeest " << m_eventNr << " vertex: " << vertex.position() << std::endl;
+    m_vx.push_back(vertex.position().x());
+    m_vy.push_back(vertex.position().y());
+    m_vz.push_back(vertex.position().z());
+
+
+    std::cout << "----------------------------------------------------" << std::endl;
+    for (auto track : vertex.tracks() ) {
+           std::cout << "track parameters: " << std::endl;
+           std::cout << track.fittedParams.parameters()[Acts::BoundIndices::eBoundLoc0]  << std::endl;
+           std::cout << track.fittedParams.parameters() << std::endl;
+           std::cout << "all: " << std::endl;
+           std::cout << track.fittedParams  << std::endl;
+           //std::cout << track.fittedParams.covariance()  << std::endl;
+           m_d0.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundLoc0]);
+           m_z0.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundLoc1]);
+           m_phi.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundPhi]);
+           m_theta.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundTheta]);
+           m_qp.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundQOverP]);
+           m_time.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundTime]);
+           // Current vertex index as vertex ID
+           m_vtxID.push_back(m_vx.size() - 1);
+
+           Acts::BoundSymMatrix cov = *track.fittedParams.covariance();
+           m_cov11.push_back(cov(0, 0));
+           m_cov12.push_back(cov(0, 1));
+           m_cov13.push_back(cov(0, 2));
+           m_cov14.push_back(cov(0, 3));
+           m_cov15.push_back(cov(0, 4));
+           m_cov16.push_back(cov(0, 5));
+
+           m_cov21.push_back(cov(1, 0));
+           m_cov22.push_back(cov(1, 1));
+           m_cov23.push_back(cov(1, 2));
+           m_cov24.push_back(cov(1, 3));
+           m_cov25.push_back(cov(1, 4));
+           m_cov26.push_back(cov(1, 5));
+
+           m_cov31.push_back(cov(2, 0));
+           m_cov32.push_back(cov(2, 1));
+           m_cov33.push_back(cov(2, 2));
+           m_cov34.push_back(cov(2, 3));
+           m_cov35.push_back(cov(2, 4));
+           m_cov36.push_back(cov(2, 5));
+
+           m_cov41.push_back(cov(3, 0));
+           m_cov42.push_back(cov(3, 1));
+           m_cov43.push_back(cov(3, 2));
+           m_cov44.push_back(cov(3, 3));
+           m_cov45.push_back(cov(3, 4));
+           m_cov46.push_back(cov(3, 5));
+
+           m_cov51.push_back(cov(4, 0));
+           m_cov52.push_back(cov(4, 1));
+           m_cov53.push_back(cov(4, 2));
+           m_cov54.push_back(cov(4, 3));
+           m_cov55.push_back(cov(4, 4));
+           m_cov56.push_back(cov(4, 5));
+
+           m_cov61.push_back(cov(5, 0));
+           m_cov62.push_back(cov(5, 1));
+           m_cov63.push_back(cov(5, 2));
+           m_cov64.push_back(cov(5, 3));
+           m_cov65.push_back(cov(5, 4));
+           m_cov66.push_back(cov(5, 5));
+    }
+    std::cout << "----------------------------------------------------" << std::endl;
+  }
+
+
+
+  
+
+ 
 
   /*for (auto& vertexAndTracks : vertexAndTracksCollection) {
     // Collect the vertex information
@@ -266,7 +329,7 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
     }
   }
 
-  m_outputTree->Fill();*/
-
+  */
+  m_outputTree->Fill();
   return ProcessCode::SUCCESS;
 }

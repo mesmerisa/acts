@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 
   RootVertexAndTrackWriterBGV::Config writerCfg;
   writerCfg.collection = fitVertices.outputFittedVertices;
-  writerCfg.filePath = joinPaths(outputDir, findVertices.outputProtoVertices + ".root");
+  writerCfg.filePath = joinPaths(outputDir, fitVertices.outputFittedVertices + ".root");
   sequencer.addWriter(
       std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));
 
