@@ -85,10 +85,10 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
     //std::cout << "execute fitter test 1.1, size of prototrack: " <<  protoTrack.size() << std::endl;
     //std::cout << "hits of prototrack: " <<   std::endl;
     
-    for (int i = 0; i < protoTrack.size(); i++) {
-		std::cout << protoTrack.at(i) << " hit id ";
-	}  
-    std::cout << std::endl;
+    //for (int i = 0; i < protoTrack.size(); i++) {
+	//	std::cout << protoTrack.at(i) << " hit id ";
+	//}  
+    //std::cout << std::endl;
     
     // Fill the source links via their indices from the container
     for (auto hitIndex : protoTrack) {      
