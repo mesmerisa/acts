@@ -20,7 +20,7 @@
 #include "Acts/Geometry/TrackingGeometryBuilder.hpp"
 #include "Acts/Geometry/TrackingVolumeArrayCreator.hpp"
 #include "Acts/Material/Material.hpp"
-#include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Material/MaterialSlab.hpp"
 #include "Acts/Plugins/TGeo/TGeoDetectorElement.hpp"
 #include "Acts/Utilities/BinningType.hpp"
 #include "ActsExamples/TGeoDetector/BuildTGeoDetector.hpp"
@@ -45,9 +45,10 @@ namespace TGeo {
 /// @param vm is the variable map from the options
 template <typename variable_maps_t>
 std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
-variable_maps_t& vm, const Acts::GeometryContext& context,
-std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>>&
-detElementStore, std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) {
+    variable_maps_t& vm, const Acts::GeometryContext& context,
+    std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>>&
+        detElementStore,
+    std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) {
   Acts::Logging::Level surfaceLogLevel =
       Acts::Logging::Level(vm["geo-surface-loglevel"].template as<size_t>());
   Acts::Logging::Level layerLogLevel =
@@ -114,7 +115,8 @@ detElementStore, std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) {
     bpvConfig.trackingVolumeHelper = cylinderVolumeHelper;
     bpvConfig.volumeName = "BeamPipe";
     bpvConfig.layerBuilder = beamPipeBuilder;
-    bpvConfig.layerEnvelopeR = {1. * Acts::units::_mm, 1. * Acts::units::_mm};
+    bpvConfig.layerEnvelopeR = {1. * Acts::UnitConstants::mm,
+                                1. * Acts::UnitConstants::mm};
     bpvConfig.buildToRadiusZero = true;
     auto beamPipeVolumeBuilder =
         std::make_shared<const Acts::CylinderVolumeBuilder>(
@@ -179,8 +181,8 @@ detElementStore, std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) {
     volumeConfig.trackingVolumeHelper = cylinderVolumeHelper;
     volumeConfig.volumeName = lbc.configurationName;
     volumeConfig.buildToRadiusZero = (volumeBuilders.size() == 0);
-    volumeConfig.layerEnvelopeR = {1. * Acts::units::_mm,
-                                   5. * Acts::units::_mm};
+    volumeConfig.layerEnvelopeR = {1. * Acts::UnitConstants::mm,
+                                   5. * Acts::UnitConstants::mm};
     auto ringLayoutConfiguration =
         [&](const std::vector<Acts::TGeoLayerBuilder::LayerConfig>& lConfigs)
         -> void {
@@ -212,6 +214,8 @@ detElementStore, std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) {
   // Add decorator
   tgConfig.materialDecorator = mdecorator;
   // Add the builders
+  tgConfig.materialDecorator = mdecorator;
+
   for (auto& vb : volumeBuilders) {
     tgConfig.trackingVolumeBuilders.push_back(
         [=](const auto& gcontext, const auto& inner, const auto&) {

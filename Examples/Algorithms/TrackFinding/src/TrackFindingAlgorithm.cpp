@@ -19,23 +19,23 @@ ActsExamples::TrackFindingAlgorithm::TrackFindingAlgorithm(
     : ActsExamples::BareAlgorithm("TrackFindingAlgorithm", level),
       m_cfg(std::move(cfg)) {
   if (m_cfg.inputSourceLinks.empty()) {
-    throw std::invalid_argument("Missing input source links collection");
+    throw std::invalid_argument("Missing source links input collection");
   }
   if (m_cfg.inputInitialTrackParameters.empty()) {
     throw std::invalid_argument(
-        "Missing input initial track parameters collection");
+        "Missing initial track parameters input collection");
   }
   if (m_cfg.outputTrajectories.empty()) {
-    throw std::invalid_argument("Missing output trajectories collection");
+    throw std::invalid_argument("Missing trajectories output collection");
   }
 }
 
 ActsExamples::ProcessCode ActsExamples::TrackFindingAlgorithm::execute(
     const ActsExamples::AlgorithmContext& ctx) const {
   // Read input data
-  const auto sourceLinks =
+  const auto& sourceLinks =
       ctx.eventStore.get<SimSourceLinkContainer>(m_cfg.inputSourceLinks);
-  const auto initialParameters = ctx.eventStore.get<TrackParametersContainer>(
+  const auto& initialParameters = ctx.eventStore.get<TrackParametersContainer>(
       m_cfg.inputInitialTrackParameters);
 
   // Prepare the output data with MultiTrajectory
@@ -46,30 +46,35 @@ ActsExamples::ProcessCode ActsExamples::TrackFindingAlgorithm::execute(
   auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
       Acts::Vector3D{0., 0., 0.});
 
+  Acts::PropagatorPlainOptions pOptions;
+  pOptions.maxSteps = 10000;
+
+  // Set the CombinatorialKalmanFilter options
+  ActsExamples::TrackFindingAlgorithm::TrackFinderOptions options(
+      ctx.geoContext, ctx.magFieldContext, ctx.calibContext,
+      SimSourceLinkCalibrator(),
+      Acts::CKFSourceLinkSelector(m_cfg.sourcelinkSelectorCfg),
+      Acts::LoggerWrapper{logger()}, pOptions, &(*pSurface));
+
   // Perform the track finding for each starting parameter
   // @TODO: use seeds from track seeding algorithm as starting parameter
   for (std::size_t iseed = 0; iseed < initialParameters.size(); ++iseed) {
     const auto& initialParams = initialParameters[iseed];
 
-    // Set the CombinatorialKalmanFilter options
-    ActsExamples::TrackFindingAlgorithm::CKFOptions ckfOptions(
-        ctx.geoContext, ctx.magFieldContext, ctx.calibContext,
-        m_cfg.sourcelinkSelectorCfg, Acts::LoggerWrapper{logger()},
-        &(*pSurface));
-
     ACTS_DEBUG("Invoke track finding seeded by truth particle " << iseed);
-    auto result = m_cfg.findTracks(sourceLinks, initialParams, ckfOptions);
+    auto result = m_cfg.findTracks(sourceLinks, initialParams, options);
     if (result.ok()) {
       // Get the track finding output object
       const auto& trackFindingOutput = result.value();
-      // Create a SimMultiTrajectory
+      // Create a Trajectories result struct
       trajectories.emplace_back(std::move(trackFindingOutput.fittedStates),
                                 std::move(trackFindingOutput.trackTips),
                                 std::move(trackFindingOutput.fittedParameters));
     } else {
-      ACTS_WARNING("Track finding failed for truth seed "
-                   << iseed << " with error" << result.error());
-      // Track finding failed, but still create an empty SimMultiTrajectory
+      ACTS_WARNING("Track finding failed for seed " << iseed << " with error"
+                                                    << result.error());
+      // Track finding failed. Add an empty result so the output container has
+      // the same number of entries as the input.
       trajectories.push_back(SimMultiTrajectory());
     }
   }

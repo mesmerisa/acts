@@ -8,7 +8,7 @@ target_link_libraries(
     ActsExamplesFramework
     ActsExamplesCommon
     ActsExamplesDigitization
-    ActsExamplesFitting
+    ActsExamplesTrackFitting
     ActsExamplesDetectorGeneric
     ActsExamplesMagneticField
     ActsExamplesTruthTracking
@@ -38,7 +38,6 @@ install(
   TARGETS
   ActsExampleCKFTracks
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 
 add_executable(
   ActsExampleTruthTracksBGV
@@ -103,3 +102,4 @@ install(
   TARGETS
   ActsExampleCKFTracksBGV
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
