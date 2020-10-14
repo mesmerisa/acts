@@ -91,7 +91,7 @@ class PrimaryGeneratorAction final : public G4VUserPrimaryGeneratorAction {
   /// direction to be returned
   G4ThreeVector m_direction;
   /// range of eta of the produced geantinos
-  std::array<double, 2> m_eta;
+  //std::array<double, 2> m_eta;
 };
 
 }  // namespace ActsExamples
