@@ -40,48 +40,24 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(
-  ActsExampleTruthTracksBGV
-  RecTruthTracksBGV.cpp)
-
+    ActsExampleCKFTracksBGVnew
+    RecCKFTracksBGVnew.cpp)
 target_link_libraries(
-  ActsExampleTruthTracksBGV
-  PRIVATE
+    ActsExampleCKFTracksBGVnew
+    PRIVATE
     ActsExamplesFramework
     ActsExamplesCommon
     ActsExamplesDigitization
-    ActsExamplesFitting
+    ActsExamplesTrackFinding
     ActsExamplesDetectorTGeo
     ActsExamplesMagneticField
-    ActsExamplesTruthTracking
     ActsExamplesIoCsv
     ActsExamplesIoPerformance)
 
 install(
-  TARGETS ActsExampleTruthTracksBGV
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-  
-add_executable(
-  ActsExampleTruthTracksBGV_Vertex
-  RecTruthTracksBGV_Vertex.cpp)
-
-target_link_libraries(
-  ActsExampleTruthTracksBGV_Vertex
-  PRIVATE
-    ActsExamplesFramework
-    ActsExamplesCommon
-    ActsExamplesDigitization
-    ActsExamplesFitting
-    ActsExamplesDetectorTGeo
-    ActsExamplesMagneticField
-    ActsExamplesTruthTracking
-    ActsExamplesIoCsv
-    ActsExamplesVertexing
-    ActsExamplesIoPerformance)
-
-install(
-  TARGETS ActsExampleTruthTracksBGV_Vertex
+  TARGETS
+  ActsExampleCKFTracksBGVnew
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})  
-  
   
 add_executable(
     ActsExampleCKFTracksBGV

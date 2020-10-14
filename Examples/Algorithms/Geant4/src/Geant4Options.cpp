@@ -58,7 +58,7 @@ ActsExamples::Options::readGeantinoRecordingConfig(
     const ActsExamples::Options::Variables& variables) {
   ActsExamples::GeantinoRecording::Config gRecConfig;
   
-  auto eta = variables["g4-pg-eta-range"].template as<read_range>();
+  //auto eta = variables["g4-pg-eta-range"].template as<read_range>();
 
   gRecConfig.tracksPerEvent = variables["g4-pg-nparticles"].as<unsigned int>();
   gRecConfig.generationConfig.randomSeed1 =
@@ -67,7 +67,7 @@ ActsExamples::Options::readGeantinoRecordingConfig(
       variables["g4-rnd-seed2"].as<unsigned int>();
   gRecConfig.outputMaterialTracks =
       variables["g4-material-tracks"].as<std::string>();
-  gRecConfig.etaRange = {{eta[0], eta[1]}};
+  //gRecConfig.etaRange = {{eta[0], eta[1]}};
 
   gRecConfig.generationConfig.vertexPosX =
       variables["g4-vertex-posX"].as<double>();

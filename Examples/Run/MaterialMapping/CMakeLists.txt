@@ -22,25 +22,25 @@ target_link_libraries(
   PRIVATE ${_common_libraries} ActsExamplesMaterialMapping ActsExamplesDetectorGeneric)
 
 add_executable(
-  ActsExampleMaterialMappingTGeo
-  TGeoMaterialMapping.cpp)
+  ActsExampleMaterialMappingTGeoBGV
+  TGeoMaterialMappingBGV.cpp)
 target_link_libraries(
-  ActsExampleMaterialMappingTGeo
+  ActsExampleMaterialMappingTGeoBGV
   PRIVATE ${_common_libraries} ActsExamplesMaterialMapping ActsExamplesDetectorTGeo)
 
 add_executable(
-  ActsExampleMaterialValidationTGeo
-  TGeoMaterialValidation.cpp)
+  ActsExampleMaterialValidationTGeoBGV
+  TGeoMaterialValidationBGV.cpp)
 target_link_libraries(
-  ActsExampleMaterialValidationTGeo
+  ActsExampleMaterialValidationTGeoBGV
   PRIVATE ${_common_libraries} ActsExamplesPropagation ActsExamplesDetectorTGeo)
 
 install(
   TARGETS
     ActsExampleMaterialValidationGeneric
     ActsExampleMaterialMappingGeneric
-    ActsExampleMaterialMappingTGeo
-    ActsExampleMaterialValidationTGeo    
+    ActsExampleMaterialMappingTGeoBGV
+    ActsExampleMaterialValidationTGeoBGV    
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory_if(DD4hep ACTS_BUILD_EXAMPLES_DD4HEP)
