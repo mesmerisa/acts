@@ -66,6 +66,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmBGV::execute(
       ctx.eventStore.get<TrackParametersContainer>(m_cfg.inputTrackParameters);
   const auto& protoVertices =
       ctx.eventStore.get<ProtoVertexContainer>(m_cfg.inputProtoVertices);
+      
   std::vector<const Acts::BoundTrackParameters*> inputTrackPtrCollection;
 
   std::vector<Acts::Vertex<Acts::BoundTrackParameters>> outputVertexCollection;

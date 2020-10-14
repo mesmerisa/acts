@@ -5,6 +5,7 @@ add_library(
   src/TutorialVertexFinderAlgorithm.cpp
   src/VertexFitterAlgorithm.cpp
   src/VertexFitterAlgorithmBGV.cpp
+  src/VertexFitterAlgorithmFromTrajBGV.cpp
 )
 target_include_directories(
   ActsExamplesVertexing

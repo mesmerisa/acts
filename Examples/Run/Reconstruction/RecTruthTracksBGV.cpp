@@ -138,7 +138,34 @@ int main(int argc, char* argv[]) {
   fitter.fit =
       FittingAlgorithm::makeFitterFunction(trackingGeometry, magneticField);
   sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitter, logLevel));
+  
+  //////////////////////////////////////////////////////////////////////////////////////
+  // find true primary vertices w/o secondary particles
+  /*TruthVertexFinder::Config findVertices;
+  findVertices.inputParticles = selectParticles.outputParticles;
+  findVertices.outputProtoVertices = "protovertices";
+  findVertices.excludeSecondaries = true;
+  sequencer.addAlgorithm(
+      std::make_shared<TruthVertexFinder>(findVertices, logLevel));
+      
+  // fit vertices using the Billoir fitter
+  VertexFitterAlgorithmBGV::Config fitVertices;
+  fitVertices.inputTrackParameters = fitter.outputTrajectories; // smearParticles.outputTrackParameters;
+  fitVertices.inputProtoVertices = findVertices.outputProtoVertices;
+  fitVertices.outputFittedVertices = "fitted_vertices";
+  fitVertices.bField = Acts::Vector3D(0_T, 0_T, 0_T);
+  sequencer.addAlgorithm(
+      std::make_shared<VertexFitterAlgorithmBGV>(fitVertices, logLevel));
+  
+  auto outputDir = ensureWritableDirectory(vars["output-dir"].as<std::string>());
 
+  RootVertexAndTrackWriterBGV::Config writerCfg;
+  writerCfg.collection = fitVertices.outputFittedVertices;
+  writerCfg.filePath = joinPaths(outputDir, fitVertices.outputFittedVertices + ".root");
+  sequencer.addWriter(
+      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));
+*/
+  //////////////////////////////////////////////////////////////////////////////////////
   // write tracks from fitting
   RootTrajectoryWriter::Config trackWriter;
   trackWriter.inputParticles = inputParticles;
@@ -164,6 +191,10 @@ int main(int argc, char* argv[]) {
   perfFitter.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
+      
+      
+      
+      
 
   return sequencer.run();
 }

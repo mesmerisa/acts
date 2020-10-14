@@ -7,6 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ActsExamples/Digitization/HitSmearing.hpp"
+#include "ActsExamples/Fitting/FittingAlgorithm.hpp"
 #include "ActsExamples/Framework/Sequencer.hpp"
 #include "ActsExamples/Framework/WhiteBoard.hpp"
 #include "ActsExamples/TGeoDetector/TGeoDetector.hpp"
@@ -14,18 +15,23 @@
 #include "ActsExamples/Io/Csv/CsvOptionsReader.hpp"
 #include "ActsExamples/Io/Csv/CsvParticleReader.hpp"
 #include "ActsExamples/Io/Csv/CsvPlanarClusterReader.hpp"
-#include "ActsExamples/Io/Performance/CKFPerformanceWriter.hpp"
+#include "ActsExamples/Io/Performance/TrackFinderPerformanceWriter.hpp"
+#include "ActsExamples/Io/Performance/TrackFitterPerformanceWriter.hpp"
+#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
 #include "ActsExamples/Options/CommonOptions.hpp"
 #include "ActsExamples/Plugins/BField/BFieldOptions.hpp"
-#include "ActsExamples/TrackFinding/TrackFindingAlgorithm.hpp"
-#include "ActsExamples/TrackFinding/TrackFindingOptions.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
+#include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
 #include "ActsExamples/TruthTracking/TruthSeedSelector.hpp"
-#include "ActsExamples/TruthTracking/ParticleSelector.hpp"
-#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
+//#include "ActsExamples/TruthTracking/ParticleSelector.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Utilities/Units.hpp>
+#include "ActsExamples/Vertexing/AdaptiveMultiVertexFinderAlgorithm.hpp"
+#include "ActsExamples/Io/Root/RootVertexAndTrackWriterBGV.hpp"
+#include "ActsExamples/Vertexing/VertexFitterAlgorithmFromTrajBGV.hpp"
+#include "ActsExamples/TruthTracking/TruthVertexFinder.hpp"
+
 
 #include <memory>
 
@@ -45,8 +51,7 @@ int main(int argc, char* argv[]) {
   Options::addOutputOptions(desc);
   detector.addOptions(desc);
   Options::addBFieldOptions(desc);
-  Options::addTrackFindingOptions(desc);
-
+  //ParticleSelector::addOptions(desc);
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -87,25 +92,37 @@ int main(int argc, char* argv[]) {
   sequencer.addReader(
       std::make_shared<CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
 
-  // Pre-select particles
-  // The pre-selection will select truth particles satisfying provided criteria
-  // from all particles read in by particle reader for further processing. It
-  // has no impact on the truth hits read-in by the cluster reader.
-  // @TODO: add options for truth particle selection criteria
+
+
+  // pre-select particles
+  /*ParticleSelector::Config selectParticles = ParticleSelector::readConfig(vars);
+  selectParticles.inputParticles = readParticles.outputParticles;
+  selectParticles.outputParticles = "particles_selected";
+  selectParticles.etaMin = 1.9;
+  selectParticles.etaMax = 4.5;
+  // smearing only works with charge particles for now
+  selectParticles.removeNeutral = true;
+  sequencer.addAlgorithm(
+      std::make_shared<ParticleSelector>(selectParticles, logLevel));*/
+
+  
+  // pre-select particles
   TruthSeedSelector::Config particleSelectorCfg;
   particleSelectorCfg.inputParticles = particleReader.outputParticles;
   particleSelectorCfg.inputHitParticlesMap =
       clusterReaderCfg.outputHitParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.ptMin = 1_MeV;
   particleSelectorCfg.nHitsMin = 3;
-  //particleSelectorCfg.nHitsMax = 30;
-  particleSelectorCfg.etaMin = 1.9;
+  //particleSelectorCfg.nHitsMax = 3;
+  particleSelectorCfg.ptMin = 1_MeV;
+  particleSelectorCfg.etaMin = 2;
   particleSelectorCfg.etaMax = 4.4;
-  //particleSelectorCfg.keepNeutral = true;
+  particleSelectorCfg.phiMin = -3.14;
+  particleSelectorCfg.phiMax = 3.14; 
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
-
+      
+ 
   // Create smeared measurements
   HitSmearing::Config hitSmearingCfg;
   hitSmearingCfg.inputSimulatedHits = clusterReaderCfg.outputSimulatedHits;
@@ -116,8 +133,20 @@ int main(int argc, char* argv[]) {
   hitSmearingCfg.trackingGeometry = trackingGeometry;
   sequencer.addAlgorithm(
       std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
+      
 
-  const auto& inputParticles = particleSelectorCfg.outputParticles; //   particleReader.outputParticles; // 
+  // The fitter needs the measurements (proto tracks) and initial
+  // track states (proto states). The elements in both collections
+  // must match and must be created from the same input particles.
+  const auto& inputParticles = particleSelectorCfg.outputParticles; //particleReader.outputParticles;
+  // Create truth tracks
+  TruthTrackFinder::Config trackFinderCfg;
+  trackFinderCfg.inputParticles = inputParticles;
+  trackFinderCfg.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
+  trackFinderCfg.outputProtoTracks = "prototracks";
+  sequencer.addAlgorithm(
+      std::make_shared<TruthTrackFinder>(trackFinderCfg, logLevel));
+      
   // Create smeared particles states
   ParticleSmearing::Config particleSmearingCfg;
   particleSmearingCfg.inputParticles = inputParticles;
@@ -126,10 +155,10 @@ int main(int argc, char* argv[]) {
   // Gaussian sigmas to smear particle parameters
   particleSmearingCfg.sigmaD0 = 20_um;
   particleSmearingCfg.sigmaD0PtA = 30_um;
-  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaD0PtB = 0.03 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 20_um;
   particleSmearingCfg.sigmaZ0PtA = 30_um;
-  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0PtB = 0.03 / 1_GeV;
   particleSmearingCfg.sigmaPhi = 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
@@ -137,35 +166,72 @@ int main(int argc, char* argv[]) {
   sequencer.addAlgorithm(
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
 
-  // Setup the track finding algorithm with CKF
-  // It takes all the source links created from truth hit smearing, seeds from
-  // truth particle smearing and source link selection config
-  auto trackFindingCfg = Options::readTrackFindingConfig(vm);
-  trackFindingCfg.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
-  trackFindingCfg.inputInitialTrackParameters =
+  // setup the fitter
+  FittingAlgorithm::Config fitter;
+  fitter.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
+  fitter.inputProtoTracks = trackFinderCfg.outputProtoTracks;
+  fitter.inputInitialTrackParameters =
       particleSmearingCfg.outputTrackParameters;
-  trackFindingCfg.outputTrajectories = "trajectories";
-  trackFindingCfg.findTracks = TrackFindingAlgorithm::makeTrackFinderFunction(
-      trackingGeometry, magneticField);
+  fitter.outputTrajectories = "trajectories";
+  fitter.fit =
+      FittingAlgorithm::makeFitterFunction(trackingGeometry, magneticField);
+  sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitter, logLevel));
+  
+  //////////////////////////////////////////////////////////////////////////////////////
+  // find true primary vertices w/o secondary particles
+  TruthVertexFinder::Config findVertices;
+  findVertices.inputParticles = inputParticles; //selectParticles.outputParticles;
+  findVertices.outputProtoVertices = "protovertices";
+  findVertices.excludeSecondaries = true;
   sequencer.addAlgorithm(
-      std::make_shared<TrackFindingAlgorithm>(trackFindingCfg, logLevel));
- 
+      std::make_shared<TruthVertexFinder>(findVertices, logLevel));
+      
+  // fit vertices using the Billoir fitter
+  VertexFitterAlgorithmFromTrajBGV::Config fitVertices;
+  fitVertices.inputTrajectories = fitter.outputTrajectories; // smearParticles.outputTrackParameters;
+  fitVertices.inputProtoVertices = findVertices.outputProtoVertices;
+  fitVertices.outputFittedVertices = "fitted_vertices";
+  fitVertices.doConstrainedFit = false;
+  fitVertices.bField = Acts::Vector3D(0_T, 0_T, 0_T);
+  sequencer.addAlgorithm(
+      std::make_shared<VertexFitterAlgorithmFromTrajBGV>(fitVertices, logLevel));
+  
+  RootVertexAndTrackWriterBGV::Config writerCfg;
+  writerCfg.collection = fitVertices.outputFittedVertices;
+  writerCfg.filePath = joinPaths(outputDir, fitVertices.outputFittedVertices + ".root");
+  sequencer.addWriter(
+      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));
+
+  //////////////////////////////////////////////////////////////////////////////////////
   // write tracks from fitting
   RootTrajectoryWriter::Config trackWriter;
   trackWriter.inputParticles = inputParticles;
-  trackWriter.inputTrajectories = trackFindingCfg.outputTrajectories;
+  trackWriter.inputTrajectories = fitter.outputTrajectories;
   trackWriter.outputDir = outputDir;
-  trackWriter.outputFilename = "tracks_ckf.root";
+  trackWriter.outputFilename = "tracks.root";
   trackWriter.outputTreename = "tracks";
-  sequencer.addWriter(std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
-    
-  // Write CKF performance data
-  CKFPerformanceWriter::Config perfWriterCfg;
-  perfWriterCfg.inputParticles = inputParticles;
-  perfWriterCfg.inputTrajectories = trackFindingCfg.outputTrajectories;
-  perfWriterCfg.outputDir = outputDir;
   sequencer.addWriter(
-      std::make_shared<CKFPerformanceWriter>(perfWriterCfg, logLevel));
+      std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
+
+  // write reconstruction performance data
+  TrackFinderPerformanceWriter::Config perfFinder;
+  perfFinder.inputParticles = inputParticles;
+  perfFinder.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
+  perfFinder.inputProtoTracks = trackFinderCfg.outputProtoTracks;
+  perfFinder.outputDir = outputDir;
+  sequencer.addWriter(
+      std::make_shared<TrackFinderPerformanceWriter>(perfFinder, logLevel));
+      
+  TrackFitterPerformanceWriter::Config perfFitter;
+  perfFitter.inputParticles = inputParticles;
+  perfFitter.inputTrajectories = fitter.outputTrajectories;
+  perfFitter.outputDir = outputDir;
+  sequencer.addWriter(
+      std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
+      
+      
+      
+      
 
   return sequencer.run();
 }
