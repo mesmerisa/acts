@@ -32,6 +32,8 @@
 #include "ActsExamples/Vertexing/VertexFitterAlgorithmFromTrajBGV.hpp"
 #include "ActsExamples/TruthTracking/TruthVertexFinder.hpp"
 
+#include "ActsExamples/Vertexing/AdaptiveMultiVertexFinderAlgorithmFromTrajBGV.hpp"
+
 
 #include <memory>
 
@@ -115,10 +117,10 @@ int main(int argc, char* argv[]) {
   particleSelectorCfg.nHitsMin = 3;
   //particleSelectorCfg.nHitsMax = 3;
   particleSelectorCfg.ptMin = 1_MeV;
-  particleSelectorCfg.etaMin = 2;
+  particleSelectorCfg.etaMin = 1.9;
   particleSelectorCfg.etaMax = 4.4;
-  particleSelectorCfg.phiMin = -3.14;
-  particleSelectorCfg.phiMax = 3.14; 
+  //particleSelectorCfg.phiMin = -3.14;
+  //particleSelectorCfg.phiMax = 3.14; 
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
       
@@ -155,10 +157,10 @@ int main(int argc, char* argv[]) {
   // Gaussian sigmas to smear particle parameters
   particleSmearingCfg.sigmaD0 = 20_um;
   particleSmearingCfg.sigmaD0PtA = 30_um;
-  particleSmearingCfg.sigmaD0PtB = 0.03 / 1_GeV;
+  particleSmearingCfg.sigmaD0PtB = 0.003 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 20_um;
   particleSmearingCfg.sigmaZ0PtA = 30_um;
-  particleSmearingCfg.sigmaZ0PtB = 0.03 / 1_GeV;
+  particleSmearingCfg.sigmaZ0PtB = 0.003 / 1_GeV;
   particleSmearingCfg.sigmaPhi = 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
@@ -179,7 +181,7 @@ int main(int argc, char* argv[]) {
   
   //////////////////////////////////////////////////////////////////////////////////////
   // find true primary vertices w/o secondary particles
-  TruthVertexFinder::Config findVertices;
+  /*TruthVertexFinder::Config findVertices;
   findVertices.inputParticles = inputParticles; //selectParticles.outputParticles;
   findVertices.outputProtoVertices = "protovertices";
   findVertices.excludeSecondaries = true;
@@ -195,12 +197,31 @@ int main(int argc, char* argv[]) {
   fitVertices.bField = Acts::Vector3D(0_T, 0_T, 0_T);
   sequencer.addAlgorithm(
       std::make_shared<VertexFitterAlgorithmFromTrajBGV>(fitVertices, logLevel));
-  
+      
   RootVertexAndTrackWriterBGV::Config writerCfg;
   writerCfg.collection = fitVertices.outputFittedVertices;
   writerCfg.filePath = joinPaths(outputDir, fitVertices.outputFittedVertices + ".root");
   sequencer.addWriter(
-      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));
+      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));        
+  */
+      
+      
+   // find vertices
+  AdaptiveMultiVertexFinderAlgorithmFromTrajBGV::Config findVertices;
+  findVertices.inputTrajectories = fitter.outputTrajectories; // XXX smearParticles.outputTrackParameters;
+  findVertices.outputProtoVertices = "protovertices";
+  findVertices.outputFoundVertices = "found_vertices";
+  findVertices.bField = Acts::Vector3D(0_T, 0_T, 0_T);
+  sequencer.addAlgorithm(std::make_shared<AdaptiveMultiVertexFinderAlgorithmFromTrajBGV>(
+      findVertices, logLevel));    
+      
+  RootVertexAndTrackWriterBGV::Config writerCfg;
+  writerCfg.collection = findVertices.outputFoundVertices; //fitVertices.outputFittedVertices;
+  writerCfg.filePath = joinPaths(outputDir,  findVertices.outputFoundVertices + ".root");
+  sequencer.addWriter(
+      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));      
+      
+  
 
   //////////////////////////////////////////////////////////////////////////////////////
   // write tracks from fitting

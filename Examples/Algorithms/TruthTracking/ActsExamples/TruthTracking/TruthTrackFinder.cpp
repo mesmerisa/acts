@@ -36,7 +36,7 @@ TruthTrackFinder::TruthTrackFinder(const Config& cfg, Acts::Logging::Level lvl)
 ProcessCode TruthTrackFinder::execute(const AlgorithmContext& ctx) const {
   using HitParticlesMap = IndexMultimap<ActsFatras::Barcode>;
   
-  std::cout << "TruthTrackFinder::execute " <<  std::endl; 
+  //std::cout << "TruthTrackFinder::execute " <<  std::endl; 
   
   // prepare input collections
   const auto& particles =
@@ -46,14 +46,14 @@ ProcessCode TruthTrackFinder::execute(const AlgorithmContext& ctx) const {
   // compute particle_id -> {hit_id...} map from the
   // hit_id -> {particle_id...} map on the fly.
   const auto& particleHitsMap = invertIndexMultimap(hitParticlesMap);
-std::cout << "TruthTrackFinder::execute 1" <<  std::endl; 
+  //std::cout << "TruthTrackFinder::execute 1" <<  std::endl; 
   // prepare output collection
   ProtoTrackContainer tracks;
   tracks.reserve(particles.size());
 
   // create prototracks for all input particles
   for (const auto& particle : particles) {
-    std::cout << "TruthTrackfinder... particles loop " << std::endl;
+    //std::cout << "TruthTrackfinder... particles loop " << std::endl;
     // find the corresponding hits for this particle
     const auto& hits =
         makeRange(particleHitsMap.equal_range(particle.particleId()));
@@ -61,17 +61,17 @@ std::cout << "TruthTrackFinder::execute 1" <<  std::endl;
     ProtoTrack track;
     track.reserve(hits.size());
     for (const auto& hit : hits) {
-      std::cout << "TruthTrackfinder... hits loop " << std::endl; 
-      std::cout << hit.first << std::endl; 
-      std::cout << hit.second << std::endl; 
-      std::cout <<  std::endl; 
+      //std::cout << "TruthTrackfinder... hits loop " << std::endl; 
+      //std::cout << hit.first << std::endl; 
+      //std::cout << hit.second << std::endl; 
+      //std::cout <<  std::endl; 
       track.emplace_back(hit.second);
     }
     // add proto track to the output collection
     tracks.emplace_back(std::move(track));
   }
-  std::cout << "TruthTrackFinder::execute 5" <<  std::endl; 
+  //std::cout << "TruthTrackFinder::execute 5" <<  std::endl; 
   ctx.eventStore.add(m_cfg.outputProtoTracks, std::move(tracks));
-  std::cout << "TruthTrackFinder::execute last " <<  std::endl; 
+  //std::cout << "TruthTrackFinder::execute last " <<  std::endl; 
   return ProcessCode::SUCCESS;
 }

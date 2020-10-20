@@ -117,10 +117,10 @@ int main(int argc, char* argv[]) {
   sequencer.addAlgorithm(
       std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
 
-  const auto& inputParticles = particleSelectorCfg.outputParticles; //   particleReader.outputParticles; // 
+  const auto& inputParticles = particleSelectorCfg.outputParticles;  //particleReader.outputParticles; // particleSelectorCfg.outputParticles; //   
   // Create smeared particles states
   ParticleSmearing::Config particleSmearingCfg;
-  particleSmearingCfg.inputParticles = inputParticles;
+  particleSmearingCfg.inputParticles = particleSelectorCfg.outputParticles;
   particleSmearingCfg.outputTrackParameters = "smearedparameters";
   particleSmearingCfg.randomNumbers = rnd;
   // Gaussian sigmas to smear particle parameters
@@ -149,7 +149,15 @@ int main(int argc, char* argv[]) {
       trackingGeometry, magneticField);
   sequencer.addAlgorithm(
       std::make_shared<TrackFindingAlgorithm>(trackFindingCfg, logLevel));
- 
+
+  // Write CKF performance data
+  CKFPerformanceWriter::Config perfWriterCfg;
+  perfWriterCfg.inputParticles = particleSelectorCfg.outputParticles;
+  perfWriterCfg.inputTrajectories = trackFindingCfg.outputTrajectories;
+  perfWriterCfg.outputDir = outputDir;
+  sequencer.addWriter(
+      std::make_shared<CKFPerformanceWriter>(perfWriterCfg, logLevel));
+      
   // write tracks from fitting
   RootTrajectoryWriter::Config trackWriter;
   trackWriter.inputParticles = inputParticles;
@@ -158,14 +166,6 @@ int main(int argc, char* argv[]) {
   trackWriter.outputFilename = "tracks_ckf.root";
   trackWriter.outputTreename = "tracks";
   sequencer.addWriter(std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
-    
-  // Write CKF performance data
-  CKFPerformanceWriter::Config perfWriterCfg;
-  perfWriterCfg.inputParticles = inputParticles;
-  perfWriterCfg.inputTrajectories = trackFindingCfg.outputTrajectories;
-  perfWriterCfg.outputDir = outputDir;
-  sequencer.addWriter(
-      std::make_shared<CKFPerformanceWriter>(perfWriterCfg, logLevel));
 
   return sequencer.run();
 }

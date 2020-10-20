@@ -12,6 +12,8 @@
 #include "Acts/Utilities/Units.hpp"
 #include "ActsExamples/Framework/BareAlgorithm.hpp"
 
+
+
 #include <string>
 
 namespace ActsExamples {
@@ -19,7 +21,7 @@ namespace ActsExamples {
 class VertexFitterAlgorithmFromTrajBGV final : public BareAlgorithm {
  public:
   struct Config {
-    /// Input track parameters collection.
+    /// Input trajectory collection.
     std::string inputTrajectories;
     /// Input proto vertex collection.
     std::string inputProtoVertices;
