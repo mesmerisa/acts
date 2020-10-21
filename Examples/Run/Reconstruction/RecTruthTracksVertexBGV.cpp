@@ -115,12 +115,12 @@ int main(int argc, char* argv[]) {
       clusterReaderCfg.outputHitParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
   particleSelectorCfg.nHitsMin = 3;
-  //particleSelectorCfg.nHitsMax = 3;
   particleSelectorCfg.ptMin = 1_MeV;
   particleSelectorCfg.etaMin = 1.9;
   particleSelectorCfg.etaMax = 4.4;
   //particleSelectorCfg.phiMin = -3.14;
   //particleSelectorCfg.phiMax = 3.14; 
+    //particleSelectorCfg.nHitsMax = 3;
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
       
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
   
   //////////////////////////////////////////////////////////////////////////////////////
   // find true primary vertices w/o secondary particles
-  /*TruthVertexFinder::Config findVertices;
+  TruthVertexFinder::Config findVertices;
   findVertices.inputParticles = inputParticles; //selectParticles.outputParticles;
   findVertices.outputProtoVertices = "protovertices";
   findVertices.excludeSecondaries = true;
@@ -203,11 +203,11 @@ int main(int argc, char* argv[]) {
   writerCfg.filePath = joinPaths(outputDir, fitVertices.outputFittedVertices + ".root");
   sequencer.addWriter(
       std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));        
-  */
+  
       
       
    // find vertices
-  AdaptiveMultiVertexFinderAlgorithmFromTrajBGV::Config findVertices;
+  /*AdaptiveMultiVertexFinderAlgorithmFromTrajBGV::Config findVertices;
   findVertices.inputTrajectories = fitter.outputTrajectories; // XXX smearParticles.outputTrackParameters;
   findVertices.outputProtoVertices = "protovertices";
   findVertices.outputFoundVertices = "found_vertices";
@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
   writerCfg.collection = findVertices.outputFoundVertices; //fitVertices.outputFittedVertices;
   writerCfg.filePath = joinPaths(outputDir,  findVertices.outputFoundVertices + ".root");
   sequencer.addWriter(
-      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));      
+      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));   */   
       
   
 

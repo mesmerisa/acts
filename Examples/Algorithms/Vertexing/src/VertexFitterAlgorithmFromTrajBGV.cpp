@@ -135,6 +135,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
      trackParameters.push_back(traj.trackParameters(trackTip));
    
   }
+
   
   for(auto btr_ : empty_traj) {
      std::cout << "empty    " << btr_ << std::endl;
@@ -168,20 +169,14 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
     //inputTrackPtrCollection.reserve(protoVertex.size());
     
     for (const auto& trackIdx : protoVertex) {
-      std::cout << "track index " << trackIdx << std::endl;
-      
-      //if(trackIdx in empty_traj) 
-      
       if (std::count(empty_traj.begin(), empty_traj.end(), trackIdx)) continue;
-      std::cout << "track index " << trackIdx << " not empty. " << std::endl;
-      
       inputTrackPtrCollection.push_back(&trackParameters[trackIdx]);
-      std::cout << "traj  proto vertex loop, track parameters: " << std::endl;
+      //std::cout << "traj  proto vertex loop, track parameters: " << std::endl;
       //std::cout <<  trackParameters[trackIdx] << std::endl;
-      std::cout << "=================================================== track cov has value: " << trackParameters[trackIdx].covariance().has_value() << std::endl;
+      //std::cout << "=================================================== track cov has value: " << trackParameters[trackIdx].covariance().has_value() << std::endl;
       //std::cout << "=================================================== track cov determinante: " << trackParameters[trackIdx].covariance().determinant() << std::endl;
     }
-    std::cout << "traj after proto loop 1 " << std::endl;
+    //std::cout << "traj after proto loop 1 " << std::endl;
     Acts::Vertex<Acts::BoundTrackParameters> fittedVertex;
 
     std::cout << "traj coll input length " << inputTrackPtrCollection.size() << std::endl;
