@@ -93,15 +93,14 @@ FreeToBoundMatrix surfaceDerivative(
     const FreeVector& derivatives, const Surface& surface) {
   // Initialize the transport final frame jacobian
   FreeToBoundMatrix jacToLocal = FreeToBoundMatrix::Zero();
-  // Initalize the jacobian to local, returns the transposed ref frame
-  auto rframeT = surface.initJacobianToLocal(geoContext, jacToLocal,
-                                             parameters.segment<3>(eFreePos0),
-                                             parameters.segment<3>(eFreeDir0));
+  // Initalize the jacobian to local
+  surface.initJacobianToLocal(geoContext, jacToLocal,
+                              parameters.segment<3>(eFreePos0),
+                              parameters.segment<3>(eFreeDir0));
   // Calculate the form factors for the derivatives
-  const BoundRowVector sVec = surface.derivativeFactors(
-      geoContext, parameters.segment<3>(eFreePos0),
-      parameters.segment<3>(eFreeDir0), rframeT, jacobianLocalToGlobal);
-  jacobianLocalToGlobal -= derivatives * sVec;
+  const FreeRowVector freeToPath =
+      surface.freeToPathDerivative(geoContext, parameters);
+  jacobianLocalToGlobal += derivatives * freeToPath * jacobianLocalToGlobal;
   // Return the jacobian to local
   return jacToLocal;
 }
@@ -236,8 +235,11 @@ BoundState boundState(std::reference_wrapper<const GeometryContext> geoContext,
     covarianceTransport(geoContext, covarianceMatrix, jacobian,
                         transportJacobian, derivatives, jacobianLocalToGlobal,
                         parameters, surface);
+  }
+  if (covarianceMatrix != BoundSymMatrix::Zero()) {
     cov = covarianceMatrix;
   }
+
   // Create the bound parameters
   BoundVector bv =
       detail::transformFreeToBoundParameters(parameters, surface, geoContext);
@@ -261,8 +263,11 @@ CurvilinearState curvilinearState(Covariance& covarianceMatrix,
   if (covTransport) {
     covarianceTransport(covarianceMatrix, jacobian, transportJacobian,
                         derivatives, jacobianLocalToGlobal, direction);
+  }
+  if (covarianceMatrix != BoundSymMatrix::Zero()) {
     cov = covarianceMatrix;
   }
+
   // Create the curvilinear parameters
   Vector4D pos4 = Vector4D::Zero();
   pos4[ePos0] = parameters[eFreePos0];
