@@ -72,7 +72,7 @@ with open(inFileName,'r') as json_file:
                 
                 if 'representing' in data['volumes'][kvol]['layers'][klay] :
                     drep = data['volumes'][kvol]['layers'][klay]['representing']
-                    if not drep['stype'] in rconfig :
+                    if not drep["stype"] in rconfig :
                         rconfig[drep['stype']] = getSurfaceMateral(drep)
                     vconfig['representing'] = rconfig
                 
@@ -86,7 +86,7 @@ with open(inFileName,'r') as json_file:
                 if 'sensitive' in data['volumes'][kvol]['layers'][klay] :
                     for ksen  in data['volumes'][kvol]['layers'][klay]['sensitive'] :
                         dsen = data['volumes'][kvol]['layers'][klay]['sensitive'][ksen]
-                        if not dsen['stype'] in sconfig :
+                        if not dsen["stype"] in sconfig :
                             sconfig[dsen['stype']] = getSurfaceMateral(dsen)
                     vconfig['sensitive'] = sconfig
 

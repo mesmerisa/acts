@@ -51,6 +51,19 @@ ActsExamples::RootVertexAndTrackWriterBGV::RootVertexAndTrackWriterBGV(
     m_outputTree->Branch("vy", &m_ptrVy);
     m_outputTree->Branch("vz", &m_ptrVz);
 
+    m_outputTree->Branch("v_chi2", &m_ptrV_chi2);
+    m_outputTree->Branch("v_cov11", &mPtrV_cov11);
+    m_outputTree->Branch("v_cov12", &mPtrV_cov12);
+    m_outputTree->Branch("v_cov13", &mPtrV_cov13);
+
+    m_outputTree->Branch("v_cov21", &mPtrV_cov21);
+    m_outputTree->Branch("v_cov22", &mPtrV_cov22);
+    m_outputTree->Branch("v_cov23", &mPtrV_cov23);
+    
+    m_outputTree->Branch("v_cov31", &mPtrV_cov31);
+    m_outputTree->Branch("v_cov32", &mPtrV_cov32);
+    m_outputTree->Branch("v_cov33", &mPtrV_cov33);
+
     m_outputTree->Branch("d0", &m_ptrD0);
     m_outputTree->Branch("z0", &m_ptrZ0);
     m_outputTree->Branch("phi", &m_ptrPhi);
@@ -130,7 +143,19 @@ void ActsExamples::RootVertexAndTrackWriterBGV::ClearAll() {
   m_qp.clear();
   m_time.clear();
   m_vtxID.clear();
-
+  
+  m_v_chi2.clear();
+  
+  m_v_cov11.clear();
+  m_v_cov12.clear();
+  m_v_cov13.clear();
+  m_v_cov21.clear();
+  m_v_cov22.clear();
+  m_v_cov23.clear();
+  m_v_cov31.clear();
+  m_v_cov32.clear();
+  m_v_cov33.clear();
+    
   m_cov11.clear();
   m_cov12.clear();
   m_cov13.clear();
@@ -195,6 +220,26 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
     m_vy.push_back(vertex.position().y());
     m_vz.push_back(vertex.position().z());
 
+    
+    //int dof = 0;
+    
+    auto chi2 = vertex.fitQuality().first;    
+    m_v_chi2.push_back(chi2);
+    
+    auto v_cov = vertex.covariance();
+    
+    m_v_cov11.push_back(v_cov(0,0));
+    m_v_cov12.push_back(v_cov(0,1));
+    m_v_cov13.push_back(v_cov(0,2));
+    
+    m_v_cov21.push_back(v_cov(1,0));
+    m_v_cov22.push_back(v_cov(1,1));
+    m_v_cov23.push_back(v_cov(1,2));
+    
+    m_v_cov31.push_back(v_cov(2,0));
+    m_v_cov32.push_back(v_cov(2,1));
+    m_v_cov33.push_back(v_cov(2,2));
+    
 
     std::cout << "----------------------------------------------------" << std::endl;
     for (auto track : vertex.tracks() ) {

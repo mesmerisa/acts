@@ -62,8 +62,8 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
   Linearizer::Config ltConfig(bField, propagator);
   Linearizer linearizer(ltConfig);
 
-  const auto& trajectoriesContainer =
-      ctx.eventStore.get<TrajectoryContainer>(m_cfg.inputTrajectories);
+  const auto& trajectories =
+      ctx.eventStore.get<TrajectoriesContainer>(m_cfg.inputTrajectories);
   
   
   std::vector<Acts::BoundTrackParameters> trackParameters;
@@ -92,12 +92,20 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
   std::vector<int> empty_traj;
   empty_traj.clear();
   
-  for (const auto& traj : trajectoriesContainer ) {
+  
+  for (size_t itraj = 0; itraj < trajectories.size(); ++itraj) {
+    const auto& traj = trajectories[itraj];
+  
      traj_counter += 1;
      std::cout << "traj " << std::endl;
      //std::cout << traj.hasTrackParameters() << std::endl;
-     const auto& [trackTips, mj] = traj.trajectory();
+     //const auto& [trackTips, mj] = traj;
+     //m_trajNr = itraj;
 
+     // The trajectory entry indices and the multiTrajectory
+     const auto& mj = traj.multiTrajectory();
+     const auto& trackTips = traj.tips();
+     
      if (trackTips.empty()) {
        ACTS_WARNING("Empty multiTrajectory.");
        empty_traj.push_back(traj_counter);
@@ -110,6 +118,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
        return ProcessCode::ABORT;
      }
      auto& trackTip = trackTips.front();
+     
      // Select reco track with fitted parameters
      if (not traj.hasTrackParameters(trackTip)) {
        ACTS_WARNING("No fitted track parameters.");

@@ -46,14 +46,14 @@ ActsExamples::CsvPlanarClusterReader::CsvPlanarClusterReader(
   if (not m_cfg.trackingGeometry) {
     throw std::invalid_argument("Missing tracking geometry");
   }
-<<<<<<< HEAD
+/*<<<<<<< HEAD
   // fill the geo id to surface map once to speed up lookups later on
   m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
     this->m_surfaces[surface->geometryId()] = surface;
     std::cout << "constructor surface->geometryId() " << surface->geometryId() << std::endl;
   });
-=======
->>>>>>> FETCH_HEAD
+=======*/
+//>>>>>>> FETCH_HEAD
 }
 
 std::string ActsExamples::CsvPlanarClusterReader::CsvPlanarClusterReader::name()

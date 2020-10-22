@@ -21,8 +21,6 @@
 #include "ActsExamples/TrackFinding/TrackFindingOptions.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 #include "ActsExamples/TruthTracking/TruthSeedSelector.hpp"
-#include "ActsExamples/TruthTracking/ParticleSelector.hpp"
-#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Utilities/Units.hpp>
@@ -82,10 +80,25 @@ int main(int argc, char* argv[]) {
   clusterReaderCfg.trackingGeometry = trackingGeometry;
   clusterReaderCfg.outputClusters = "clusters";
   clusterReaderCfg.outputHitIds = "hit_ids";
-  clusterReaderCfg.outputHitParticlesMap = "hit_particles_map";
-  clusterReaderCfg.outputSimulatedHits = "hits";
+  // only simhits are used and the map will be re-created by the digitizer
+  clusterReaderCfg.outputMeasurementParticlesMap = "unused-hit_particles_map";
+  clusterReaderCfg.outputSimHits = "simhits";
   sequencer.addReader(
       std::make_shared<CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
+
+  // Create smeared measurements
+  HitSmearing::Config hitSmearingCfg;
+  hitSmearingCfg.inputSimHits = clusterReaderCfg.outputSimHits;
+  hitSmearingCfg.outputMeasurements = "measurements";
+  hitSmearingCfg.outputSourceLinks = "sourcelinks";
+  hitSmearingCfg.outputMeasurementParticlesMap = "measurement_particles_map";
+  hitSmearingCfg.outputMeasurementSimHitsMap = "measurement_simhits_map";
+  hitSmearingCfg.sigmaLoc0 = 50_um;
+  hitSmearingCfg.sigmaLoc1 = 50_um;
+  hitSmearingCfg.randomNumbers = rnd;
+  hitSmearingCfg.trackingGeometry = trackingGeometry;
+  sequencer.addAlgorithm(
+      std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
 
   // Pre-select particles
   // The pre-selection will select truth particles satisfying provided criteria
@@ -94,33 +107,20 @@ int main(int argc, char* argv[]) {
   // @TODO: add options for truth particle selection criteria
   TruthSeedSelector::Config particleSelectorCfg;
   particleSelectorCfg.inputParticles = particleReader.outputParticles;
-  particleSelectorCfg.inputHitParticlesMap =
-      clusterReaderCfg.outputHitParticlesMap;
+  particleSelectorCfg.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
   particleSelectorCfg.ptMin = 1_MeV;
   particleSelectorCfg.nHitsMin = 3;
-  //particleSelectorCfg.nHitsMax = 30;
   particleSelectorCfg.etaMin = 1.9;
   particleSelectorCfg.etaMax = 4.4;
-  //particleSelectorCfg.keepNeutral = true;
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
 
-  // Create smeared measurements
-  HitSmearing::Config hitSmearingCfg;
-  hitSmearingCfg.inputSimulatedHits = clusterReaderCfg.outputSimulatedHits;
-  hitSmearingCfg.outputSourceLinks = "sourcelinks";
-  hitSmearingCfg.sigmaLoc0 = 50_um;
-  hitSmearingCfg.sigmaLoc1 = 50_um;
-  hitSmearingCfg.randomNumbers = rnd;
-  hitSmearingCfg.trackingGeometry = trackingGeometry;
-  sequencer.addAlgorithm(
-      std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
-
-  const auto& inputParticles = particleSelectorCfg.outputParticles;  //particleReader.outputParticles; // particleSelectorCfg.outputParticles; //   
+  const auto& inputParticles = particleSelectorCfg.outputParticles;
   // Create smeared particles states
   ParticleSmearing::Config particleSmearingCfg;
-  particleSmearingCfg.inputParticles = particleSelectorCfg.outputParticles;
+  particleSmearingCfg.inputParticles = inputParticles;
   particleSmearingCfg.outputTrackParameters = "smearedparameters";
   particleSmearingCfg.randomNumbers = rnd;
   // Gaussian sigmas to smear particle parameters
@@ -141,6 +141,7 @@ int main(int argc, char* argv[]) {
   // It takes all the source links created from truth hit smearing, seeds from
   // truth particle smearing and source link selection config
   auto trackFindingCfg = Options::readTrackFindingConfig(vm);
+  trackFindingCfg.inputMeasurements = hitSmearingCfg.outputMeasurements;
   trackFindingCfg.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
   trackFindingCfg.inputInitialTrackParameters =
       particleSmearingCfg.outputTrackParameters;
@@ -152,20 +153,13 @@ int main(int argc, char* argv[]) {
 
   // Write CKF performance data
   CKFPerformanceWriter::Config perfWriterCfg;
-  perfWriterCfg.inputParticles = particleSelectorCfg.outputParticles;
   perfWriterCfg.inputTrajectories = trackFindingCfg.outputTrajectories;
+  perfWriterCfg.inputParticles = inputParticles;
+  perfWriterCfg.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
   perfWriterCfg.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<CKFPerformanceWriter>(perfWriterCfg, logLevel));
-      
-  // write tracks from fitting
-  RootTrajectoryWriter::Config trackWriter;
-  trackWriter.inputParticles = inputParticles;
-  trackWriter.inputTrajectories = trackFindingCfg.outputTrajectories;
-  trackWriter.outputDir = outputDir;
-  trackWriter.outputFilename = "tracks_ckf.root";
-  trackWriter.outputTreename = "tracks";
-  sequencer.addWriter(std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
 
   return sequencer.run();
 }

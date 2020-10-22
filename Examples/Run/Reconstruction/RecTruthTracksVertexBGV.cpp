@@ -7,7 +7,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ActsExamples/Digitization/HitSmearing.hpp"
-#include "ActsExamples/Fitting/FittingAlgorithm.hpp"
 #include "ActsExamples/Framework/Sequencer.hpp"
 #include "ActsExamples/Framework/WhiteBoard.hpp"
 #include "ActsExamples/TGeoDetector/TGeoDetector.hpp"
@@ -20,21 +19,18 @@
 #include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
 #include "ActsExamples/Options/CommonOptions.hpp"
 #include "ActsExamples/Plugins/BField/BFieldOptions.hpp"
+#include "ActsExamples/TrackFitting/TrackFittingAlgorithm.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
-#include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
 #include "ActsExamples/TruthTracking/TruthSeedSelector.hpp"
-//#include "ActsExamples/TruthTracking/ParticleSelector.hpp"
+#include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Utilities/Units.hpp>
-#include "ActsExamples/Vertexing/AdaptiveMultiVertexFinderAlgorithm.hpp"
 #include "ActsExamples/Io/Root/RootVertexAndTrackWriterBGV.hpp"
 #include "ActsExamples/Vertexing/VertexFitterAlgorithmFromTrajBGV.hpp"
 #include "ActsExamples/TruthTracking/TruthVertexFinder.hpp"
 
 #include "ActsExamples/Vertexing/AdaptiveMultiVertexFinderAlgorithmFromTrajBGV.hpp"
-
-
 #include <memory>
 
 using namespace Acts::UnitLiterals;
@@ -43,6 +39,7 @@ using namespace ActsExamples;
 int main(int argc, char* argv[]) {
   TGeoDetector detector;
 
+ 
   // setup and parse options
   auto desc = ActsExamples::Options::makeDefaultOptions();
   Options::addSequencerOptions(desc);
@@ -53,7 +50,7 @@ int main(int argc, char* argv[]) {
   Options::addOutputOptions(desc);
   detector.addOptions(desc);
   Options::addBFieldOptions(desc);
-  //ParticleSelector::addOptions(desc);
+
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -89,66 +86,54 @@ int main(int argc, char* argv[]) {
   clusterReaderCfg.trackingGeometry = trackingGeometry;
   clusterReaderCfg.outputClusters = "clusters";
   clusterReaderCfg.outputHitIds = "hit_ids";
-  clusterReaderCfg.outputHitParticlesMap = "hit_particles_map";
-  clusterReaderCfg.outputSimulatedHits = "hits";
+  // only simhits are used and the map will be re-created by the digitizer
+  clusterReaderCfg.outputMeasurementParticlesMap = "unused-hit_particles_map";
+  clusterReaderCfg.outputSimHits = "hits";
   sequencer.addReader(
       std::make_shared<CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
 
-
-
-  // pre-select particles
-  /*ParticleSelector::Config selectParticles = ParticleSelector::readConfig(vars);
-  selectParticles.inputParticles = readParticles.outputParticles;
-  selectParticles.outputParticles = "particles_selected";
-  selectParticles.etaMin = 1.9;
-  selectParticles.etaMax = 4.5;
-  // smearing only works with charge particles for now
-  selectParticles.removeNeutral = true;
-  sequencer.addAlgorithm(
-      std::make_shared<ParticleSelector>(selectParticles, logLevel));*/
-
-  
-  // pre-select particles
-  TruthSeedSelector::Config particleSelectorCfg;
-  particleSelectorCfg.inputParticles = particleReader.outputParticles;
-  particleSelectorCfg.inputHitParticlesMap =
-      clusterReaderCfg.outputHitParticlesMap;
-  particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.nHitsMin = 3;
-  particleSelectorCfg.ptMin = 1_MeV;
-  particleSelectorCfg.etaMin = 1.9;
-  particleSelectorCfg.etaMax = 4.4;
-  //particleSelectorCfg.phiMin = -3.14;
-  //particleSelectorCfg.phiMax = 3.14; 
-    //particleSelectorCfg.nHitsMax = 3;
-  sequencer.addAlgorithm(
-      std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
-      
- 
   // Create smeared measurements
   HitSmearing::Config hitSmearingCfg;
-  hitSmearingCfg.inputSimulatedHits = clusterReaderCfg.outputSimulatedHits;
+  hitSmearingCfg.inputSimHits = clusterReaderCfg.outputSimHits;
+  hitSmearingCfg.outputMeasurements = "measurements";
   hitSmearingCfg.outputSourceLinks = "sourcelinks";
+  hitSmearingCfg.outputMeasurementParticlesMap = "measurement_particles_map";
+  hitSmearingCfg.outputMeasurementSimHitsMap = "measurement_simhits_map";
   hitSmearingCfg.sigmaLoc0 = 50_um;
   hitSmearingCfg.sigmaLoc1 = 50_um;
   hitSmearingCfg.randomNumbers = rnd;
   hitSmearingCfg.trackingGeometry = trackingGeometry;
   sequencer.addAlgorithm(
       std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
-      
+
+  // Pre-select particles
+  // The pre-selection will select truth particles satisfying provided criteria
+  // from all particles read in by particle reader for further processing. It
+  // has no impact on the truth hits read-in by the cluster reader.
+  // @TODO: add options for truth particle selection criteria
+  TruthSeedSelector::Config particleSelectorCfg;
+  particleSelectorCfg.inputParticles = particleReader.outputParticles;
+  particleSelectorCfg.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  particleSelectorCfg.outputParticles = "particles_selected";
+  particleSelectorCfg.nHitsMin = 3;
+  particleSelectorCfg.etaMin = 1.9;
+  particleSelectorCfg.etaMax = 4.4;
+  sequencer.addAlgorithm(
+      std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
 
   // The fitter needs the measurements (proto tracks) and initial
   // track states (proto states). The elements in both collections
   // must match and must be created from the same input particles.
-  const auto& inputParticles = particleSelectorCfg.outputParticles; //particleReader.outputParticles;
+  const auto& inputParticles = particleSelectorCfg.outputParticles;
   // Create truth tracks
   TruthTrackFinder::Config trackFinderCfg;
   trackFinderCfg.inputParticles = inputParticles;
-  trackFinderCfg.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
+  trackFinderCfg.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
   trackFinderCfg.outputProtoTracks = "prototracks";
   sequencer.addAlgorithm(
       std::make_shared<TruthTrackFinder>(trackFinderCfg, logLevel));
-      
   // Create smeared particles states
   ParticleSmearing::Config particleSmearingCfg;
   particleSmearingCfg.inputParticles = inputParticles;
@@ -157,10 +142,10 @@ int main(int argc, char* argv[]) {
   // Gaussian sigmas to smear particle parameters
   particleSmearingCfg.sigmaD0 = 20_um;
   particleSmearingCfg.sigmaD0PtA = 30_um;
-  particleSmearingCfg.sigmaD0PtB = 0.003 / 1_GeV;
+  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 20_um;
   particleSmearingCfg.sigmaZ0PtA = 30_um;
-  particleSmearingCfg.sigmaZ0PtB = 0.003 / 1_GeV;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaPhi = 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
@@ -169,16 +154,22 @@ int main(int argc, char* argv[]) {
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
 
   // setup the fitter
-  FittingAlgorithm::Config fitter;
+  TrackFittingAlgorithm::Config fitter;
+  fitter.inputMeasurements = hitSmearingCfg.outputMeasurements;
   fitter.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
   fitter.inputProtoTracks = trackFinderCfg.outputProtoTracks;
   fitter.inputInitialTrackParameters =
       particleSmearingCfg.outputTrackParameters;
   fitter.outputTrajectories = "trajectories";
-  fitter.fit =
-      FittingAlgorithm::makeFitterFunction(trackingGeometry, magneticField);
-  sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitter, logLevel));
-  
+  fitter.fit = TrackFittingAlgorithm::makeTrackFitterFunction(trackingGeometry,
+                                                              magneticField);
+  sequencer.addAlgorithm(
+      std::make_shared<TrackFittingAlgorithm>(fitter, logLevel));
+      
+      
+      
+      
+      
   //////////////////////////////////////////////////////////////////////////////////////
   // find true primary vertices w/o secondary particles
   TruthVertexFinder::Config findVertices;
@@ -205,7 +196,7 @@ int main(int argc, char* argv[]) {
       std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));        
   
       
-      
+     
    // find vertices
   /*AdaptiveMultiVertexFinderAlgorithmFromTrajBGV::Config findVertices;
   findVertices.inputTrajectories = fitter.outputTrajectories; // XXX smearParticles.outputTrackParameters;
@@ -223,11 +214,25 @@ int main(int argc, char* argv[]) {
       
   
 
-  //////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////    
+      
+      
+      
+      
+      
+      
+      
+
   // write tracks from fitting
   RootTrajectoryWriter::Config trackWriter;
-  trackWriter.inputParticles = inputParticles;
   trackWriter.inputTrajectories = fitter.outputTrajectories;
+  trackWriter.inputParticles = inputParticles;
+  trackWriter.inputSimHits = clusterReaderCfg.outputSimHits;
+  trackWriter.inputMeasurements = hitSmearingCfg.outputMeasurements;
+  trackWriter.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  trackWriter.inputMeasurementSimHitsMap =
+      hitSmearingCfg.outputMeasurementSimHitsMap;
   trackWriter.outputDir = outputDir;
   trackWriter.outputFilename = "tracks.root";
   trackWriter.outputTreename = "tracks";
@@ -236,23 +241,21 @@ int main(int argc, char* argv[]) {
 
   // write reconstruction performance data
   TrackFinderPerformanceWriter::Config perfFinder;
-  perfFinder.inputParticles = inputParticles;
-  perfFinder.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
   perfFinder.inputProtoTracks = trackFinderCfg.outputProtoTracks;
+  perfFinder.inputParticles = inputParticles;
+  perfFinder.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
   perfFinder.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<TrackFinderPerformanceWriter>(perfFinder, logLevel));
-      
   TrackFitterPerformanceWriter::Config perfFitter;
-  perfFitter.inputParticles = inputParticles;
   perfFitter.inputTrajectories = fitter.outputTrajectories;
+  perfFitter.inputParticles = inputParticles;
+  perfFitter.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
   perfFitter.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
-      
-      
-      
-      
 
   return sequencer.run();
 }

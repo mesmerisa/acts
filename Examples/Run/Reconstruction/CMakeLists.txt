@@ -46,10 +46,10 @@ add_executable(
 target_link_libraries(
   ActsExampleTruthTracksBGV
   PRIVATE
-    ActsExamplesFramework
+ActsExamplesFramework
     ActsExamplesCommon
     ActsExamplesDigitization
-    ActsExamplesFitting
+    ActsExamplesTrackFitting
     ActsExamplesDetectorTGeo
     ActsExamplesMagneticField
     ActsExamplesTruthTracking
@@ -70,7 +70,7 @@ target_link_libraries(
     ActsExamplesFramework
     ActsExamplesCommon
     ActsExamplesDigitization
-    ActsExamplesFitting
+    ActsExamplesTrackFitting
     ActsExamplesDetectorTGeo
     ActsExamplesMagneticField
     ActsExamplesTruthTracking

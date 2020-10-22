@@ -11,6 +11,7 @@
 #include "ActsExamples/Framework/WriterT.hpp"
 #include "ActsExamples/EventData/ProtoVertex.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 #include <mutex>
 
@@ -73,6 +74,22 @@ class RootVertexAndTrackWriterBGV final
   std::vector<double> m_vx;
   std::vector<double> m_vy;
   std::vector<double> m_vz;
+  
+  /// chi2 of the vertex fit
+  std::vector<double> m_v_chi2;
+  
+  /// The vertex covariance matrix
+  std::vector<double> m_v_cov11;
+  std::vector<double> m_v_cov12;
+  std::vector<double> m_v_cov13;
+  
+  std::vector<double> m_v_cov21;
+  std::vector<double> m_v_cov22;
+  std::vector<double> m_v_cov23;
+  
+  std::vector<double> m_v_cov31;
+  std::vector<double> m_v_cov32;
+  std::vector<double> m_v_cov33;  
 
   /// The track parameter
   std::vector<double> m_d0;
@@ -137,6 +154,18 @@ class RootVertexAndTrackWriterBGV final
   std::vector<double>* m_ptrQP = &m_qp;
   std::vector<double>* m_ptrTime = &m_time;
   std::vector<int>* m_ptrVtxID = &m_vtxID;
+  
+  std::vector<double>* m_ptrV_chi2 = &m_v_chi2;
+  
+  std::vector<double>* mPtrV_cov11 = &m_v_cov11;
+  std::vector<double>* mPtrV_cov12 = &m_v_cov12;
+  std::vector<double>* mPtrV_cov13 = &m_v_cov13; 
+  std::vector<double>* mPtrV_cov21 = &m_v_cov21;
+  std::vector<double>* mPtrV_cov22 = &m_v_cov22;
+  std::vector<double>* mPtrV_cov23 = &m_v_cov23;
+  std::vector<double>* mPtrV_cov31 = &m_v_cov31;
+  std::vector<double>* mPtrV_cov32 = &m_v_cov32;
+  std::vector<double>* mPtrV_cov33 = &m_v_cov33;
 
   std::vector<double>* m_ptrCov11 = &m_cov11;
   std::vector<double>* m_ptrCov12 = &m_cov12;

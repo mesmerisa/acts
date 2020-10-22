@@ -92,18 +92,18 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
 
   for (auto&& [moduleGeoId, moduleSimHits] : groupByModule(simHits)) {
     // check if we should create hits for this surface
-<<<<<<< HEAD
+/*<<<<<<< HEAD
     const auto is = m_surfaces.find(moduleGeoId);
     
     //std::cout << "Hit smearing execute module geo id " << moduleGeoId << std::endl;  
     
     if (is == m_surfaces.end()) {
     //std::cout << "if continue, Hit smearing execute module geo id " << moduleGeoId << std::endl;
-=======
+=======*/
     const Acts::Surface* surface =
         m_cfg.trackingGeometry->findSurface(moduleGeoId);
     if (not surface) {
->>>>>>> FETCH_HEAD
+//>>>>>>> FETCH_HEAD
       continue;
     }
 
@@ -120,7 +120,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
         return ProcessCode::ABORT;
       }
 
-<<<<<<< HEAD
+/*<<<<<<< HEAD
       //std::cout << "Hit smearing loop, global to local:  " << pos[0] << " " << pos[1] << std::endl;  
       
       // smear truth to create local measurement
@@ -138,7 +138,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
         ACTS_FATAL("The hit ordering broke. Run for your life.");
         return ProcessCode::ABORT;
       }
-=======
+=======*/
       // create smeared local measurement
       Acts::Vector2D loc = lpResult.value();
       loc[0] += m_cfg.sigmaLoc0 * stdNormal(rng);
@@ -158,7 +158,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       hitParticlesMap.emplace_hint(hitParticlesMap.end(), hitIdx,
                                    simHit.particleId());
       hitSimHitsMap.emplace_hint(hitSimHitsMap.end(), hitIdx, simHitIdx);
->>>>>>> FETCH_HEAD
+//>>>>>>> FETCH_HEAD
     }
   }
 

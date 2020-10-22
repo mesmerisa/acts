@@ -11,7 +11,7 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "ActsExamples/Framework/BareAlgorithm.hpp"
-
+#include "ActsExamples/EventData/Trajectories.hpp"
 
 
 #include <string>
