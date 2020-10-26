@@ -113,10 +113,10 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
      }
      // Check the size of the trajectory entry indices. For track fitting, there
      // should be at most one trajectory
-     if (trackTips.size() > 1) {
-       ACTS_ERROR("Track fitting should not result in multiple trajectories.");
-       return ProcessCode::ABORT;
-     }
+     //if (trackTips.size() > 1) {
+     //  ACTS_ERROR("Track fitting should not result in multiple trajectories.");
+     //  return ProcessCode::ABORT;
+     //}
      auto& trackTip = trackTips.front();
      
      // Select reco track with fitted parameters
@@ -177,15 +177,18 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
     inputTrackPtrCollection.clear();
     //inputTrackPtrCollection.reserve(protoVertex.size());
     
+    
+    int track_index_not_empy = -1;
     for (const auto& trackIdx : protoVertex) {
-      if (std::count(empty_traj.begin(), empty_traj.end(), trackIdx)) continue;
-      inputTrackPtrCollection.push_back(&trackParameters[trackIdx]);
-      //std::cout << "traj  proto vertex loop, track parameters: " << std::endl;
-      //std::cout <<  trackParameters[trackIdx] << std::endl;
-      //std::cout << "=================================================== track cov has value: " << trackParameters[trackIdx].covariance().has_value() << std::endl;
-      //std::cout << "=================================================== track cov determinante: " << trackParameters[trackIdx].covariance().determinant() << std::endl;
+      track_index_not_empy += 1;
+      if (std::count(empty_traj.begin(), empty_traj.end(), trackIdx)) {
+        track_index_not_empy -= 1;
+        continue;
+      }
+      inputTrackPtrCollection.push_back(&trackParameters[track_index_not_empy]);     
     }
-    //std::cout << "traj after proto loop 1 " << std::endl;
+    
+    std::cout << "traj after proto loop 1 " << std::endl;
     Acts::Vertex<Acts::BoundTrackParameters> fittedVertex;
 
     std::cout << "traj coll input length " << inputTrackPtrCollection.size() << std::endl;

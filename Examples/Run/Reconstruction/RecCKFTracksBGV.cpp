@@ -14,6 +14,7 @@
 #include "ActsExamples/Io/Csv/CsvOptionsReader.hpp"
 #include "ActsExamples/Io/Csv/CsvParticleReader.hpp"
 #include "ActsExamples/Io/Csv/CsvPlanarClusterReader.hpp"
+#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
 #include "ActsExamples/Io/Performance/CKFPerformanceWriter.hpp"
 #include "ActsExamples/Options/CommonOptions.hpp"
 #include "ActsExamples/Plugins/BField/BFieldOptions.hpp"
@@ -150,6 +151,22 @@ int main(int argc, char* argv[]) {
       trackingGeometry, magneticField);
   sequencer.addAlgorithm(
       std::make_shared<TrackFindingAlgorithm>(trackFindingCfg, logLevel));
+      
+      // write tracks from fitting
+  RootTrajectoryWriter::Config trackWriter;
+  trackWriter.inputTrajectories =  trackFindingCfg.outputTrajectories;
+  trackWriter.inputParticles = inputParticles;
+  trackWriter.inputSimHits = clusterReaderCfg.outputSimHits;
+  trackWriter.inputMeasurements = hitSmearingCfg.outputMeasurements;
+  trackWriter.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  trackWriter.inputMeasurementSimHitsMap =
+      hitSmearingCfg.outputMeasurementSimHitsMap;
+  trackWriter.outputDir = outputDir;
+  trackWriter.outputFilename = "tracks_ckf.root";
+  trackWriter.outputTreename = "tracks";
+  sequencer.addWriter(
+      std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
 
   // Write CKF performance data
   CKFPerformanceWriter::Config perfWriterCfg;
