@@ -61,10 +61,11 @@ ProcessCode TruthTrackFinder::execute(const AlgorithmContext& ctx) const {
     ProtoTrack track;
     track.reserve(hits.size());
     for (const auto& hit : hits) {
-      //std::cout << "TruthTrackfinder... hits loop " << std::endl; 
-      //std::cout << hit.first << std::endl; 
-      //std::cout << hit.second << std::endl; 
-      //std::cout <<  std::endl; 
+      
+      std::cout << "TruthTrackfinder... hits loop " << std::endl; 
+      std::cout << hit.first << std::endl; 
+      std::cout << hit.second << std::endl; 
+      std::cout <<  std::endl; 
       track.emplace_back(hit.second);
     }
     // add proto track to the output collection

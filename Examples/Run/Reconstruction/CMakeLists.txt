@@ -61,6 +61,27 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
   
 add_executable(
+  ActsExampleCombTrackFinderBGV
+  RecCombTrackFinderBGV.cpp)
+
+target_link_libraries(
+  ActsExampleCombTrackFinderBGV
+  PRIVATE
+ActsExamplesFramework
+    ActsExamplesCommon
+    ActsExamplesDigitization
+    ActsExamplesTrackFitting
+    ActsExamplesDetectorTGeo
+    ActsExamplesMagneticField
+    ActsExamplesTruthTracking
+    ActsExamplesIoCsv
+    ActsExamplesIoPerformance)
+
+install(
+  TARGETS ActsExampleCombTrackFinderBGV
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})  
+  
+add_executable(
   ActsExampleTruthTracksVertexBGV
   RecTruthTracksVertexBGV.cpp)
 

@@ -79,7 +79,6 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
   measurements.reserve(simHits.size());
   hitParticlesMap.reserve(simHits.size());
   hitSimHitsMap.reserve(simHits.size());
-//>>>>>>> FETCH_HEAD
 
   // setup random number generator
   auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
@@ -92,18 +91,9 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
 
   for (auto&& [moduleGeoId, moduleSimHits] : groupByModule(simHits)) {
     // check if we should create hits for this surface
-/*<<<<<<< HEAD
-    const auto is = m_surfaces.find(moduleGeoId);
-    
-    //std::cout << "Hit smearing execute module geo id " << moduleGeoId << std::endl;  
-    
-    if (is == m_surfaces.end()) {
-    //std::cout << "if continue, Hit smearing execute module geo id " << moduleGeoId << std::endl;
-=======*/
     const Acts::Surface* surface =
         m_cfg.trackingGeometry->findSurface(moduleGeoId);
     if (not surface) {
-//>>>>>>> FETCH_HEAD
       continue;
     }
 
@@ -161,6 +151,11 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
 //>>>>>>> FETCH_HEAD
     }
   }
+  
+  for (auto mea_ : sourceLinks) {
+      std::cout << "source " << mea_.geometryId() << " " << mea_.index() << std::endl;
+  }
+  
 
   ctx.eventStore.add(m_cfg.outputSourceLinks, std::move(sourceLinks));
   ctx.eventStore.add(m_cfg.outputMeasurements, std::move(measurements));

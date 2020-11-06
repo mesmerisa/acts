@@ -52,6 +52,7 @@ ActsExamples::RootVertexAndTrackWriterBGV::RootVertexAndTrackWriterBGV(
     m_outputTree->Branch("vz", &m_ptrVz);
 
     m_outputTree->Branch("v_chi2", &m_ptrV_chi2);
+    m_outputTree->Branch("v_dof", &m_ptrV_dof);
     m_outputTree->Branch("v_cov11", &mPtrV_cov11);
     m_outputTree->Branch("v_cov12", &mPtrV_cov12);
     m_outputTree->Branch("v_cov13", &mPtrV_cov13);
@@ -145,6 +146,7 @@ void ActsExamples::RootVertexAndTrackWriterBGV::ClearAll() {
   m_vtxID.clear();
   
   m_v_chi2.clear();
+  m_v_dof.clear();
   
   m_v_cov11.clear();
   m_v_cov12.clear();
@@ -224,7 +226,11 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
     //int dof = 0;
     
     auto chi2 = vertex.fitQuality().first;    
+    auto ndof = vertex.fitQuality().second;
+    std::cout << "##################################################### teeeeeeeeeeeeeeeeeeeeeeeeeeest " << m_eventNr << " dof: " << vertex.fitQuality().second << std::endl;
+    
     m_v_chi2.push_back(chi2);
+    m_v_dof.push_back(ndof);
     
     auto v_cov = vertex.covariance();
     

@@ -330,6 +330,13 @@ ActsExamples::ProcessCode ActsExamples::CsvPlanarClusterReader::read(
     hitIds.push_back(hit.hit_id);
   }
   
+  for(auto hi : hitIds) {
+        std::cout << "hit id cluster reader ... " << hi << std::endl;
+      
+  }
+  
+  
+  
   // write the data to the EventStore
   ctx.eventStore.add(m_cfg.outputClusters, std::move(clusters));
   

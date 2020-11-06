@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
+#include "ActsExamples/TruthTracking/ParticleSmearingBGV.hpp"
 
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
@@ -14,34 +14,79 @@
 #include "ActsExamples/EventData/SimParticle.hpp"
 #include "ActsExamples/EventData/Track.hpp"
 #include "ActsExamples/Framework/WhiteBoard.hpp"
+#include "ActsExamples/EventData/ProtoTrack.hpp"
+#include "ActsExamples/EventData/SimHit.hpp"
 
 #include <cmath>
 #include <vector>
 
-ActsExamples::ParticleSmearing::ParticleSmearing(const Config& cfg,
+ActsExamples::ParticleSmearingBGV::ParticleSmearingBGV(const Config& cfg,
                                                  Acts::Logging::Level lvl)
-    : BareAlgorithm("ParticleSmearing", lvl), m_cfg(cfg) {
+    : BareAlgorithm("ParticleSmearingBGV", lvl), m_cfg(cfg) {
   if (m_cfg.inputParticles.empty()) {
     throw std::invalid_argument("Missing input truth particles collection");
   }
+  if (m_cfg.inputTrackCandidates.empty()) {
+    throw std::invalid_argument("Missing input track candidate collection");
+  }
+  if (m_cfg.inputMeasurements.empty()) {
+    throw std::invalid_argument("Missing input hit collection");
+  }
   if (m_cfg.outputTrackParameters.empty()) {
-    throw std::invalid_argument("Missing output tracks parameters collection");
+    throw std::invalid_argument("Missing output track parameters collection");
   }
 }
 
-ActsExamples::ProcessCode ActsExamples::ParticleSmearing::execute(
+ActsExamples::ProcessCode ActsExamples::ParticleSmearingBGV::execute(
     const AlgorithmContext& ctx) const {
   // setup input and output containers
-  const auto& particles =
-      ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
+  //XXX const auto& particles =
+  //XXX    ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
+  
+  const auto& trackCandidates =
+      ctx.eventStore.get<ProtoTrackContainer>(m_cfg.inputTrackCandidates);
+
+  const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputMeasurements);
+//auto inserted = simHits.emplace_hint(simHits.end(), simGeometryId,
+//                                            simParticleId, simPos4, simMom4,
+//                                             simMom4 + simDelta4, simIndex);
+  
+  
+  for (auto cand : trackCandidates) {
+     std::cout << cand.front() << " " << cand.back() << std::endl;    
+     auto first_hit_ind = cand.front();
+     auto last_hit_ind = cand.back();
+     int counter = 0;
+     for (auto sh: simHits) {
+         if(counter == first_hit_ind) {
+            std::cout << "first hit, id " << first_hit_ind << " pos: "<< sh.position() << std::endl;
+         
+         }   
+         if(counter == last_hit_ind) {
+         
+         } 
+     } 
+  }
+  
+  
+  
+  /*for (auto sh : simHits) {
+   std::cout <<"index: " << sh.index() << " position: " << sh.position() << std::endl;   
+      
+      
+  }*/
+  
+  /*std::cout << "test position " << *(simHits.begin()) << std::endl;*/
+
   TrackParametersContainer parameters;
-  parameters.reserve(particles.size());
+  // XXX parameters.reserve(particles.size());
+  parameters.reserve(trackCandidates.size());
 
   // setup random number generator and standard gaussian
   auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
   std::normal_distribution<double> stdNormal(0.0, 1.0);
 
-  for (auto&& [vtxId, vtxParticles] : groupBySecondaryVertex(particles)) {
+  /*for (auto&& [vtxId, vtxParticles] : groupBySecondaryVertex(particles)) {
     // a group contains at least one particle by construction. assume that all
     // particles within the group originate from the same position and use it to
     // as the refernce position for the perigee frame.
@@ -102,7 +147,7 @@ ActsExamples::ProcessCode ActsExamples::ParticleSmearing::execute(
       parameters.emplace_back(perigee, params, q, cov);
     }
   }
-
+*/
   ctx.eventStore.add(m_cfg.outputTrackParameters, std::move(parameters));
   return ProcessCode::SUCCESS;
 }

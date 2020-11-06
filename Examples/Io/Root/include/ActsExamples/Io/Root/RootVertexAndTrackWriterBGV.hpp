@@ -78,6 +78,8 @@ class RootVertexAndTrackWriterBGV final
   /// chi2 of the vertex fit
   std::vector<double> m_v_chi2;
   
+  std::vector<int> m_v_dof;
+  
   /// The vertex covariance matrix
   std::vector<double> m_v_cov11;
   std::vector<double> m_v_cov12;
@@ -156,6 +158,7 @@ class RootVertexAndTrackWriterBGV final
   std::vector<int>* m_ptrVtxID = &m_vtxID;
   
   std::vector<double>* m_ptrV_chi2 = &m_v_chi2;
+  std::vector<int>* m_ptrV_dof = &m_v_dof;
   
   std::vector<double>* mPtrV_cov11 = &m_v_cov11;
   std::vector<double>* mPtrV_cov12 = &m_v_cov12;
