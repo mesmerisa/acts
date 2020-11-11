@@ -90,10 +90,10 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
     trackSourceLinks.clear();
     trackSourceLinks.reserve(protoTrack.size());
     
-    for (int i = 0; i < protoTrack.size(); i++) {
+    /*for (int i = 0; i < protoTrack.size(); i++) {
 		std::cout << protoTrack.at(i) << " hit id ";
 	}  
-    std::cout << std::endl;
+    std::cout << std::endl;*/
     
     // Fill the source links via their indices from the container
     for (auto hitIndex : protoTrack) {      

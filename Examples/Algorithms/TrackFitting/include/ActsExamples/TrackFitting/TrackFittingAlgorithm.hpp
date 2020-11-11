@@ -52,7 +52,7 @@ class TrackFittingAlgorithm final : public BareAlgorithm {
     std::string inputSourceLinks;
     /// Input proto tracks collection, i.e. groups of hit indices.
     std::string inputProtoTracks;
-    /// Input initial track parameter estimates for for each proto track.
+    /// Input initial track parameter estimates for each proto track.
     std::string inputInitialTrackParameters;
     /// Output fitted trajectories collection.
     std::string outputTrajectories;

@@ -55,6 +55,9 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
       Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
   Acts::Logging::Level volumeLogLevel =
       Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
+      
+      
+  std::cout << "teeeeeeeeest ---------------------------------------------------------------------" << std::endl;    
 
   // configure surface array creator
   Acts::SurfaceArrayCreator::Config sacConfig;

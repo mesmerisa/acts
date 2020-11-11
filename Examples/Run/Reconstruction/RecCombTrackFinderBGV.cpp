@@ -16,7 +16,7 @@
 #include "ActsExamples/Io/Csv/CsvPlanarClusterReader.hpp"
 #include "ActsExamples/Io/Performance/TrackFinderPerformanceWriter.hpp"
 #include "ActsExamples/Io/Performance/TrackFitterPerformanceWriter.hpp"
-#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
+#include "ActsExamples/Io/Root/RootTrajectoryWriterBGV.hpp"
 #include "ActsExamples/Options/CommonOptions.hpp"
 #include "ActsExamples/Plugins/BField/BFieldOptions.hpp"
 #include "ActsExamples/TrackFitting/TrackFittingAlgorithm.hpp"
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
   const auto& inputTruthParticlesSelected = particleSelectorCfg.outputParticles;
   // Create truth tracks
   CombTrackFinderBGV::Config trackFinderCfg;
-  trackFinderCfg.inputParticles = inputTruthParticlesSelected; // TODO flag those as actual tracks in track finder
+  trackFinderCfg.inputParticles = inputTruthParticlesSelected; 
   trackFinderCfg.inputMeasurementParticlesMap =
       hitSmearingCfg.outputMeasurementParticlesMap;
   trackFinderCfg.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
       
 
   // write tracks from fitting
-  RootTrajectoryWriter::Config trackWriter;
+  RootTrajectoryWriterBGV::Config trackWriter;
   trackWriter.inputTrajectories = fitter.outputTrajectories;
   trackWriter.inputParticles = inputTruthParticlesSelected;
   trackWriter.inputSimHits = clusterReaderCfg.outputSimHits;
@@ -181,10 +181,10 @@ int main(int argc, char* argv[]) {
   trackWriter.outputFilename = "tracks.root";
   trackWriter.outputTreename = "tracks";
   sequencer.addWriter(
-      std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
+      std::make_shared<RootTrajectoryWriterBGV>(trackWriter, logLevel));
 
   // write reconstruction performance data
-  TrackFinderPerformanceWriter::Config perfFinder;
+  /*TrackFinderPerformanceWriter::Config perfFinder;
   perfFinder.inputProtoTracks = trackFinderCfg.outputProtoTracks;
   perfFinder.inputParticles = inputTruthParticlesSelected;
   perfFinder.inputMeasurementParticlesMap =
@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
       hitSmearingCfg.outputMeasurementParticlesMap;
   perfFitter.outputDir = outputDir;
   sequencer.addWriter(
-      std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
+      std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));*/
 
   return sequencer.run();
 }

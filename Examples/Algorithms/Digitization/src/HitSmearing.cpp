@@ -101,6 +101,8 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
     for (auto ih = moduleSimHits.begin(); ih != moduleSimHits.end(); ++ih) {
       const auto& simHit = *ih;
       const auto simHitIdx = simHits.index_of(ih);
+      
+      //std::cout << "Hit smearing loop, sim hit index:  " << simHitIdx << std::endl;  
 
       // transform global position into local coordinates
       auto lpResult = surface->globalToLocal(ctx.geoContext, simHit.position(),
@@ -110,25 +112,6 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
         return ProcessCode::ABORT;
       }
 
-/*<<<<<<< HEAD
-      //std::cout << "Hit smearing loop, global to local:  " << pos[0] << " " << pos[1] << std::endl;  
-      
-      // smear truth to create local measurement
-      Acts::BoundVector loc = Acts::BoundVector::Zero();
-
-      loc[Acts::eBoundLoc0] = lp[0] + m_cfg.sigmaLoc0 * stdNormal(rng);
-      loc[Acts::eBoundLoc1] = lp[1] + m_cfg.sigmaLoc1 * stdNormal(rng);
-
-
-      // create source link at the end of the container
-      auto it = sourceLinks.emplace_hint(sourceLinks.end(), *surface, hit, 2,
-                                         loc, cov);
-      // ensure hits and links share the same order to prevent ugly surprises
-      if (std::next(it) != sourceLinks.end()) {
-        ACTS_FATAL("The hit ordering broke. Run for your life.");
-        return ProcessCode::ABORT;
-      }
-=======*/
       // create smeared local measurement
       Acts::Vector2D loc = lpResult.value();
       loc[0] += m_cfg.sigmaLoc0 * stdNormal(rng);
@@ -137,6 +120,9 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       // the measurement container is unordered and the index under which the
       // measurement will be stored is known before adding it.
       Index hitIdx = measurements.size();
+      
+      //std::cout << "Hit smearing loop, hit index:  " << hitIdx << std::endl; 
+      
       IndexSourceLink sourceLink(moduleGeoId, hitIdx);
       ConcreteMeasurement meas(surface->getSharedPtr(), sourceLink, cov, loc);
 
@@ -152,9 +138,9 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
     }
   }
   
-  for (auto mea_ : sourceLinks) {
-      std::cout << "source " << mea_.geometryId() << " " << mea_.index() << std::endl;
-  }
+  //for (auto mea_ : sourceLinks) {
+  //    std::cout << "source " << mea_.geometryId() << " " << mea_.index() << std::endl;
+  //}
   
 
   ctx.eventStore.add(m_cfg.outputSourceLinks, std::move(sourceLinks));

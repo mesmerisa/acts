@@ -75,7 +75,7 @@ CombTrackFinderBGV::CombTrackFinderBGV(const Config& cfg, Acts::Logging::Level l
 ProcessCode CombTrackFinderBGV::execute(const AlgorithmContext& ctx) const {
   using HitParticlesMap = IndexMultimap<ActsFatras::Barcode>;
   
-  std::cout << "CombTrackFinderBGV::execute .... hitparticlemap: " <<  std::endl; 
+  //std::cout << "CombTrackFinderBGV::execute .... hitparticlemap: " <<  std::endl; 
   
   
   const auto& sourceLinks =
@@ -113,27 +113,23 @@ ProcessCode CombTrackFinderBGV::execute(const AlgorithmContext& ctx) const {
   }
   hit_id_arrays.push_back(curr_ids);
   
-  /*std::cout << "hit arrays: -------------------------------------- " << std::endl;
+  //std::cout << "hit arrays: -------------------------------------- " << std::endl;
+  //
+  //for (auto ind_arr : hit_id_arrays) {
+  //    for (auto ind_ : ind_arr) std::cout <<  ind_ << " ";
+  //    std::cout << std::endl;
+  //}
+  //std::cout << "-------------------------------------------------- " << std::endl;
   
-  for (auto ind_arr : hit_id_arrays) {
-      for (auto ind_ : ind_arr) std::cout <<  ind_ << " ";
-      std::cout << std::endl;
-  }
-  std::cout << "-------------------------------------------------- " << std::endl;*/
-  
-  /*for (auto phm : particleHitsMap) {
-	std::cout << "hits map " << phm.first  << " " << phm.second << std::endl;
-  
-  }*/
-  
-  /*std::vector<std::vector<int>> prods[] = {
-    { { 1, 2 }, { 3, 4 } }
-    // { { list with det hits in 1st layer }, { list with det hits in 2nd layer }, { list with det hits in 3rd layer } }
-  };*/
-
-  
+  //for (auto phm : particleHitsMap) {
+//	std::cout << "hits map " << phm.first  << " " << phm.second << std::endl;
+ // 
+ // }
+   
   auto hit_id_arr_combs = product(hit_id_arrays);
   //print(product(hit_id_arrays));
+  
+   ////////////////////////////////////////////////// here are the track candidates created
   
   for (auto hit_comb : hit_id_arr_combs) {
     ProtoTrack track;    
@@ -143,9 +139,12 @@ ProcessCode CombTrackFinderBGV::execute(const AlgorithmContext& ctx) const {
      tracks.emplace_back(std::move(track));
   }
   
+  /////////////////////////////////////////////////////
 
+ 
+  ///////////////////////////////////////////////////// only true tracks, use this:
   // create prototracks for all input particles
-  /*for (const auto& particle : particles) {
+ /* for (const auto& particle : particles) {
     //std::cout << "CombTrackFinderBGV... particles loop " << std::endl;
     // find the corresponding hits for this particle
     const auto& hits =
@@ -163,8 +162,8 @@ ProcessCode CombTrackFinderBGV::execute(const AlgorithmContext& ctx) const {
     }
     // add proto track to the output collection
     tracks.emplace_back(std::move(track));
-  }
-  */
+  }*/
+  /////////////////////////////////////////////////////
   /*for(auto tr: tracks) {
 	std::cout << "track" << std::endl;  
 	for(auto hit: tr) {
@@ -174,7 +173,7 @@ ProcessCode CombTrackFinderBGV::execute(const AlgorithmContext& ctx) const {
   }	  */
   
   
-  std::cout << "CombTrackFinderBGV::execute 5" <<  std::endl; 
+  //std::cout << "CombTrackFinderBGV::execute 5" <<  std::endl; 
   ctx.eventStore.add(m_cfg.outputProtoTracks, std::move(tracks));
   //std::cout << "CombTrackFinderBGV::execute last " <<  std::endl; 
   return ProcessCode::SUCCESS;
