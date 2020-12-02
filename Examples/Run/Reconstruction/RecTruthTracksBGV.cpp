@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.outputTrackParameters = "smearedparameters";
   particleSmearingCfg.randomNumbers = rnd;
   // Gaussian sigmas to smear particle parameters
-  particleSmearingCfg.sigmaD0 = 20_um;
+  /*particleSmearingCfg.sigmaD0 = 20_um;
   particleSmearingCfg.sigmaD0PtA = 30_um;
   particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 20_um;
@@ -143,6 +143,16 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaPhi = 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
+  particleSmearingCfg.sigmaT0 = 1_ns;*/
+  particleSmearingCfg.sigmaD0 = 20_um;
+  particleSmearingCfg.sigmaD0PtA = 30_um;
+  particleSmearingCfg.sigmaD0PtB = 1 / 1_GeV;
+  particleSmearingCfg.sigmaZ0 = 20_um;
+  particleSmearingCfg.sigmaZ0PtA = 30_um;
+  particleSmearingCfg.sigmaZ0PtB = 1 / 1_GeV;
+  particleSmearingCfg.sigmaPhi = 0.1_degree;
+  particleSmearingCfg.sigmaTheta = 0.05_degree;
+  particleSmearingCfg.sigmaPRel = 0.1;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));

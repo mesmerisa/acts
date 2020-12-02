@@ -117,8 +117,8 @@ int main(int argc, char* argv[]) {
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
   particleSelectorCfg.nHitsMin = 3;
-  particleSelectorCfg.etaMin = 1.9;
-  particleSelectorCfg.etaMax = 4.4;
+  particleSelectorCfg.etaMin = 2.5;
+  particleSelectorCfg.etaMax = 4.5;
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
 
@@ -140,15 +140,15 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.outputTrackParameters = "smearedparameters";
   particleSmearingCfg.randomNumbers = rnd;
   // Gaussian sigmas to smear particle parameters
-  particleSmearingCfg.sigmaD0 = 20_um;
-  particleSmearingCfg.sigmaD0PtA = 30_um;
+  particleSmearingCfg.sigmaD0 = 600_um;
+  particleSmearingCfg.sigmaD0PtA = 100_um;
   particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaZ0 = 20_um;
-  particleSmearingCfg.sigmaZ0PtA = 30_um;
+  particleSmearingCfg.sigmaZ0 = 100_um;
+  particleSmearingCfg.sigmaZ0PtA = 50_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaPhi = 0.01_degree;
-  particleSmearingCfg.sigmaTheta = 0.001_degree;
-  particleSmearingCfg.sigmaPRel = 0.01;
+  particleSmearingCfg.sigmaPhi = 1_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree;
+  particleSmearingCfg.sigmaPRel = 0.1;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
