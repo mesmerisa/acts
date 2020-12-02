@@ -163,7 +163,7 @@ inline std::vector<double> RadialBounds::values() const {
 }
 
 inline void RadialBounds::checkConsistency() noexcept(false) {
-    std::cout << "get(eMinR) " << get(eMinR) << " get(eMaxR) " << get(eMaxR) << std::endl;
+    //std::cout << "get(eMinR) " << get(eMinR) << " get(eMaxR) " << get(eMaxR) << std::endl;
   if (get(eMinR) < 0. or get(eMaxR) <= 0. or get(eMinR) > get(eMaxR)) {
     throw std::invalid_argument("RadialBounds: invalid radial setup");
   }

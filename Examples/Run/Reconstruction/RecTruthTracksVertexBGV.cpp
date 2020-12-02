@@ -16,7 +16,9 @@
 #include "ActsExamples/Io/Csv/CsvPlanarClusterReader.hpp"
 #include "ActsExamples/Io/Performance/TrackFinderPerformanceWriter.hpp"
 #include "ActsExamples/Io/Performance/TrackFitterPerformanceWriter.hpp"
-#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
+//#include "ActsExamples/Io/Root/RootTrajectoryWriter.hpp"
+#include "ActsExamples/Io/Root/RootTrajectoryParametersWriter.hpp"
+#include "ActsExamples/Io/Root/RootTrajectoryStatesWriter.hpp"
 #include "ActsExamples/Options/CommonOptions.hpp"
 #include "ActsExamples/Plugins/BField/BFieldOptions.hpp"
 #include "ActsExamples/TrackFitting/TrackFittingAlgorithm.hpp"
@@ -25,7 +27,7 @@
 #include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
-#include <Acts/Utilities/Units.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include "ActsExamples/Io/Root/RootVertexAndTrackWriterBGV.hpp"
 #include "ActsExamples/Vertexing/VertexFitterAlgorithmFromTrajBGV.hpp"
 #include "ActsExamples/TruthTracking/TruthVertexFinder.hpp"
@@ -223,7 +225,7 @@ int main(int argc, char* argv[]) {
       
       
 
-  // write tracks from fitting
+ /* // write tracks from fitting
   RootTrajectoryWriter::Config trackWriter;
   trackWriter.inputTrajectories = fitter.outputTrajectories;
   trackWriter.inputParticles = inputParticles;
@@ -237,7 +239,7 @@ int main(int argc, char* argv[]) {
   trackWriter.outputFilename = "tracks.root";
   trackWriter.outputTreename = "tracks";
   sequencer.addWriter(
-      std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
+      std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));*/
 
   // write reconstruction performance data
   TrackFinderPerformanceWriter::Config perfFinder;

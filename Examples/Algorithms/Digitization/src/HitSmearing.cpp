@@ -69,7 +69,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
 
   // retrieve input
   const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimHits);
-
+  std::cout << "Hit smearing execute hit size " << simHits.size() << std::endl;  
   // prepare output containers
   IndexSourceLinkContainer sourceLinks;
   MeasurementContainer measurements;
@@ -102,11 +102,12 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       const auto& simHit = *ih;
       const auto simHitIdx = simHits.index_of(ih);
       
-      //std::cout << "Hit smearing loop, sim hit index:  " << simHitIdx << std::endl;  
-
+      std::cout << "Hit smearing loop, sim hit index:  " << simHitIdx << std::endl;  
+      std::cout << simHit.position() << std::endl;
+      std::cout <<  simHit.geometryId() << std::endl;
       // transform global position into local coordinates
       auto lpResult = surface->globalToLocal(ctx.geoContext, simHit.position(),
-                                             simHit.unitDirection(), 0.5_um);
+                                             simHit.unitDirection(), 1_um);
       if (not lpResult.ok()) {
         ACTS_ERROR("Global to local transformation did not succeed.");
         return ProcessCode::ABORT;
@@ -121,7 +122,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       // measurement will be stored is known before adding it.
       Index hitIdx = measurements.size();
       
-      //std::cout << "Hit smearing loop, hit index:  " << hitIdx << std::endl; 
+      std::cout << "Hit smearing loop, hit index:  " << hitIdx << std::endl; 
       
       IndexSourceLink sourceLink(moduleGeoId, hitIdx);
       ConcreteMeasurement meas(surface->getSharedPtr(), sourceLink, cov, loc);
@@ -138,9 +139,9 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
     }
   }
   
-  //for (auto mea_ : sourceLinks) {
-  //    std::cout << "source " << mea_.geometryId() << " " << mea_.index() << std::endl;
-  //}
+  for (auto mea_ : sourceLinks) {
+      std::cout << "source " << mea_.geometryId() << " " << mea_.index() << std::endl;
+  }
   
 
   ctx.eventStore.add(m_cfg.outputSourceLinks, std::move(sourceLinks));
