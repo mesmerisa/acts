@@ -8,12 +8,13 @@
 
 #pragma once
 
-#include <iostream>
 
+//#include <iostream>
+
+#include "Acts/Definitions/Algebra.hpp"
+#include "Acts/Definitions/TrackParametrization.hpp"
 
 #include "Acts/Surfaces/DiscBounds.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
 #include "Acts/Utilities/detail/periodic.hpp"
 
 #include <array>

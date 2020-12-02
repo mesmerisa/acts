@@ -8,21 +8,22 @@
 
 #pragma once
 
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Geometry/Volume.hpp"
 #include "Acts/Geometry/VolumeBounds.hpp"
 #include "Acts/Utilities/BoundingBox.hpp"
-#include "Acts/Utilities/Definitions.hpp"
 
 #include <array>
 #include <cmath>
-#include <exception>
+#include <iomanip>
+#include <iosfwd>
+#include <memory>
+#include <stdexcept>
 #include <vector>
 
 namespace Acts {
 
 class RectangleBounds;
-class Volume;
-class Surface;
 
 /// @class CuboidVolumeBounds
 ///

@@ -11,8 +11,9 @@ add_library(
   src/RootSimHitWriter.cpp
   src/RootTrackParameterWriter.cpp
   src/RootVertexAndTrackWriterBGV.cpp
-  src/RootTrajectoryWriter.cpp
   src/RootTrajectoryWriterBGV.cpp
+  src/RootTrajectoryStatesWriter.cpp
+  src/RootTrajectoryParametersWriter.cpp
 )
 target_include_directories(
   ActsExamplesIoRoot

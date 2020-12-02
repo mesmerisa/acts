@@ -7,10 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #pragma once
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/BinningType.hpp"
-#include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/IAxis.hpp"
 #include "Acts/Utilities/detail/Axis.hpp"
 #include "Acts/Utilities/detail/Grid.hpp"
@@ -308,7 +308,7 @@ class SurfaceArray {
         std::vector<const Surface*>& neighbors = m_neighborMap.at(i);
         neighbors.clear();
 
-        for (const auto& idx : neighborIdxs) {
+        for (const auto idx : neighborIdxs) {
           const std::vector<const Surface*>& binContent = m_grid.at(idx);
           std::copy(binContent.begin(), binContent.end(),
                     std::back_inserter(neighbors));

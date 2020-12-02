@@ -8,9 +8,9 @@
 
 #pragma once
 
+#include "Acts/Definitions/Algebra.hpp"
+#include "Acts/Definitions/TrackParametrization.hpp"
 #include "Acts/Surfaces/DiscBounds.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
 #include "Acts/Utilities/detail/periodic.hpp"
 
 #include <array>
@@ -135,8 +135,8 @@ class AnnulusBounds : public DiscBounds {
   /// @param lseg the number of segments used to approximate
   /// and eventually curved line
   ///
-  /// @note that the extremas are given, which may slightly alter the
-  /// number of segments returned
+  /// @note that that if @param lseg > 0, the extrema points are given,
+  ///  which may slightly alter the number of segments returned
   ///
   /// @return vector for vertices in 2D
   std::vector<Vector2D> vertices(unsigned int lseg) const;
@@ -154,7 +154,6 @@ class AnnulusBounds : public DiscBounds {
   Vector2D m_moduleOrigin;
   Vector2D m_shiftXY;  // == -m_moduleOrigin
   Vector2D m_shiftPC;
-  double m_phiAvg;
   Transform2D m_rotationStripPC;
   Transform2D m_translation;
 
@@ -199,11 +198,10 @@ class AnnulusBounds : public DiscBounds {
   /// Private helper method
   Vector2D closestOnSegment(const Vector2D& a, const Vector2D& b,
                             const Vector2D& p,
-                            const Eigen::Matrix<double, 2, 2>& weight) const;
+                            const ActsSymMatrixD<2>& weight) const;
 
   /// Private helper mehtod
-  double squaredNorm(const Vector2D& v,
-                     const Eigen::Matrix<double, 2, 2>& weight) const;
+  double squaredNorm(const Vector2D& v, const ActsSymMatrixD<2>& weight) const;
 };
 
 inline SurfaceBounds::BoundsType AnnulusBounds::type() const {

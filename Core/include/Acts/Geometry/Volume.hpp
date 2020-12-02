@@ -8,12 +8,13 @@
 
 #pragma once
 
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Geometry/GeometryObject.hpp"
-#include "Acts/Geometry/GeometryStatics.hpp"
+#include "Acts/Utilities/BinningType.hpp"
 #include "Acts/Utilities/BoundingBox.hpp"
-#include "Acts/Utilities/Definitions.hpp"
 
+#include <iosfwd>
 #include <memory>
 
 namespace Acts {
@@ -31,7 +32,7 @@ using VolumeBoundsPtr = std::shared_ptr<const VolumeBounds>;
 
 class Volume : public virtual GeometryObject {
  public:
-  using BoundingBox = AxisAlignedBoundingBox<Volume, double, 3>;
+  using BoundingBox = AxisAlignedBoundingBox<Volume, ActsScalar, 3>;
 
   /// Explicit constructor with shared arguments
   ///
