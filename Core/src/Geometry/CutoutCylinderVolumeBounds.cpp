@@ -8,6 +8,7 @@
 
 #include "Acts/Geometry/CutoutCylinderVolumeBounds.hpp"
 
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Geometry/BoundarySurfaceFace.hpp"
 #include "Acts/Geometry/Volume.hpp"
 #include "Acts/Geometry/VolumeBounds.hpp"
@@ -15,11 +16,12 @@
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/BoundingBox.hpp"
 #include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Visualization/IVisualization3D.hpp"
 
 #include <memory>
+#include <ostream>
 #include <vector>
 
 bool Acts::CutoutCylinderVolumeBounds::inside(const Acts::Vector3D& gpos,

@@ -23,16 +23,6 @@
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/range.hpp>
 
-/*// See https://stackoverflow.com/a/8513803/2706707
-template <typename... Containers>
-auto zip( Containers&&... containers ) 
-  -> boost::iterator_range <boost::zip_iterator <decltype( boost::make_tuple( std::begin( containers )... ) )> >
-{
-  auto zip_begin = boost::make_zip_iterator( boost::make_tuple( std::begin( containers )... ) );
-  auto zip_end   = boost::make_zip_iterator( boost::make_tuple( std::end(   containers )... ) );
-  return boost::make_iterator_range( zip_begin, zip_end );
-}*/
-
 ActsExamples::ParticleSmearingBGV::ParticleSmearingBGV(const Config& cfg,
                                                  Acts::Logging::Level lvl)
     : BareAlgorithm("ParticleSmearingBGV", lvl), m_cfg(cfg) {
@@ -60,9 +50,6 @@ ActsExamples::ProcessCode ActsExamples::ParticleSmearingBGV::execute(
       ctx.eventStore.get<ProtoTrackContainer>(m_cfg.inputTrackCandidates);
 
   const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputMeasurements);
-//auto inserted = simHits.emplace_hint(simHits.end(), simGeometryId,
-//                                            simParticleId, simPos4, simMom4,
-//                                             simMom4 + simDelta4, simIndex);
   
   std::vector<std::vector<double>> first_hit_pos;
   std::vector<std::vector<double>> last_hit_pos;
@@ -102,9 +89,6 @@ ActsExamples::ProcessCode ActsExamples::ParticleSmearingBGV::execute(
   // setup random number generator and standard gaussian
   auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
   std::normal_distribution<double> stdNormal(0.0, 1.0);
-  
-  
-  
   
 //  for (auto&& [vtxId, vtxParticles] : groupBySecondaryVertex(particles)) {
     // a group contains at least one particle by construction. assume that all
@@ -161,13 +145,20 @@ ActsExamples::ProcessCode ActsExamples::ParticleSmearingBGV::execute(
        params[Acts::eBoundLoc0] = sigmaD0 * stdNormal(rng);
        params[Acts::eBoundLoc1] = sigmaZ0 * stdNormal(rng);
        params[Acts::eBoundTime] = time + sigmaT0 * stdNormal(rng);
+          
        // smear direction angles phi,theta ensuring correct bounds
+      const auto [newPhi, newTheta] = Acts::detail::normalizePhiTheta(
+          phi + sigmaPhi * stdNormal(rng), theta + sigmaTheta * stdNormal(rng));
+      params[Acts::eBoundPhi] = newPhi;
+      params[Acts::eBoundTheta] = newTheta;
+       /*// smear direction angles phi,theta ensuring correct bounds
        const double deltaPhi = sigmaPhi * stdNormal(rng);
        const double deltaTheta = sigmaTheta * stdNormal(rng);
        const auto [newPhi, newTheta] =
           Acts::detail::ensureThetaBounds(phi + deltaPhi, theta + deltaTheta);
        params[Acts::eBoundPhi] = newPhi;
-       params[Acts::eBoundTheta] = newTheta;
+       params[Acts::eBoundTheta] = newTheta;*/
+       
        // compute smeared absolute momentum vector
        const double newP = std::max(0.0, p + sigmaP * stdNormal(rng));
        params[Acts::eBoundQOverP] = (q != 0) ? (q / newP) : (1 / newP);

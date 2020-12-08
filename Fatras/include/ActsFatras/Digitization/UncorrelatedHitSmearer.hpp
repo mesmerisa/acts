@@ -8,11 +8,11 @@
 
 #pragma once
 
+#include "Acts/Definitions/TrackParametrization.hpp"
 #include "Acts/EventData/ParameterSet.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/SurfaceError.hpp"
 #include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
 #include "Acts/Utilities/Result.hpp"
 #include "ActsFatras/Digitization/DigitizationError.hpp"
 #include "ActsFatras/Digitization/detail/ParametersSmearer.hpp"
@@ -83,7 +83,7 @@ struct BoundParametersSmearer {
         detail::ParametersSmearer<Acts::BoundIndices, kParameters...>;
 
     if (sInput.surface == nullptr) {
-      return Result(ActsFatras::DigitizationError::NoSurfaceDefined);
+      return Result(ActsFatras::DigitizationError::UndefinedSurface);
     }
 
     const auto& hit = sInput.hit.get();
