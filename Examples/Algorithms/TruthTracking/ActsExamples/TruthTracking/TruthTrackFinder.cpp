@@ -36,7 +36,7 @@ TruthTrackFinder::TruthTrackFinder(const Config& cfg, Acts::Logging::Level lvl)
 ProcessCode TruthTrackFinder::execute(const AlgorithmContext& ctx) const {
   using HitParticlesMap = IndexMultimap<ActsFatras::Barcode>;
   
-  //std::cout << "TruthTrackFinder::execute " <<  std::endl; 
+  std::cout << "TruthTrackFinder::execute " <<  std::endl; 
   
   // prepare input collections
   const auto& particles =
@@ -63,8 +63,8 @@ ProcessCode TruthTrackFinder::execute(const AlgorithmContext& ctx) const {
     for (const auto& hit : hits) {
       
       std::cout << "TruthTrackfinder... hits loop " << std::endl; 
-      std::cout << hit.first << std::endl; 
-      std::cout << hit.second << std::endl; 
+      std::cout << "hit first " << hit.first << std::endl; 
+      std::cout << "hit second " << hit.second << std::endl; 
       std::cout <<  std::endl; 
       track.emplace_back(hit.second);
     }

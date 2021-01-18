@@ -9,6 +9,9 @@
 inline Vector3D LineSurface::localToGlobal(const GeometryContext& gctx,
                                            const Vector2D& lposition,
                                            const Vector3D& momentum) const {
+                                           
+  //std::cout << "line surface ipp glob to loc 1" << std::endl;                                                 
+                                           
   const auto& sTransform = transform(gctx);
   const auto& tMatrix = sTransform.matrix();
   Vector3D lineDirection(tMatrix(0, 2), tMatrix(1, 2), tMatrix(2, 2));
@@ -25,6 +28,8 @@ inline Result<Vector2D> LineSurface::globalToLocal(const GeometryContext& gctx,
                                                    const Vector3D& position,
                                                    const Vector3D& momentum,
                                                    double /*tolerance*/) const {
+                                                   
+  std::cout << "line surface ipp glob to loc 2" << std::endl;                                                 
   using VectorHelpers::perp;
   const auto& sTransform = transform(gctx);
   const auto& tMatrix = sTransform.matrix();

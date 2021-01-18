@@ -47,6 +47,15 @@ add_executable(
 target_link_libraries(
   ActsExampleGeometryTGeo
   PRIVATE ${_common_libraries} ActsExamplesDetectorTGeo)
+  
+
+# TGeo BGV detector
+add_executable(
+  ActsExampleGeometryTGeoBGV
+  TGeoBGVGeometryExample.cpp)
+target_link_libraries(
+  ActsExampleGeometryTGeoBGV
+  PRIVATE ${_common_libraries} ActsExamplesDetectorTGeo)  
 
 install(
   TARGETS
@@ -55,6 +64,7 @@ install(
     ActsExampleGeometryAligned
     ActsExampleGeometryPayload
     ActsExampleGeometryTGeo
+    ActsExampleGeometryTGeoBGV
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory_if(DD4hep ACTS_BUILD_EXAMPLES_DD4HEP)

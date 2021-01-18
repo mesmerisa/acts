@@ -64,8 +64,11 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
 
   // Construct a perigee surface as the target surface
   auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
-      Acts::Vector3D{0., 0., 0.});
-
+    Acts::Vector3D{0., 0., 0.});
+      
+  //auto pSurface = Acts::Surface::makeShared<Acts::PlaneSurface>(
+  //  Acts::Vector3D{0, 0, 0}, Acts::Vector3D{0., 0., 1.});
+    
   // Set the KalmanFitter options
   Acts::KalmanFitterOptions<MeasurementCalibrator, Acts::VoidOutlierFinder>
       kfOptions(ctx.geoContext, ctx.magFieldContext, ctx.calibContext,
@@ -116,7 +119,6 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
       trackSourceLinks.push_back(*sourceLink);
 
       surfSequence.push_back(m_cfg.trackingGeometry->findSurface(geoId));
-
     }
     //std::cout << "execute fitter test 2" << std::endl;
 
@@ -124,6 +126,16 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
 //<<<<<<< HEAD
 //    auto result = m_cfg.fit(trackSourceLinks, initialParams, kfOptions);
 //=======
+
+    ACTS_DEBUG("Surface Sequence: ");
+    
+    /*for (int i = 0; i < surfSequence.size(); i++) {
+		std::cout << surfSequence.at(i) << " ";
+        ACTS_DEBUG("surf seq " << surfSequence.at(i) );
+        std::cout << std::endl;
+	}  
+    std::cout << std::endl;*/
+
     auto result =
         fitTrack(trackSourceLinks, initialParams, kfOptions, surfSequence);
 //>>>>>>> 07713dddefe49e8a4478635555bb19c900d83957

@@ -84,7 +84,12 @@ Acts::Result<Acts::Vector2D> Acts::PlaneSurface::globalToLocal(
     const GeometryContext& gctx, const Vector3D& position,
     const Vector3D& /*unused*/, double tolerance) const {
   Vector3D loc3Dframe = transform(gctx).inverse() * position;
+  
+  std::cout << "Plane surface, global to local ++++++++++++++++++++++++++++++ z frame: " << loc3Dframe.z() << " tol: " << tolerance << std::endl;
+  
   if (loc3Dframe.z() * loc3Dframe.z() > tolerance * tolerance) {
+      std::cout << "in failure if ++++++++++++++++++++++++++++++ z frame: " << loc3Dframe.z() << " tol: " << tolerance << std::endl;
+      
     return Result<Vector2D>::failure(SurfaceError::GlobalPositionNotOnSurface);
   }
   return Result<Vector2D>::success({loc3Dframe.x(), loc3Dframe.y()});

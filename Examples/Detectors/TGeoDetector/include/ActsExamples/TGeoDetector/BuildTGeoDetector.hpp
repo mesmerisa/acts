@@ -56,8 +56,6 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
   Acts::Logging::Level volumeLogLevel =
       Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
       
-      
-  std::cout << "teeeeeeeeest ---------------------------------------------------------------------" << std::endl;    
 
   // configure surface array creator
   Acts::SurfaceArrayCreator::Config sacConfig;
@@ -194,7 +192,7 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
           if (scfg.first == Acts::binR and scfg.second > 0.) {
             volumeConfig.ringTolerance =
                 std::max(volumeConfig.ringTolerance, scfg.second);
-            volumeConfig.checkRingLayout = true;
+            volumeConfig.checkRingLayout = true ; // XXX set this to false for testing
           }
         }
       }

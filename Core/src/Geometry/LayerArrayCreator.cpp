@@ -87,6 +87,19 @@ std::unique_ptr<const Acts::LayerArray> Acts::LayerArrayCreator::layerArray(
         // calculate the layer value for the offset
         double navigationValue = 0.5 * ((layerValue - 0.5 * layerThickness) +
                                         boundaries.at(boundaries.size() - 3));
+                                        
+        /*for(auto bdtest : boundaries) {
+            std::cout << "b: " << bdtest << " ";
+        }
+        std::cout << std::endl;
+                                        
+                                        
+           std::cout << "  min " << min << std::endl;          
+        std::cout << "Layer Value: " <<   layerValue  << " Layerthickness: " << layerThickness << std::endl;     
+        std::cout << "boundaries.at(boundaries.size() - 3)  " <<   boundaries.at(boundaries.size() - 3)  << std::endl;  
+        std::cout << "boundaries.size() " << boundaries.size() << std::endl;                    
+        std::cout << "navigationValue ------ 0.5 * ((layerValue - 0.5 * layerThickness) + boundaries.at(boundaries.size() - 3)) -------- " <<     navigationValue      << std::endl;     
+        std::cout << "(layerValue - 0.5 * layerThickness)  "  << (layerValue - 0.5 * layerThickness) << " Nav: " << navigationValue << std::endl;        */           
         // if layers are attached to each other bail out - navigation will not
         // work anymore
         if (navigationValue == (layerValue - 0.5 * layerThickness)) {

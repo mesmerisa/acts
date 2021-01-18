@@ -69,7 +69,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
 
   // retrieve input
   const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimHits);
-  std::cout << "Hit smearing execute hit size " << simHits.size() << std::endl;  
+  std::cout << "Hit smearing execute, number of hits " << simHits.size() << std::endl;  
   // prepare output containers
   IndexSourceLinkContainer sourceLinks;
   MeasurementContainer measurements;
@@ -94,6 +94,9 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
     const Acts::Surface* surface =
         m_cfg.trackingGeometry->findSurface(moduleGeoId);
     if (not surface) {
+      std::cout << "Hit smearing - no surface found, break out of hit smearing" << std::endl; 
+      ACTS_ERROR("surface: " << surface); 
+      ACTS_ERROR("module geo id: " << moduleGeoId);
       continue;
     }
 

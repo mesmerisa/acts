@@ -159,8 +159,10 @@ int main(int argc, char* argv[]) {
   particleSelectorCfg.inputMeasurementParticlesMap =
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.nHitsMin = 4;
-  //particleSelectorCfg.nHitsMax = 
+  particleSelectorCfg.nHitsMin = 3;
+  //particleSelectorCfg.etaMin = 3;
+  //particleSelectorCfg.etaMax = 3.91;
+  //particleSelectorCfg.nHitsMax = 5;
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
 
@@ -205,30 +207,71 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;*/
   
- 
-  // set 2:
-  /*particleSmearingCfg.sigmaD0 = 300_um; // 20_um;
-  particleSmearingCfg.sigmaD0PtA = 200_um;
+ /*particleSmearingCfg.sigmaD0 = 400_um; // 20_um;
+  particleSmearingCfg.sigmaD0PtA = 300_um;
   particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 400_um;
   particleSmearingCfg.sigmaZ0PtA = 200_um;
-  particleSmearingCfg.sigmaZ0PtB = 0.03 / 1_GeV;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaPhi = 0.8_degree; // 0.01_degree;
+  particleSmearingCfg.sigmaTheta = 0.001_degree; //0.001_degree;
+  particleSmearingCfg.sigmaPRel = 0.01;
+  particleSmearingCfg.sigmaT0 = 1_ns;*/
+  
+  
+ 
+  // set 2:
+  /*particleSmearingCfg.sigmaD0 = 50_um; // 20_um;
+  particleSmearingCfg.sigmaD0PtA = 50_um;
+  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0 = 50_um;
+  particleSmearingCfg.sigmaZ0PtA = 50_um;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaPhi = 0.75_degree; // 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.001_degree; //0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;*/
 
-  // these are good for sidu without window:
-/* particleSmearingCfg.sigmaD0 = 20_um; // 20_um;
-  particleSmearingCfg.sigmaD0PtA = 10_um;
+  /*particleSmearingCfg.sigmaD0 = 200_um; // 20_um;
+  particleSmearingCfg.sigmaD0PtA = 200_um;
   particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaZ0 = 5_um;
-  particleSmearingCfg.sigmaZ0PtA = 10_um;
+  particleSmearingCfg.sigmaZ0 = 50_um;
+  particleSmearingCfg.sigmaZ0PtA = 50_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaPhi = 0.01_degree; // 0.01_degree;
+  particleSmearingCfg.sigmaPhi = 0.25_degree; // 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.0001_degree; //0.001_degree;
-  particleSmearingCfg.sigmaPRel = 0.001;
+  particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;*/
+
+  // these are good for sidu without window:
+ /* particleSmearingCfg.sigmaD0 = 50_um;
+particleSmearingCfg.sigmaD0PtA = 20_um;
+particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+ particleSmearingCfg.sigmaZ0 = 50_um;
+ particleSmearingCfg.sigmaZ0PtA = 20_um;
+ particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+ particleSmearingCfg.sigmaPhi = 0.01_degree;
+ particleSmearingCfg.sigmaTheta = 0.001_degree;
+ particleSmearingCfg.sigmaPRel = 0.001;
+  particleSmearingCfg.sigmaT0 = 1_ns;
+  */
+  
+  
+  
+  
+  particleSmearingCfg.sigmaD0 = 20_um; // 20_um;
+  particleSmearingCfg.sigmaD0PtA = 30_um;
+  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0 = 20_um;
+  particleSmearingCfg.sigmaZ0PtA = 30_um;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaPhi = 0.1_degree; // 0.01_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree; //0.001_degree;
+  particleSmearingCfg.sigmaPRel = 0.001;
+  particleSmearingCfg.sigmaT0 = 1_ns;
+  
+
+  
   sequencer.addAlgorithm(
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
 
@@ -334,6 +377,7 @@ int main(int argc, char* argv[]) {
   perfFinder.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<TrackFinderPerformanceWriter>(perfFinder, logLevel));
+      
   TrackFitterPerformanceWriter::Config perfFitter;
   perfFitter.inputTrajectories = fitter.outputTrajectories;
   perfFitter.inputParticles = inputParticles;

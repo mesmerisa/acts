@@ -56,8 +56,8 @@ ActsExamples::ProcessCode ActsExamples::ParticleSmearing::execute(
       const auto p = particle.absMomentum();
       const auto q = particle.charge();
       
-      std::cout << "mom " << p << std::endl;
-      std::cout << "q " << q << std::endl;
+      //std::cout << "mom " << p << std::endl;
+      //std::cout << "q " << q << std::endl;
 
       // compute momentum-dependent resolutions
       const double sigmaD0 =

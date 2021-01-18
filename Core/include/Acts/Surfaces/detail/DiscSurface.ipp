@@ -162,6 +162,7 @@ inline Vector3D DiscSurface::normal(const GeometryContext& gctx,
                                     const Vector2D& /*unused*/) const {
   // fast access via tranform matrix (and not rotation())
   const auto& tMatrix = transform(gctx).matrix();
+  //std::cout << "disc surface: normal " << Vector3D(tMatrix(0, 2), tMatrix(1, 2), tMatrix(2, 2)) << std::endl;
   return Vector3D(tMatrix(0, 2), tMatrix(1, 2), tMatrix(2, 2));
 }
 

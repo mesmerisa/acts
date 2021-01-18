@@ -294,7 +294,9 @@ int main(int argc, char* argv[]) {
   particleSelectorCfg.inputMeasurementParticlesMap =
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.nHitsMin = 4;
+  particleSelectorCfg.nHitsMin = 3;
+  particleSelectorCfg.etaMin = 3;
+  particleSelectorCfg.etaMax = 4;
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
 
@@ -328,7 +330,17 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaPRel = 0.001;
   particleSmearingCfg.sigmaT0 = 1_ns;*/
   
-  
+ particleSmearingCfg.sigmaD0 = 50_um; // 20_um;
+  particleSmearingCfg.sigmaD0PtA = 20_um;
+  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0 = 50_um;
+  particleSmearingCfg.sigmaZ0PtA = 20_um;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaPhi = 0.5_degree; // 0.01_degree;
+  particleSmearingCfg.sigmaTheta = 0.001_degree; //0.001_degree;
+  particleSmearingCfg.sigmaPRel = 0.01;
+  particleSmearingCfg.sigmaT0 = 1_ns;
+   
   
     // Gaussian sigmas to smear particle parameters
     // SIDU plus EW, parameter set 1
@@ -344,7 +356,7 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaT0 = 1_ns;*/
   
   // SIDU plus EW, parameter set 2
- particleSmearingCfg.sigmaD0 = 300_um; // 20_um;
+ /*particleSmearingCfg.sigmaD0 = 300_um; // 20_um;
   particleSmearingCfg.sigmaD0PtA = 200_um;
   particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 400_um;
@@ -353,10 +365,10 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaPhi = 0.75_degree; // 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.001_degree; //0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
-  particleSmearingCfg.sigmaT0 = 1_ns;
+  particleSmearingCfg.sigmaT0 = 1_ns;*/
   
   
-  /*    particleSmearingCfg.sigmaD0 = 400_um; // 20_um;
+ /*particleSmearingCfg.sigmaD0 = 400_um; // 20_um;
   particleSmearingCfg.sigmaD0PtA = 200_um;
   particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 300_um;

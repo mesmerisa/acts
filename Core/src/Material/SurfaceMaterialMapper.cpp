@@ -195,6 +195,9 @@ void Acts::SurfaceMaterialMapper::finalizeMaps(State& mState) const {
 void Acts::SurfaceMaterialMapper::mapMaterialTrack(
     State& mState, RecordedMaterialTrack& mTrack) const {
   using VectorHelpers::makeVector4;
+  
+  
+  std::cout << "--------- inside map material track " << std::endl;
 
   // Neutral curvilinear parameters
   NeutralCurvilinearTrackParameters start(makeVector4(mTrack.first.first, 0),
@@ -260,12 +263,17 @@ void Acts::SurfaceMaterialMapper::mapMaterialTrack(
       touchedMapBins;
 
   // Assign the recorded ones, break if you hit an end
+  
+  //std::cout << "SMM ------------- start loop --------------- " << std::endl;
   while (rmIter != rMaterial.end() && sfIter != mappingSurfaces.end()) {
     // Material not inside current volume
     if (volIter != mappingVolumes.end() &&
         !volIter->volume->inside(rmIter->position)) {
       double distVol = (volIter->position - mTrack.first.first).norm();
       double distMat = (rmIter->position - mTrack.first.first).norm();
+      //std::cout << "--------- distVol " << distVol << std::endl;
+      //std::cout << "--------- distMat " << distMat << std::endl;
+      //std::cout << "--------- s epsilon " << s_epsilon << std::endl;
       // Material past the entry point to the current volume
       if (distMat - distVol > s_epsilon) {
         // Switch to next material volume
@@ -282,10 +290,13 @@ void Acts::SurfaceMaterialMapper::mapMaterialTrack(
         (rmIter->position - sfIter->position).norm() >
             (rmIter->position - (sfIter + 1)->position).norm()) {
       // Switch to next assignment surface
+      
       ++sfIter;
+      
     }
     // get the current Surface ID
     currentID = sfIter->surface->geometryId();
+    //std::cout << "SMM -------- current Geo ID " << currentID << std::endl;
     // We have work to do: the assignemnt surface has changed
     if (not(currentID == lastID)) {
       // Let's (re-)assess the information
@@ -295,12 +306,15 @@ void Acts::SurfaceMaterialMapper::mapMaterialTrack(
           mState.geoContext, currentPos, sfIter->direction);
       currentAccMaterial = mState.accumulatedMaterial.find(currentID);
     }
+    //std::cout << "Current position: " << currentPos << std::endl;
+    
     // Now assign the material for the accumulation process
     auto tBin = currentAccMaterial->second.accumulate(
         currentPos, rmIter->materialSlab, currentPathCorrection);
     touchedMapBins.insert(MapBin(&(currentAccMaterial->second), tBin));
     ++assignedMaterial[currentID];
     // Update the material interaction with the associated surface
+    //std::cout << "material interaction is updated with surface: int: " <<  sfIter->surface->geometryId() << std::endl;
     rmIter->surface = sfIter->surface;
     // Switch to next material
     ++rmIter;

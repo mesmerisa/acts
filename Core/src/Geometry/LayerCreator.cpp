@@ -202,6 +202,8 @@ Acts::MutableLayerPtr Acts::LayerCreator::discLayer(
 
   double layerZ = protoLayer.medium(binZ);
   double layerThickness = protoLayer.range(binZ);
+  
+  std::cout << "-------------------------- layer thickness in LayerCreator.cpp, binR: " << binR << std::endl;
 
   // adjust the layer radius
   ACTS_VERBOSE("Creating a disk Layer:");
@@ -453,6 +455,18 @@ bool Acts::LayerCreator::checkBinning(const GeometryContext& gctx,
   } else {
     ACTS_VERBOSE(" -- All bins point to a surface");
   }
+  
+  for (const auto& srf : sensitiveSurfaces) {
+      // have to choose BinningValue here
+      ACTS_VERBOSE(" Surface: " << srf->associatedLayer());
+      ACTS_VERBOSE(" Surface: " << srf->associatedDetectorElement());
+      Vector3D ctr = srf->binningPosition(gctx, binR);
+      ACTS_VERBOSE(" Surface(x=" << ctr.x() << ", y=" << ctr.y()
+                               << ", z=" << ctr.z() << ", r=" << perp(ctr)
+                               << ", phi=" << phi(ctr) << ")");
+    }
+  
+  
 
   if (!diff.empty()) {
     ACTS_ERROR(

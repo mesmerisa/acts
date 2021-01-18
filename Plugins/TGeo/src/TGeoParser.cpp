@@ -23,11 +23,11 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
   // Volume is present
   if (state.volume != nullptr) {
   
-  
+  //std::cout << "-------------------------------------" << std::endl;
   
     std::string volumeName = state.volume->GetName();
     
-    std::cout << "test 1 vol: " << volumeName << std::endl;
+   // std::cout << "test 1 vol: " << volumeName << std::endl;
     // If you are on branch, you stay on branch
     state.onBranch =
         state.onBranch or
@@ -37,6 +37,7 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
     // Daughter node iteration
     TIter iObj(daugthers);
     while (TObject* obj = iObj()) {
+       // std::cout << "while loop " << std::endl;
       TGeoNode* node = dynamic_cast<TGeoNode*>(obj);
       if (node != nullptr) {
         state.volume = nullptr;
@@ -51,7 +52,7 @@ void Acts::TGeoParser::select(Acts::TGeoParser::State& state,
     std::string nodeName = state.node->GetName();
     std::string nodeVolName = state.node->GetVolume()->GetName();
     
-    //std::cout << "test 2 node vol: " << nodeVolName << std::endl;
+    //std::cout << nodeName<< ", test 2 node vol: " << nodeVolName << std::endl;
     
     // Get the matrix of the current node for positioning
     const TGeoMatrix* nmatrix = state.node->GetMatrix();

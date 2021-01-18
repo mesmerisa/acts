@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(TGeoLayerBuilderTests) {
                           "PixelActiveo6"};
   b0Config.localAxes = "XYZ";
   b0Config.parseRanges = {{binR, {0., 40_mm}}, {binZ, {-60_mm, 15_mm}}};
-  b0Config.envelope = {0_mm, 0_mm};
+  b0Config.envelopeR = {0_mm, 0_mm};
 
   TglConfig eAllConfig;
   eAllConfig.volumeName = "*";
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(TGeoLayerBuilderTests) {
   eAllConfig.localAxes = "XYZ";
   eAllConfig.parseRanges = {{binR, {0., 40_mm}}, {binZ, {16_mm, 60_mm}}};
   eAllConfig.splitConfigs = {{binZ, 5_mm}};
-  eAllConfig.envelope = {0_mm, 0_mm};
+  eAllConfig.envelopeZ = {0_mm, 0_mm};
 
   std::vector<TglConfig> cConfigs = {b0Config};
   std::vector<TglConfig> pConfigs = {eAllConfig};

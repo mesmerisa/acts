@@ -29,6 +29,7 @@
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/SurfaceBounds.hpp>
+#include <Acts/Surfaces/ConeBounds.hpp>
 
 #include <cstdio>
 #include <fstream>
@@ -959,6 +960,8 @@ Acts::BinUtility Acts::JsonGeometryConverter::DefaultBin(
       dynamic_cast<const Acts::AnnulusBounds*>(&surfaceBounds);
   const Acts::RectangleBounds* rectangleBounds =
       dynamic_cast<const Acts::RectangleBounds*>(&surfaceBounds);
+  const Acts::ConeBounds* coneBounds =
+      dynamic_cast<const Acts::ConeBounds*>(&surfaceBounds);    
 
   if (radialBounds != nullptr) {
     bUtility += BinUtility(
@@ -1009,6 +1012,23 @@ Acts::BinUtility Acts::JsonGeometryConverter::DefaultBin(
                            Acts::open, Acts::binY);
     return bUtility;
   }
+   if (coneBounds != nullptr) {
+    bUtility += BinUtility(
+        1,
+        coneBounds->get(ConeBounds::eAveragePhi) -
+            coneBounds->get(ConeBounds::eHalfPhiSector),
+        coneBounds->get(ConeBounds::eAveragePhi) +
+            coneBounds->get(ConeBounds::eHalfPhiSector),
+        (coneBounds->get(ConeBounds::eHalfPhiSector) - M_PI) < s_epsilon
+            ? Acts::closed
+            : Acts::open,
+        Acts::binPhi);
+    bUtility +=
+        BinUtility(1, -1 * (0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))),
+                   (0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))),
+                   Acts::open, Acts::binZ);
+    return bUtility;
+  }  
   ACTS_INFO(
       "No corresponding bound found for the surface : " << surface.name());
   return bUtility;

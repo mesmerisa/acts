@@ -21,6 +21,9 @@
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/SurfaceArray.hpp"
 #include "Acts/Utilities/UnitVectors.hpp"
+#include "Acts/Utilities/Logger.hpp"
+
+
 
 void Acts::GeometryView3D::drawPolyhedron(IVisualization3D& helper,
                                           const Polyhedron& polyhedron,
@@ -67,6 +70,7 @@ void Acts::GeometryView3D::drawSurfaceArray(IVisualization3D& helper,
   }
 
   if (not sensitiveConfig.outputName.empty()) {
+    //std::cout << "write sens " << std::endl;  
     helper.write(sensitiveConfig.outputName);
     helper.clear();
   }
@@ -170,7 +174,18 @@ void Acts::GeometryView3D::drawLayer(IVisualization3D& helper,
 
   if (sensitiveConfig.visible or gridConfig.visible) {
     auto surfaceArray = layer.surfaceArray();
+    
+    std::cout << "before if that draws surface array " << std::endl;
+    
+    
+    
+    
     if (surfaceArray != nullptr) {
+        
+        for (const auto& sf : surfaceArray->surfaces()) {
+        std::cout << sf->name() << std::endl; }
+        
+        std::cout << "... Draw surface array " << std::endl;
       drawSurfaceArray(helper, *surfaceArray, gctx, Transform3D::Identity(),
                        sensitiveConfig, layerConfig, gridConfig);
     }
@@ -238,6 +253,7 @@ void Acts::GeometryView3D::drawTrackingVolume(
         gConfig.outputName =
             vname + std::string("_grids_l") + std::to_string(il) + tag;
       }
+      std::cout << "before draw layer " << std::endl;
       drawLayer(helper, *tl, gctx, lConfig, sConfig, gConfig);
       ++il;
     }

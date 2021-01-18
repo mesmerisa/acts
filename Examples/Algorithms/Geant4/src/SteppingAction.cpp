@@ -71,16 +71,19 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
         Acts::Material::fromMassDensity(X0, L0, Ar, Z, rho),
         (step->GetStepLength() / CLHEP::mm) * Acts::UnitConstants::mm);
 
-    /*   G4cout << *material << G4endl;
-       G4cout << "----G4StepMaterial----" << G4endl;
-       /// @TODO remove output after testing
-       G4cout << "Material: " << material->GetName() << G4endl;
-       G4cout << "X0: " << X0 << G4endl;
-       G4cout << "L0: " << L0 << G4endl;
-       G4cout << "A: " << A << G4endl;
-       G4cout << "Z: " << Z << G4endl;
-       G4cout << "rho: " << rho << G4endl;
-       G4cout << "steplength: " << steplength << G4endl;*/
+       //G4cout << *material << G4endl;
+       
+    /*   if (step->GetStepLength() / CLHEP::mm > 0.0505 && material->GetName() != "AA2219") {
+           G4cout << "----G4StepMaterial---- " << material->GetName() << G4endl;
+           /// @TODO remove output after testing
+           //G4cout << "Material: " << material->GetName() << G4endl;
+           //G4cout << "X0: " << X0 << G4endl;
+           //G4cout << "L0: " << L0 << G4endl;
+           //G4cout << "A: " << A << G4endl;
+           //G4cout << "Z: " << Z << G4endl;
+           //G4cout << "rho: " << rho << G4endl;
+           G4cout << "steplength: " << step->GetStepLength() / CLHEP::mm << G4endl;
+   }*/
 
     // create the RecordedMaterialSlab
     const auto& rawPos = step->GetPreStepPoint()->GetPosition();

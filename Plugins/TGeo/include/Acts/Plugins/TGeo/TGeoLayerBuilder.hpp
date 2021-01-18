@@ -63,7 +63,8 @@ class TGeoLayerBuilder : public ILayerBuilder {
     /// Layer splitting: parameter and tolerance
     std::vector<SplitConfig> splitConfigs = {};
     /// The envelope to be built around the layer
-    std::pair<double, double> envelope = {0_mm, 0_mm};
+    std::pair<double, double> envelopeR = {0_mm, 0_mm};
+    std::pair<double, double> envelopeZ = {0_mm, 0_mm};
     /// Binning setup in l0: nbins (-1 -> automated), axis binning type
     std::tuple<int, BinningType> binning0 = {-1, equidistant};
     /// Binning setup in l1: nbins (-1 -> automated), axis binning type
@@ -74,7 +75,9 @@ class TGeoLayerBuilder : public ILayerBuilder {
         : volumeName(""),
           sensorNames({}),
           localAxes("XZY"),
-          envelope(std::pair<double, double>(1_mm, 1_mm)) {}
+          //envelopeR(std::pair<double, double>(2.35_mm, 1.358_mm)), 
+          envelopeR(std::pair<double, double>(0_mm, 0_mm)),
+          envelopeZ(std::pair<double, double>(0_mm, 0_mm)) {}
   };
 
   /// @struct Config
