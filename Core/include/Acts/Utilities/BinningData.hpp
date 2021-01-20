@@ -6,9 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-///////////////////////////////////////////////////////////////////
-// BinUtility.h, Acts project
-///////////////////////////////////////////////////////////////////
 #pragma once
 #include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Utilities/BinningType.hpp"
@@ -114,7 +111,7 @@ class BinningData {
     checkSubStructure();
   }
 
-  /// Constructor for equidistant binning
+  /// Constructor for non-equidistant binning
   ///
   /// @param bOption is the binning option : open / closed
   /// @param bValue is the binning value : binX, binY, etc.
@@ -213,7 +210,7 @@ class BinningData {
     return (*this);
   }
 
-  /// Destructor
+  BinningData() = default;
   ~BinningData() = default;
 
   /// Return the number of bins - including sub bins
@@ -253,7 +250,7 @@ class BinningData {
   /// @param lposition assumes the correct local position expression
   ///
   /// @return float value according to the binning setup
-  float value(const Vector2D& lposition) const {
+  float value(const Vector2& lposition) const {
     // ordered after occurence
     if (binvalue == binR || binvalue == binRPhi || binvalue == binX ||
         binvalue == binH) {
@@ -270,7 +267,7 @@ class BinningData {
   /// @param position is the global position
   ///
   /// @return float value according to the binning setup
-  float value(const Vector3D& position) const {
+  float value(const Vector3& position) const {
     using VectorHelpers::eta;
     using VectorHelpers::perp;
     using VectorHelpers::phi;
@@ -303,12 +300,12 @@ class BinningData {
     return value;
   }
 
-  /// Check if bin is inside from Vector3D
+  /// Check if bin is inside from Vector3
   ///
   /// @param position is the search position in global coordinated
   ///
   /// @return boolen if this is inside() method is true
-  bool inside(const Vector3D& position) const {
+  bool inside(const Vector3& position) const {
     // closed one is always inside
     if (option == closed) {
       return true;
@@ -319,12 +316,12 @@ class BinningData {
     return (val > min - 0.001 && val < max + 0.001);
   }
 
-  /// Check if bin is inside from Vector2D
+  /// Check if bin is inside from Vector2
   ///
   /// @param lposition is the search position in global coordinated
   ///
   /// @return boolen if this is inside() method is true
-  bool inside(const Vector2D& lposition) const {
+  bool inside(const Vector2& lposition) const {
     // closed one is always inside
     if (option == closed) {
       return true;
@@ -340,7 +337,7 @@ class BinningData {
   /// @param lposition is the search position in local coordinated
   ///
   /// @return bin according tot this
-  size_t searchLocal(const Vector2D& lposition) const {
+  size_t searchLocal(const Vector2& lposition) const {
     if (zdim) {
       return 0;
     }
@@ -352,7 +349,7 @@ class BinningData {
   /// @param position is the search position in global coordinated
   ///
   /// @return bin according tot this
-  size_t searchGlobal(const Vector3D& position) const {
+  size_t searchGlobal(const Vector3& position) const {
     if (zdim) {
       return 0;
     }
@@ -403,12 +400,12 @@ class BinningData {
   /// @todo check if this can be changed
   ///
   /// @return integer that indicates which direction to move
-  int nextDirection(const Vector3D& position, const Vector3D& dir) const {
+  int nextDirection(const Vector3& position, const Vector3& dir) const {
     if (zdim) {
       return 0;
     }
     float val = value(position);
-    Vector3D probe = position + dir.normalized();
+    Vector3 probe = position + dir.normalized();
     float nextval = value(probe);
     return (nextval > val) ? 1 : -1;
   }

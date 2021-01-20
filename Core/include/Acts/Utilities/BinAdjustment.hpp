@@ -12,13 +12,11 @@
 
 #pragma once
 
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
 #include "Acts/Surfaces/ConeBounds.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/BinUtility.hpp"
-
-#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Utilities/BinUtility.hpp"
 
 #include <stdexcept>
@@ -32,7 +30,7 @@ namespace Acts {
 ///
 /// @return new updated BinUtiltiy
 BinUtility adjustBinUtility(const BinUtility& bu, const RadialBounds& rBounds,
-                            const Transform3D& transform) {
+                            const Transform3& transform) {
   // Default constructor
   BinUtility uBinUtil(transform);
 
@@ -209,7 +207,7 @@ BinUtility adjustBinUtility(const BinUtility& bu, const ConeBounds& coBounds,
 ///
 /// @return new updated BinUtiltiy
 BinUtility adjustBinUtility(const BinUtility& bu, const CylinderBounds& cBounds,
-                            const Transform3D& transform) {
+                            const Transform3& transform) {
   // Default constructor
   BinUtility uBinUtil(transform);
 

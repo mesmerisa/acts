@@ -16,9 +16,8 @@
 #include <HepMC3/GenVertex.h>
 
 namespace ActsExamples {
-
-/// Helper struct to convert HepMC3 vertex into the internal format.
 namespace HepMC3Vertex {
+
 /// @brief Returns a vertex translated into Acts
 /// @param vertex vertex in HepMC data type
 /// @return corresponding Acts vertex
@@ -51,7 +50,7 @@ std::vector<SimParticle> particlesOut(
 /// @brief Returns the position of a vertex translated into Acts
 /// @param vertex vertex in HepMC data type
 /// @return position of the vertex
-Acts::Vector3D position(const std::shared_ptr<HepMC3::GenVertex> vertex);
+Acts::Vector3 position(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
 /// @brief Returns the time of a vertex translated into Acts
 /// @param vertex vertex in HepMC data type
@@ -86,11 +85,12 @@ void removeParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
 /// @param vertex vertex in HepMC data type
 /// @param pos new position of the vertex
 void position(const std::shared_ptr<HepMC3::GenVertex> vertex,
-              Acts::Vector3D pos);
+              Acts::Vector3 pos);
 
 /// @brief Sets the time of a vertex translated into Acts
 /// @param vertex vertex in HepMC data type
 /// @param time new time of the vertex
 void time(const std::shared_ptr<HepMC3::GenVertex> vertex, double time);
+
 }  // namespace HepMC3Vertex
 }  // namespace ActsExamples

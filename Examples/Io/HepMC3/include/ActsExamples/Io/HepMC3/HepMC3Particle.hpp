@@ -14,12 +14,10 @@
 #include <HepMC3/FourVector.h>
 #include <HepMC3/GenParticle.h>
 #include <HepMC3/GenVertex.h>
-#include <HepPID/ParticleIDMethods.hh>
 
 namespace ActsExamples {
-
-/// Helper struct to convert HepMC3 particles to internal format.
 namespace HepMC3Particle {
+
 /// @brief Returns the particle translated into Acts
 /// @param particle HepMC3::GenParticle particle
 /// @return corresponding Acts particle
@@ -50,7 +48,7 @@ int pdgID(const std::shared_ptr<HepMC3::GenParticle> particle);
 /// @brief Returns the momentum of a particle translated into Acts
 /// @param particle HepMC3::GenParticle particle
 /// @return momentum of the particle
-Acts::Vector3D momentum(const std::shared_ptr<HepMC3::GenParticle> particle);
+Acts::Vector3 momentum(const std::shared_ptr<HepMC3::GenParticle> particle);
 
 /// @brief Returns the energy of a particle translated into Acts
 /// @param particle HepMC3::GenParticle particle
@@ -76,7 +74,7 @@ void pdgID(std::shared_ptr<HepMC3::GenParticle> particle, const int pid);
 /// @param particle HepMC3::GenParticle particle
 /// @param mom momentum that will be set
 void momentum(std::shared_ptr<HepMC3::GenParticle> particle,
-              const Acts::Vector3D& mom);
+              const Acts::Vector3& mom);
 
 /// @brief Sets the energy of a particle translated from Acts
 /// @param particle HepMC3::GenParticle particle
@@ -87,6 +85,6 @@ void energy(std::shared_ptr<HepMC3::GenParticle> particle, const double energy);
 /// @param particle HepMC3::GenParticle particle
 /// @param mass mass that will be set
 void mass(std::shared_ptr<HepMC3::GenParticle> particle, const double mass);
-}  // namespace HepMC3Particle
 
+}  // namespace HepMC3Particle
 }  // namespace ActsExamples

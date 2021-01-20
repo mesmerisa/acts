@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 CERN for the benefit of the Acts project
+// Copyright (C) 2019-2020 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,6 +11,7 @@
 #include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Definitions/Units.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 #include "ActsExamples/EventData/Index.hpp"
 #include "ActsExamples/EventData/IndexSourceLink.hpp"
 #include "ActsExamples/EventData/Measurement.hpp"
@@ -63,9 +64,6 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
   //std::cout << "Hit smearing execute hit size " << hits.size() << std::endl;  
 =======*/
   using namespace Acts::UnitLiterals;
-  using ConcreteMeasurement =
-      Acts::Measurement<IndexSourceLink, Acts::BoundIndices, Acts::eBoundLoc0,
-                        Acts::eBoundLoc1>;
 
   // retrieve input
   const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimHits);
@@ -85,7 +83,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
   std::normal_distribution<double> stdNormal(0.0, 1.0);
 
   // setup local covariance
-  Acts::SymMatrix2D cov = Acts::SymMatrix2D::Zero();
+  Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
   cov(0, 0) = m_cfg.sigmaLoc0 * m_cfg.sigmaLoc0;
   cov(1, 1) = m_cfg.sigmaLoc1 * m_cfg.sigmaLoc1;
 
@@ -117,7 +115,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       }
 
       // create smeared local measurement
-      Acts::Vector2D loc = lpResult.value();
+      Acts::Vector2 loc = lpResult.value();
       loc[0] += m_cfg.sigmaLoc0 * stdNormal(rng);
       loc[1] += m_cfg.sigmaLoc1 * stdNormal(rng);
 
@@ -128,7 +126,8 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       std::cout << "Hit smearing loop, hit index:  " << hitIdx << std::endl; 
       
       IndexSourceLink sourceLink(moduleGeoId, hitIdx);
-      ConcreteMeasurement meas(surface->getSharedPtr(), sourceLink, cov, loc);
+      auto meas = Acts::makeMeasurement(sourceLink, loc, cov, Acts::eBoundLoc0,
+                                        Acts::eBoundLoc1);
 
       // add to output containers. since the input is already geometry-order,
       // new elements in geometry containers can just be appended at the end.

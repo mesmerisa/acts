@@ -75,7 +75,7 @@ class RadialBounds : public DiscBounds {
   /// @param bcheck boundary check directive
   ///
   /// @return is a boolean indicating the operation success
-  bool inside(const Vector2D& lposition,
+  bool inside(const Vector2& lposition,
               const BoundaryCheck& bcheck) const final;
 
   /// Outstream operator
@@ -117,7 +117,7 @@ class RadialBounds : public DiscBounds {
   /// within the bounds
   ///
   /// @param lposition The local position in polar coordinates
-  Vector2D shifted(const Vector2D& lposition) const;
+  Vector2 shifted(const Vector2& lposition) const;
 
   /// This method returns the xy coordinates of vertices along
   /// the radial bounds
@@ -129,7 +129,7 @@ class RadialBounds : public DiscBounds {
   /// number of segments returned
   ///
   /// @return vector for vertices in 2D
-  std::vector<Vector2D> vertices(unsigned int lseg) const final;
+  std::vector<Vector2> vertices(unsigned int lseg) const final;
 };
 
 inline double RadialBounds::rMin() const {

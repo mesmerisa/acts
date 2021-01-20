@@ -10,7 +10,9 @@
 
 #include "ActsExamples/Framework/WriterT.hpp"
 #include "ActsExamples/Utilities/OptionsFwd.hpp"
+
 #include <string>
+
 #include <HepMC3/GenEvent.h>
 #include <HepMC3/WriterAscii.h>
 
@@ -48,4 +50,5 @@ class HepMC3AsciiWriter final : public WriterT<std::vector<HepMC3::GenEvent>> {
   /// The configuration of this writer
   Config m_cfg;
 };
+
 }  // namespace ActsExamples

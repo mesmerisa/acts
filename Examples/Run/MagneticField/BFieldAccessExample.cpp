@@ -54,13 +54,13 @@ void accessStepWise(field_t& bField, field_context_t& bFieldContext,
       for (size_t iphi = 0; iphi < phi_steps; ++iphi) {
         double phi = phi_0 + iphi * phi_step;
         // make a direction
-        Acts::Vector3D dir(cos(phi) * sin(theta), sin(phi) * sin(theta),
-                           cos(theta));
+        Acts::Vector3 dir(cos(phi) * sin(theta), sin(phi) * sin(theta),
+                          cos(theta));
         // check for the current step
         double currentStep = 0.;
         // now step through the magnetic field
         for (size_t istep = 0; istep < access_steps; ++istep) {
-          Acts::Vector3D position = currentStep * dir;
+          Acts::Vector3 position = currentStep * dir;
           // access the field directly
           auto field_direct = bField.getField(position);
           // access the field with the cell
@@ -98,7 +98,7 @@ void accessRandom(field_t& bField, field_context_t& bFieldContext,
   // the event loop
   // loop over the events - @todo move to parallel for
   for (size_t istep = 0; istep < totalSteps; ++istep) {
-    Acts::Vector3D position(xDist(rng), yDist(rng), zDist(rng));
+    Acts::Vector3 position(xDist(rng), yDist(rng), zDist(rng));
     // access the field directly
     auto field_direct = bField.getField(position);
     // access the field with the cell
@@ -123,10 +123,13 @@ int main(int argc, char* argv[]) {
   auto desc = ActsExamples::Options::makeDefaultOptions();
   ActsExamples::Options::addSequencerOptions(desc);
   ActsExamples::Options::addBFieldOptions(desc);
-  desc.add_options()("bf-phi-range",
-                     po::value<read_range>()->default_value({-M_PI, M_PI}),
-                     "range in which the phi parameter is generated.")(
-      "bf-theta-range", po::value<read_range>()->default_value({0., M_PI}),
+  desc.add_options()(
+      "bf-phi-range",
+      po::value<ActsExamples::Options::Reals<2>>()->default_value(
+          {{-M_PI, M_PI}}),
+      "range in which the phi parameter is generated.")(
+      "bf-theta-range",
+      po::value<ActsExamples::Options::Reals<2>>()->default_value({{0., M_PI}}),
       "range in which the eta parameter is generated.")(
       "bf-phisteps", po::value<size_t>()->default_value(1000),
       "number of steps for the phi parameter.")(
@@ -152,8 +155,8 @@ int main(int argc, char* argv[]) {
   auto bFieldVar = ActsExamples::Options::readBField(vm);
 
   // Get the phi and eta range
-  auto phir = vm["bf-phi-range"].as<read_range>();
-  auto thetar = vm["bf-theta-range"].as<read_range>();
+  auto phir = vm["bf-phi-range"].as<ActsExamples::Options::Reals<2>>();
+  auto thetar = vm["bf-theta-range"].as<ActsExamples::Options::Reals<2>>();
   // Get the granularity
   size_t phi_steps = vm["bf-phisteps"].as<size_t>();
   size_t theta_steps = vm["bf-thetasteps"].as<size_t>();

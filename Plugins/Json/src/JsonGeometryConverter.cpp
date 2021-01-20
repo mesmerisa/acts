@@ -445,7 +445,7 @@ const Acts::IVolumeMaterial* Acts::JsonGeometryConverter::jsonToVolumeMaterial(
     vMaterial = new Acts::HomogeneousVolumeMaterial(mmat[0]);
   } else {
     if (bUtility.dimensions() == 2) {
-      std::function<Acts::Vector2D(Acts::Vector3D)> transfoGlobalToLocal;
+      std::function<Acts::Vector2(Acts::Vector3)> transfoGlobalToLocal;
       Acts::Grid2D grid = createGrid2D(bUtility, transfoGlobalToLocal);
 
       Acts::Grid2D::point_t min = grid.minPosition();
@@ -466,7 +466,7 @@ const Acts::IVolumeMaterial* Acts::JsonGeometryConverter::jsonToVolumeMaterial(
           new Acts::InterpolatedMaterialMap<MaterialMapper<MaterialGrid2D>>(
               std::move(matMap), bUtility);
     } else if (bUtility.dimensions() == 3) {
-      std::function<Acts::Vector3D(Acts::Vector3D)> transfoGlobalToLocal;
+      std::function<Acts::Vector3(Acts::Vector3)> transfoGlobalToLocal;
       Acts::Grid3D grid = createGrid3D(bUtility, transfoGlobalToLocal);
 
       Acts::Grid3D::point_t min = grid.minPosition();
@@ -530,7 +530,7 @@ void Acts::JsonGeometryConverter::convertToRep(
   // Write the material if there's one
   if (tVolume.volumeMaterial() != nullptr) {
     volRep.material = tVolume.volumeMaterial();
-  } else if (m_cfg.processnonmaterial == true) {
+  } else if (m_cfg.processNonMaterial == true) {
     Acts::BinUtility bUtility = DefaultBin(tVolume);
     Acts::IVolumeMaterial* bMaterial = new Acts::ProtoVolumeMaterial(bUtility);
     volRep.material = bMaterial;
@@ -562,7 +562,7 @@ void Acts::JsonGeometryConverter::convertToRep(
         volRep.boundaries[bid] = bssfRep.surfaceMaterial();
         volRep.boundarySurfaces[bid] = &bssfRep;
       }
-    } else if (m_cfg.processnonmaterial == true) {
+    } else if (m_cfg.processNonMaterial == true) {
       // if no material suface exist add a default one for the mapping
       // configuration
       Acts::GeometryIdentifier boundaryID = bssfRep.geometryId();
@@ -597,7 +597,7 @@ Acts::JsonGeometryConverter::LayerRep Acts::JsonGeometryConverter::convertToRep(
         geo_id_value sid = sensitiveID.sensitive();
         layRep.sensitives.insert({sid, ssf->surfaceMaterial()});
         layRep.sensitiveSurfaces.insert({sid, ssf});
-      } else if (m_cfg.processnonmaterial == true) {
+      } else if (m_cfg.processNonMaterial == true) {
         // if no material suface exist add a default one for the mapping
         // configuration
         Acts::GeometryIdentifier sensitiveID = ssf->geometryId();
@@ -615,7 +615,7 @@ Acts::JsonGeometryConverter::LayerRep Acts::JsonGeometryConverter::convertToRep(
     if (tLayer.surfaceRepresentation().surfaceMaterial() != nullptr) {
       layRep.representing = tLayer.surfaceRepresentation().surfaceMaterial();
       layRep.representingSurface = &tLayer.surfaceRepresentation();
-    } else if (m_cfg.processnonmaterial == true) {
+    } else if (m_cfg.processNonMaterial == true) {
       // if no material suface exist add a default one for the mapping
       // configuration
       Acts::BinUtility rUtility = DefaultBin(tLayer.surfaceRepresentation());
@@ -634,7 +634,7 @@ Acts::JsonGeometryConverter::LayerRep Acts::JsonGeometryConverter::convertToRep(
         geo_id_value aid = approachID.approach();
         layRep.approaches.insert({aid, asf->surfaceMaterial()});
         layRep.approacheSurfaces.insert({aid, asf});
-      } else if (m_cfg.processnonmaterial == true) {
+      } else if (m_cfg.processNonMaterial == true) {
         // if no material suface exist add a default one for the mapping
         // configuration
         Acts::GeometryIdentifier approachID = asf->geometryId();
@@ -732,8 +732,8 @@ json Acts::JsonGeometryConverter::surfaceMaterialToJson(
       smj[binkeys[ibin]] = binj;
     }
     std::vector<double> transfo;
-    Acts::Transform3D transfo_matrix = bUtility->transform();
-    if (not transfo_matrix.isApprox(Acts::Transform3D::Identity())) {
+    Acts::Transform3 transfo_matrix = bUtility->transform();
+    if (not transfo_matrix.isApprox(Acts::Transform3::Identity())) {
       for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
           transfo.push_back(transfo_matrix(j, i));
@@ -844,7 +844,7 @@ json Acts::JsonGeometryConverter::volumeMaterialToJson(
       smj[binkeys[ibin]] = binj;
     }
     std::vector<double> transfo;
-    Acts::Transform3D transfo_matrix = bUtility->transform();
+    Acts::Transform3 transfo_matrix = bUtility->transform();
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
         transfo.push_back(transfo_matrix(j, i));
@@ -944,9 +944,9 @@ Acts::BinUtility Acts::JsonGeometryConverter::jsonToBinUtility(
 }
 
 /// Create the local to global transform
-Acts::Transform3D Acts::JsonGeometryConverter::jsonToTransform(
+Acts::Transform3 Acts::JsonGeometryConverter::jsonToTransform(
     const json& transfo) {
-  Transform3D transform;
+  Transform3 transform;
   int i = 0;
   int j = 0;
   for (auto& element : transfo) {

@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2018 CERN for the benefit of the Acts project
+// Copyright (C) 2018-2020 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,7 +9,11 @@
 #pragma once
 
 #include "Acts/Definitions/Algebra.hpp"
+
+#include <memory>
+
 namespace Acts {
+
 // forward declaration to avoid cyclic dependence
 template <typename T>
 class SeedFilter;
@@ -70,7 +74,7 @@ struct SeedfinderConfig {
   float bFieldInZ = 0.00208;
   // location of beam in x,y plane.
   // used as offset for Space Points
-  Acts::Vector2D beamPos{0, 0};
+  Acts::Vector2 beamPos{0, 0};
 
   // average radiation lengths of material on the length of a seed. used for
   // scattering.
@@ -101,4 +105,5 @@ struct SeedfinderConfig {
   int nTrplPerSpBLimit = 100;
   int nAvgTrplPerSpBLimit = 2;
 };
+
 }  // namespace Acts

@@ -37,7 +37,7 @@ void setupDigitization(
   auto logLevel = Options::readLogLevel(vars);
   auto outputDir = vars["output-dir"].template as<std::string>();
 
-  if (vars["digi-smearing"].as<bool>()) {
+  if (vars["digi-smear"].as<bool>()) {
     SmearingAlgorithm::Config smearCfg = Options::readSmearingConfig(vars);
     smearCfg.inputSimHits = kFatrasCollectionHits;
     smearCfg.outputMeasurements = "measurements";
@@ -55,9 +55,12 @@ void setupDigitization(
       RootDigitizationWriter::Config smearWriterRoot;
       smearWriterRoot.inputMeasurements = smearCfg.outputMeasurements;
       smearWriterRoot.inputSimHits = smearCfg.inputSimHits;
+      smearWriterRoot.inputMeasurementSimHitsMap =
+          smearCfg.outputMeasurementSimHitsMap;
       smearWriterRoot.filePath =
           joinPaths(outputDir, smearCfg.outputMeasurements + ".root");
       smearWriterRoot.smearers = smearCfg.smearers;
+      smearWriterRoot.trackingGeometry = trackingGeometry;
       sequencer.addWriter(
           std::make_shared<RootDigitizationWriter>(smearWriterRoot, logLevel));
     }
@@ -85,6 +88,7 @@ void setupDigitization(
       clusterWriterCsv.inputClusters = digi.outputClusters;
       clusterWriterCsv.inputSimHits = digi.inputSimHits;
       clusterWriterCsv.outputDir = outputDir;
+      clusterWriterCsv.trackingGeometry = trackingGeometry;
       sequencer.addWriter(
           std::make_shared<CsvPlanarClusterWriter>(clusterWriterCsv, logLevel));
     }

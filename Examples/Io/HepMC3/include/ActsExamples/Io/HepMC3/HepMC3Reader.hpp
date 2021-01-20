@@ -10,6 +10,7 @@
 
 #include "Acts/Utilities/Logger.hpp"
 #include "ActsExamples/Framework/IReader.hpp"
+
 #include <HepMC3/GenEvent.h>
 #include <HepMC3/ReaderAscii.h>
 
@@ -62,4 +63,5 @@ class HepMC3AsciiReader final : public IReader {
 
   const Acts::Logger& logger() const { return *m_logger; }
 };
+
 }  // namespace ActsExamples

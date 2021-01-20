@@ -9,17 +9,19 @@
 #include "ActsExamples/Io/HepMC3/HepMC3Particle.hpp"
 
 #include "ActsExamples/Io/HepMC3/HepMC3Vertex.hpp"
+#include "ActsFatras/Utilities/ParticleData.hpp"
 
 ActsExamples::SimParticle ActsExamples::HepMC3Particle::particle(
     HepMC3::ConstGenParticlePtr particle) {
   // TODO this is probably not quite right
   ActsFatras::Barcode particleId;
   particleId.setParticle(particle->id());
+  Acts::PdgParticle pdg = static_cast<Acts::PdgParticle>(particle->pid());
   SimParticle fw(particleId, static_cast<Acts::PdgParticle>(particle->pid()),
-                 HepPID::charge(particle->pid()), particle->generated_mass());
+                 ActsFatras::findCharge(pdg), particle->generated_mass());
   fw.setDirection(particle->momentum().x(), particle->momentum().y(),
                   particle->momentum().z());
-  fw.setAbsMomentum(particle->momentum().p3mod());
+  fw.setAbsoluteMomentum(particle->momentum().p3mod());
   return fw;
 }
 
@@ -55,9 +57,9 @@ int ActsExamples::HepMC3Particle::pdgID(
   return particle->pid();
 }
 
-Acts::Vector3D ActsExamples::HepMC3Particle::momentum(
+Acts::Vector3 ActsExamples::HepMC3Particle::momentum(
     const std::shared_ptr<HepMC3::GenParticle> particle) {
-  Acts::Vector3D mom;
+  Acts::Vector3 mom;
   mom(0) = particle->momentum().x();
   mom(1) = particle->momentum().y();
   mom(2) = particle->momentum().z();
@@ -76,7 +78,8 @@ double ActsExamples::HepMC3Particle::mass(
 
 double ActsExamples::HepMC3Particle::charge(
     const std::shared_ptr<HepMC3::GenParticle> particle) {
-  return HepPID::charge(particle->pid());
+  return ActsFatras::findCharge(
+      static_cast<Acts::PdgParticle>(particle->pid()));
 }
 
 void ActsExamples::HepMC3Particle::pdgID(
@@ -85,7 +88,7 @@ void ActsExamples::HepMC3Particle::pdgID(
 }
 
 void ActsExamples::HepMC3Particle::momentum(
-    std::shared_ptr<HepMC3::GenParticle> particle, const Acts::Vector3D& mom) {
+    std::shared_ptr<HepMC3::GenParticle> particle, const Acts::Vector3& mom) {
   HepMC3::FourVector fVec(mom(0), mom(1), mom(2), particle->momentum().e());
   particle->set_momentum(fVec);
 }

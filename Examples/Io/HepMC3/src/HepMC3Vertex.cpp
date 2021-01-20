@@ -11,6 +11,7 @@
 #include "ActsExamples/Io/HepMC3/HepMC3Particle.hpp"
 
 namespace {
+
 /// @brief Converts HepMC3::GenParticle objects into Acts
 /// @param genParticles list of HepMC3::GenParticle objects
 /// @return converted list
@@ -31,7 +32,7 @@ std::vector<ActsExamples::SimParticle> genParticlesToActs(
 HepMC3::GenParticlePtr actsParticleToGen(
     std::shared_ptr<ActsExamples::SimParticle> actsParticle) {
   // Extract momentum and energy from Acts particle for HepMC3::FourVector
-  const auto mom = actsParticle->momentum4();
+  const auto mom = actsParticle->fourMomentum();
   const HepMC3::FourVector vec(mom[0], mom[1], mom[2], mom[3]);
   // Create HepMC3::GenParticle
   HepMC3::GenParticle genParticle(vec, actsParticle->pdg());
@@ -59,7 +60,9 @@ HepMC3::GenParticlePtr matchParticles(
   }
   return nullptr;
 }
+
 }  // namespace
+
 std::unique_ptr<ActsExamples::SimVertex>
 ActsExamples::HepMC3Vertex::processVertex(
     const std::shared_ptr<HepMC3::GenVertex> vertex) {
@@ -91,9 +94,9 @@ std::vector<ActsExamples::SimParticle> ActsExamples::HepMC3Vertex::particlesOut(
   return genParticlesToActs(vertex->particles_out());
 }
 
-Acts::Vector3D ActsExamples::HepMC3Vertex::position(
+Acts::Vector3 ActsExamples::HepMC3Vertex::position(
     const std::shared_ptr<HepMC3::GenVertex> vertex) {
-  Acts::Vector3D vec;
+  Acts::Vector3 vec;
   vec(0) = vertex->position().x();
   vec(1) = vertex->position().y();
   vec(2) = vertex->position().z();
@@ -136,7 +139,7 @@ void ActsExamples::HepMC3Vertex::removeParticleOut(
 }
 
 void ActsExamples::HepMC3Vertex::position(
-    const std::shared_ptr<HepMC3::GenVertex> vertex, Acts::Vector3D pos) {
+    const std::shared_ptr<HepMC3::GenVertex> vertex, Acts::Vector3 pos) {
   HepMC3::FourVector fVec(pos(0), pos(1), pos(2), vertex->position().t());
   vertex->set_position(fVec);
 }

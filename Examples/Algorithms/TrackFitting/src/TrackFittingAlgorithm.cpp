@@ -69,6 +69,7 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
   //auto pSurface = Acts::Surface::makeShared<Acts::PlaneSurface>(
   //  Acts::Vector3D{0, 0, 0}, Acts::Vector3D{0., 0., 1.});
     
+
   // Set the KalmanFitter options
   Acts::KalmanFitterOptions<MeasurementCalibrator, Acts::VoidOutlierFinder>
       kfOptions(ctx.geoContext, ctx.magFieldContext, ctx.calibContext,

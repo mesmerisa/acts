@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 CERN for the benefit of the Acts project
+// Copyright (C) 2017-2020 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -107,9 +107,6 @@ ActsExamples::ProcessCode ActsExamples::PlanarSteppingAlgorithm::execute(
 =======*/
   using ClusterContainer =
       ActsExamples::GeometryIdMultimap<Acts::PlanarModuleCluster>;
-  using ConcreteMeasurement =
-      Acts::Measurement<IndexSourceLink, Acts::BoundIndices, Acts::eBoundLoc0,
-                        Acts::eBoundLoc1, Acts::eBoundTime>;
 
   // retrieve input
   const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimHits);
@@ -143,9 +140,9 @@ ActsExamples::ProcessCode ActsExamples::PlanarSteppingAlgorithm::execute(
       const auto& simHit = *ih;
       const auto simHitIdx = simHits.index_of(ih);
 
-      Acts::Vector2D localIntersect =
+      Acts::Vector2 localIntersect =
           (invTransfrom * simHit.position()).head<2>();
-      Acts::Vector3D localDirection =
+      Acts::Vector3 localDirection =
           invTransfrom.linear() * simHit.unitDirection();
 
       // compute digitization steps
@@ -188,16 +185,17 @@ ActsExamples::ProcessCode ActsExamples::PlanarSteppingAlgorithm::execute(
       // get the segmentation & find the corresponding cell id
       const Acts::Segmentation& segmentation = dg.digitizer->segmentation();
       auto binUtility = segmentation.binUtility();
-      Acts::Vector2D localPosition(localX, localY);
+      Acts::Vector2 localPosition(localX, localY);
       // @todo remove unneccesary conversion
       // size_t bin0 = binUtility.bin(localPosition, 0);
       // size_t bin1 = binUtility.bin(localPosition, 1);
       // size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
 
       // the covariance is currently set to some arbitrary value.
-      Acts::SymMatrix3D cov;
+      Acts::SymMatrix3 cov;
       cov << 0.05, 0., 0., 0., 0.05, 0., 0., 0.,
           900. * Acts::UnitConstants::ps * Acts::UnitConstants::ps;
+      Acts::Vector3 par(localX, localY, simHit.time());
 
       // create the planar cluster
       Acts::PlanarModuleCluster cluster(
@@ -209,8 +207,8 @@ ActsExamples::ProcessCode ActsExamples::PlanarSteppingAlgorithm::execute(
       // the measurement will be stored is known before adding it.
       Index hitIdx = measurements.size();
       IndexSourceLink sourceLink(moduleGeoId, hitIdx);
-      ConcreteMeasurement meas(dg.surface->getSharedPtr(), sourceLink, cov,
-                               localX, localY, simHit.time());
+      auto meas = Acts::makeMeasurement(sourceLink, par, cov, Acts::eBoundLoc0,
+                                        Acts::eBoundLoc1, Acts::eBoundTime);
 
       // add to output containers. since the input is already geometry-order,
       // new elements in geometry containers can just be appended at the end.

@@ -21,7 +21,7 @@
 
 #include <dfe/dfe_io_dsv.hpp>
 
-#include "TrackMlData.hpp"
+#include "CsvOutputData.hpp"
 
 ActsExamples::CsvParticleReader::CsvParticleReader(
     const ActsExamples::CsvParticleReader::Config& cfg,
@@ -68,8 +68,8 @@ ActsExamples::ProcessCode ActsExamples::CsvParticleReader::read(
         data.vz * Acts::UnitConstants::mm, data.vt * Acts::UnitConstants::ns);
     // only used for direction; normalization/units do not matter
     particle.setDirection(data.px, data.py, data.pz);
-    particle.setAbsMomentum(std::hypot(data.px, data.py, data.pz) *
-                            Acts::UnitConstants::GeV);
+    particle.setAbsoluteMomentum(std::hypot(data.px, data.py, data.pz) *
+                                 Acts::UnitConstants::GeV);
     unordered.push_back(std::move(particle));
   }
 
