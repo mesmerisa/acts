@@ -12,6 +12,7 @@
 #include "Acts/Geometry/CuboidVolumeBounds.hpp"
 #include "Acts/Geometry/CutoutCylinderVolumeBounds.hpp"
 #include "Acts/Geometry/CylinderVolumeBounds.hpp"
+#include "Acts/Geometry/ConeVolumeBounds.hpp"
 #include "Acts/Geometry/GeometryIdentifier.hpp"
 #include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Material/BinnedSurfaceMaterial.hpp"
@@ -871,11 +872,23 @@ void Acts::JsonGeometryConverter::addSurfaceToJson(json& sjson,
       dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
   const Acts::AnnulusBounds* annulusBounds =
       dynamic_cast<const Acts::AnnulusBounds*>(&surfaceBounds);
+  const Acts::ConeBounds* coneBounds =
+      dynamic_cast<const Acts::ConeBounds*>(&surfaceBounds);    
 
   if (radialBounds != nullptr) {
     sjson[m_cfg.surfacetypekey] = "Disk";
     sjson[m_cfg.surfacepositionkey] = sTransform.translation().z();
     sjson[m_cfg.surfacerangekey] = {radialBounds->rMin(), radialBounds->rMax()};
+  }
+  if (coneBounds != nullptr) {
+    sjson[m_cfg.surfacetypekey] = "Cone";
+    sjson[m_cfg.surfacepositionkey] = sTransform.translation().z();
+    sjson[m_cfg.surfacerangekey] = {
+        coneBounds->r(coneBounds->get(ConeBounds::eMinZ)),
+        coneBounds->r(coneBounds->get(ConeBounds::eMaxZ))};
+    //sjson[m_cfg.surfacerangekey] = {
+    //    -0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ)),
+    //    0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))};
   }
   if (cylinderBounds != nullptr) {
     sjson[m_cfg.surfacetypekey] = "Cylinder";
@@ -1012,8 +1025,11 @@ Acts::BinUtility Acts::JsonGeometryConverter::DefaultBin(
                            Acts::open, Acts::binY);
     return bUtility;
   }
-   if (coneBounds != nullptr) {
-    bUtility += BinUtility(
+  if (coneBounds != nullptr) {
+    std::cout << "Json Geometry Converter ----- Into Cone bounds! 1 " << std::endl;  
+      std::cout << "Cone half len " << (0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))) << std::endl;
+      std::cout << "Rmin, Rmax  " << coneBounds->r(coneBounds->get(ConeBounds::eMinZ)) << " " << coneBounds->r(coneBounds->get(ConeBounds::eMaxZ)) << std::endl;
+      bUtility += BinUtility(
         1,
         coneBounds->get(ConeBounds::eAveragePhi) -
             coneBounds->get(ConeBounds::eHalfPhiSector),
@@ -1023,12 +1039,38 @@ Acts::BinUtility Acts::JsonGeometryConverter::DefaultBin(
             ? Acts::closed
             : Acts::open,
         Acts::binPhi);
-    bUtility +=
-        BinUtility(1, -1 * (0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))),
-                   (0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))),
-                   Acts::open, Acts::binZ);
+    bUtility += BinUtility(1, coneBounds->r(coneBounds->get(ConeBounds::eMinZ)), coneBounds->r(coneBounds->get(ConeBounds::eMaxZ)),
+                           Acts::open, Acts::binR);
     return bUtility;
-  }  
+
+    /*bUtility += BinUtility(
+        1,
+        coneBounds->get(ConeBounds::eAveragePhi) -
+            coneBounds->get(ConeBounds::eHalfPhiSector),
+        coneBounds->get(ConeBounds::eAveragePhi) +
+            coneBounds->get(ConeBounds::eHalfPhiSector),
+        (coneBounds->get(ConeBounds::eHalfPhiSector) - M_PI) < s_epsilon
+            ? Acts::closed
+            : Acts::open,
+        Acts::binPhi);*/  
+        
+    /*std::cout << "minz " << coneBounds->get(ConeBounds::eMinZ) << " max z: " << coneBounds->get(ConeBounds::eMaxZ) << std::endl;
+    
+    bUtility += BinUtility(1, (coneBounds->get(ConeBounds::eAveragePhi) - coneBounds->get(ConeBounds::eHalfPhiSector))*coneBounds->r(coneBounds->get(ConeBounds::eMinZ)), 
+    (coneBounds->get(ConeBounds::eAveragePhi) + coneBounds->get(ConeBounds::eHalfPhiSector))*coneBounds->r(coneBounds->get(ConeBounds::eMaxZ)),
+                           Acts::open, Acts::binRPhi); */
+                           
+                           
+    /*bUtility += BinUtility(1, coneBounds->r(coneBounds->get(ConeBounds::eMinZ)), 
+    coneBounds->r(coneBounds->get(ConeBounds::eMaxZ)),
+                           Acts::open, Acts::binR); */
+                                                  
+    /*bUtility +=
+        BinUtility(1, -1*(0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))),
+                   0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ)),
+                   Acts::open, Acts::binZ);
+    return bUtility;*/
+  } 
   ACTS_INFO(
       "No corresponding bound found for the surface : " << surface.name());
   return bUtility;
@@ -1044,6 +1086,8 @@ Acts::BinUtility Acts::JsonGeometryConverter::DefaultBin(
       dynamic_cast<const CutoutCylinderVolumeBounds*>(&(volume.volumeBounds()));
   auto cuBounds =
       dynamic_cast<const CuboidVolumeBounds*>(&(volume.volumeBounds()));
+  //auto coneBounds =
+ //     dynamic_cast<const ConeVolumeBounds*>(&(volume.volumeBounds()));    
 
   if (cyBounds != nullptr) {
     bUtility += BinUtility(1, cyBounds->get(CylinderVolumeBounds::eMinR),
@@ -1062,6 +1106,24 @@ Acts::BinUtility Acts::JsonGeometryConverter::DefaultBin(
                    Acts::open, Acts::binZ);
     return bUtility;
   }
+   /*if (coneBounds != nullptr) {
+     std::cout << "Json Geometry Converter ----- Into Cone bounds! 2 " << std::endl;   
+    bUtility += BinUtility(1, coneBounds->innerRmin(),
+                           coneBounds->innerRmax(),
+                           Acts::open, Acts::binR);
+    bUtility += BinUtility(
+        1, -coneBounds->get(ConeVolumeBounds::eHalfPhiSector),
+        coneBounds->get(ConeVolumeBounds::eHalfPhiSector),
+        (coneBounds->get(ConeVolumeBounds::eHalfPhiSector) - M_PI) < s_epsilon
+            ? Acts::closed
+            : Acts::open,
+        Acts::binPhi);
+    bUtility +=
+        BinUtility(1, -coneBounds->get(ConeVolumeBounds::eHalfLengthZ),
+                   coneBounds->get(ConeVolumeBounds::eHalfLengthZ),
+                   Acts::open, Acts::binZ);
+    return bUtility;
+  }*/
   if (cutcylBounds != nullptr) {
     bUtility +=
         BinUtility(1, cutcylBounds->get(CutoutCylinderVolumeBounds::eMinR),

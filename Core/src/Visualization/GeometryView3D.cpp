@@ -175,17 +175,16 @@ void Acts::GeometryView3D::drawLayer(IVisualization3D& helper,
   if (sensitiveConfig.visible or gridConfig.visible) {
     auto surfaceArray = layer.surfaceArray();
     
-    std::cout << "before if that draws surface array " << std::endl;
+    //std::cout << "before if that draws surface array " << std::endl;
     
     
     
     
     if (surfaceArray != nullptr) {
         
-        for (const auto& sf : surfaceArray->surfaces()) {
-        std::cout << sf->name() << std::endl; }
+        for (const auto& sf : surfaceArray->surfaces()) {}
         
-        std::cout << "... Draw surface array " << std::endl;
+        //std::cout << "... Draw surface array " << std::endl;
       drawSurfaceArray(helper, *surfaceArray, gctx, Transform3D::Identity(),
                        sensitiveConfig, layerConfig, gridConfig);
     }
@@ -253,7 +252,7 @@ void Acts::GeometryView3D::drawTrackingVolume(
         gConfig.outputName =
             vname + std::string("_grids_l") + std::to_string(il) + tag;
       }
-      std::cout << "before draw layer " << std::endl;
+      //std::cout << "before draw layer " << std::endl;
       drawLayer(helper, *tl, gctx, lConfig, sConfig, gConfig);
       ++il;
     }

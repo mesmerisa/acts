@@ -12,7 +12,7 @@
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Plugins/TGeo/TGeoDetectorElement.hpp"
 #include "ActsExamples/Framework/IContextDecorator.hpp"
-#include "ActsExamples/TGeoDetector/BuildTGeoDetector.hpp"
+#include "ActsExamples/TGeoDetector/BuildTGeoBGVDetector.hpp"
 
 void TGeoDetector::addOptions(
     boost::program_options::options_description& opt) const {
@@ -25,7 +25,7 @@ auto TGeoDetector::finalize(
     -> std::pair<TrackingGeometryPtr, ContextDecorators> {
   Acts::GeometryContext tGeoContext;
   TrackingGeometryPtr tgeoTrackingGeometry =
-      ActsExamples::TGeo::buildTGeoDetector(vm, tGeoContext, detectorStore,
+      ActsExamples::TGeo::buildTGeoBGVDetector(vm, tGeoContext, detectorStore,
                                             mdecorator);
 ContextDecorators tgeoContextDecorators = {};
 // return the pair of geometry and empty decorators
