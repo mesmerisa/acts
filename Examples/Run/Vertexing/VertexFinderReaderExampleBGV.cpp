@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
   /*IterativeVertexFinderAlgorithm::Config findVertices;
   findVertices.inputTrackParameters = smearParticles.outputTrackParameters;
   findVertices.outputProtoVertices = "protovertices";
-  findVertices.bField = Acts::Vector3D(0_T, 0_T, 0.00000001_T);
+  findVertices.bField = Acts::Vector3(0_T, 0_T, 0.00000001_T);
   sequencer.addAlgorithm(
       std::make_shared<IterativeVertexFinderAlgorithm>(findVertices, logLevel));*/
 
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
   /*AdaptiveMultiVertexFinderAlgorithm::Config findVertices;
   findVertices.inputTrackParameters = smearParticles.outputTrackParameters;
   findVertices.outputProtoVertices = "protovertices";
-  findVertices.bField = Acts::Vector3D(0_T, 0_T, 0_T);
+  findVertices.bField = Acts::Vector3(0_T, 0_T, 0_T);
   sequencer.addAlgorithm(std::make_shared<AdaptiveMultiVertexFinderAlgorithm>(
       findVertices, logLevel));*/
 
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
   fitVertices.inputTrackParameters = smearParticles.outputTrackParameters;
   fitVertices.inputProtoVertices = findVertices.outputProtoVertices;
   fitVertices.outputFittedVertices = "fitted_vertices";
-  fitVertices.bField = Acts::Vector3D(0_T, 0_T, 0_T);
+  fitVertices.bField = Acts::Vector3(0_T, 0_T, 0_T);
   sequencer.addAlgorithm(
       std::make_shared<VertexFitterAlgorithmBGV>(fitVertices, logLevel));
   

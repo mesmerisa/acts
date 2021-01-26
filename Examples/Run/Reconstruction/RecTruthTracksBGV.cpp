@@ -77,41 +77,6 @@ int main(int argc, char* argv[]) {
   // Setup the magnetic field
   auto magneticField = Options::readBField(vm);
   
- /* // setup and parse options
-  auto desc = ActsExamples::Options::makeDefaultOptions();
-  Options::addSequencerOptions(desc);
-  Options::addRandomNumbersOptions(desc);
-  Options::addGeometryOptions(desc);
-  Options::addMaterialOptions(desc);
-  Options::addInputOptions(desc);
-  Options::addOutputOptions(desc);
-  detector.addOptions(desc);
-  Options::addBFieldOptions(desc);
-
-  auto vm = Options::parse(desc, argc, argv);
-  if (vm.empty()) {
-    return EXIT_FAILURE;
-  }
-
-  Sequencer sequencer(Options::readSequencerConfig(vm));
-
-  // Read some standard options
-  auto logLevel = Options::readLogLevel(vm);
-  auto inputDir = vm["input-dir"].as<std::string>();
-  auto outputDir = ensureWritableDirectory(vm["output-dir"].as<std::string>());
-  auto rnd = std::make_shared<ActsExamples::RandomNumbers>(
-      Options::readRandomNumbersConfig(vm));
-
-  // Setup detector geometry
-  auto geometry = Geometry::build(vm, detector);
-  auto trackingGeometry = geometry.first;
-  // Add context decorators
-  for (auto cdr : geometry.second) {
-    sequencer.addContextDecorator(cdr);
-  }
-  // Setup the magnetic field
-  auto magneticField = Options::readBField(vm);*/
-
   // Read particles (initial states) and clusters from CSV files
   auto particleReader = Options::readCsvParticleReaderConfig(vm);
   particleReader.inputStem = "particles_initial";
@@ -160,8 +125,8 @@ int main(int argc, char* argv[]) {
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
   particleSelectorCfg.nHitsMin = 3;
-  //particleSelectorCfg.etaMin = 3;
-  //particleSelectorCfg.etaMax = 3.91;
+  particleSelectorCfg.etaMin = 3;
+  particleSelectorCfg.etaMax = 4;
   //particleSelectorCfg.nHitsMax = 5;
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
@@ -183,6 +148,21 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.inputParticles = inputParticles;
   particleSmearingCfg.outputTrackParameters = "smearedparameters";
   particleSmearingCfg.randomNumbers = rnd;
+  
+  
+    // Gaussian sigmas to smear particle parameters
+    // from Xiaocongs truth tracking telescope example
+  particleSmearingCfg.sigmaD0 = 20_um;
+  particleSmearingCfg.sigmaD0PtA = 30_um;
+  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0 = 20_um;
+  particleSmearingCfg.sigmaZ0PtA = 30_um;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaPhi = 0.1_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree;
+  particleSmearingCfg.sigmaPRel = 0.01;
+  particleSmearingCfg.sigmaT0 = 1_ns;
+  
   // Gaussian sigmas to smear particle parameters
 
   /*particleSmearingCfg.sigmaD0 = 600_um; // 20_um;
@@ -259,7 +239,7 @@ particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   
   
   
-  particleSmearingCfg.sigmaD0 = 20_um; // 20_um;
+  /*particleSmearingCfg.sigmaD0 = 20_um; // 20_um;
   particleSmearingCfg.sigmaD0PtA = 30_um;
   particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaZ0 = 20_um;
@@ -268,7 +248,7 @@ particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaPhi = 0.1_degree; // 0.01_degree;
   particleSmearingCfg.sigmaTheta = 0.01_degree; //0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.001;
-  particleSmearingCfg.sigmaT0 = 1_ns;
+  particleSmearingCfg.sigmaT0 = 1_ns;*/
   
 
   
@@ -341,7 +321,7 @@ particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
       std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));*/
       
   // write track states from fitting
-  RootTrajectoryStatesWriter::Config trackStatesWriter;
+ /* RootTrajectoryStatesWriter::Config trackStatesWriter;
   trackStatesWriter.inputTrajectories = fitter.outputTrajectories;
   trackStatesWriter.inputParticles = inputParticles;
   trackStatesWriter.inputSimHits = simHitReaderCfg.outputSimHits;
@@ -366,7 +346,34 @@ particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
   trackParamsWriter.outputFilename = "trackparams_fitter.root";
   trackParamsWriter.outputTreename = "trackparams_fitter";
   sequencer.addWriter(std::make_shared<RootTrajectoryParametersWriter>(
-      trackParamsWriter, logLevel));  
+      trackParamsWriter, logLevel));  */
+      
+  // write track states from fitting
+  RootTrajectoryStatesWriter::Config trackStatesWriter;
+  trackStatesWriter.inputTrajectories = fitter.outputTrajectories;
+  trackStatesWriter.inputParticles = inputParticles;
+  trackStatesWriter.inputSimHits = simHitReaderCfg.outputSimHits;
+  trackStatesWriter.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  trackStatesWriter.inputMeasurementSimHitsMap =
+      hitSmearingCfg.outputMeasurementSimHitsMap;
+  trackStatesWriter.outputDir = outputDir;
+  trackStatesWriter.outputFilename = "trackstates_fitter.root";
+  trackStatesWriter.outputTreename = "trackstates_fitter";
+  sequencer.addWriter(std::make_shared<RootTrajectoryStatesWriter>(
+      trackStatesWriter, logLevel));
+
+  // write track parameters from fitting
+  RootTrajectoryParametersWriter::Config trackParamsWriter;
+  trackParamsWriter.inputTrajectories = fitter.outputTrajectories;
+  trackParamsWriter.inputParticles = inputParticles;
+  trackParamsWriter.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  trackParamsWriter.outputDir = outputDir;
+  trackParamsWriter.outputFilename = "trackparams_fitter.root";
+  trackParamsWriter.outputTreename = "trackparams_fitter";
+  sequencer.addWriter(std::make_shared<RootTrajectoryParametersWriter>(
+      trackParamsWriter, logLevel));    
 
   // write reconstruction performance data
   TrackFinderPerformanceWriter::Config perfFinder;

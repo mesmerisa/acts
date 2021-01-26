@@ -95,7 +95,7 @@ ActsExamples::ProcessCode ActsExamples::ParticleSmearingBGV::execute(
     // particles within the group originate from the same position and use it to
     // as the refernce position for the perigee frame.
     
-    auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3D{0., 0., 0.}); // I put the perigee at the origin
+    auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.}); // I put the perigee at the origin
     
     for (std::size_t n = 0; n < std::min( first_hit_pos.size(), last_hit_pos.size() ); n++) {
        ////////////////////////////////////////////////////////////////////////////////////////////////// 

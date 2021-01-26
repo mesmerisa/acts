@@ -54,7 +54,7 @@ ActsExamples::ProcessCode ActsExamples::CsvSimHitReader::read(
   while (reader.read(data)) {
     const auto geometryId = Acts::GeometryIdentifier(data.geometry_id);
     
-    std::cout << "CsvSimHitReader, read id: " << data.geometry_id << std::endl;
+    //std::cout << "CsvSimHitReader, read id: " << data.geometry_id << std::endl;
     // TODO validate geo id consistency
     const auto particleId = ActsFatras::Barcode(data.particle_id);
 
@@ -64,7 +64,8 @@ ActsExamples::ProcessCode ActsExamples::CsvSimHitReader::read(
         data.tz * Acts::UnitConstants::mm,
         data.tt * Acts::UnitConstants::ns,
     };
-    std::cout << "CsvSimHitReader, read id: tx " << data.tx << " " << data.ty << " " << data.tz << std::endl;
+    //std::cout << "CsvSimHitReader, read id: tx " << data.tx << " " << data.ty << " " << data.tz << std::endl;
+    //std::cout << "CsvSimHitReader, read id: pt4 " << pos4[0] << " " << pos4[1] << " " << pos4[2] << std::endl;
     
     ActsFatras::Hit::Vector4 mom4{
         data.tpx * Acts::UnitConstants::GeV,

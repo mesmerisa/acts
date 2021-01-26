@@ -287,7 +287,7 @@ ActsExamples::ProcessCode ActsExamples::RootTrajectoryWriterBGV::writeT(
   using HitSimHitsMap = IndexMultimap<Index>;
   using ConcreteMeasurement =
       Acts::Measurement<ActsExamples::IndexSourceLink, Acts::BoundIndices,
-                        Acts::eBoundLoc0, Acts::eBoundLoc1>;
+                        Acts::eBoundLoc0>; //, Acts::eBoundLoc1>;
 
   if (m_outputFile == nullptr)
     return ProcessCode::SUCCESS;
@@ -376,7 +376,7 @@ ActsExamples::ProcessCode ActsExamples::RootTrajectoryWriterBGV::writeT(
         const auto& particle = *ip;
         ACTS_DEBUG("Find the truth particle with barcode = " << m_t_barcode);
         // Get the truth particle info at vertex
-        const auto p = particle.absMomentum();
+        const auto p = particle.absoluteMomentum();
         m_t_charge = particle.charge();
         m_t_time = particle.time();
         m_t_vx = particle.position().x();
@@ -456,11 +456,11 @@ ActsExamples::ProcessCode ActsExamples::RootTrajectoryWriterBGV::writeT(
       m_moduleID.push_back(geoID.sensitive());
 
       // get local position
-      Acts::Vector2D local(meas.parameters()[Acts::eBoundLoc0],
+      Acts::Vector2 local(meas.parameters()[Acts::eBoundLoc0],
                            meas.parameters()[Acts::eBoundLoc1]);
       // get global position
-      Acts::Vector3D mom(1, 1, 1);
-      Acts::Vector3D global = surface.localToGlobal(ctx.geoContext, local, mom);
+      Acts::Vector3 mom(1, 1, 1);
+      Acts::Vector3 global = surface.localToGlobal(ctx.geoContext, local, mom);
 
       // get measurement covariance
       auto cov = meas.covariance();

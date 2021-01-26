@@ -9,6 +9,8 @@
 #include "ActsExamples/TrackFitting/TrackFittingAlgorithm.hpp"
 
 #include "Acts/Surfaces/PerigeeSurface.hpp"
+#include "Acts/Surfaces/DiscSurface.hpp"
+
 #include "ActsExamples/EventData/ProtoTrack.hpp"
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsExamples/Framework/WhiteBoard.hpp"
@@ -63,11 +65,17 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
   trajectories.reserve(protoTracks.size());
 
   // Construct a perigee surface as the target surface
-  auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
-    Acts::Vector3D{0., 0., 0.});
+ // auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
+ //   Acts::Vector3{0., 0., 0.});
       
-  //auto pSurface = Acts::Surface::makeShared<Acts::PlaneSurface>(
-  //  Acts::Vector3D{0, 0, 0}, Acts::Vector3D{0., 0., 1.});
+  auto pSurface = Acts::Surface::makeShared<Acts::PlaneSurface>(
+  Acts::Vector3{0, 0, 500}, Acts::Vector3{0., 0., 1.});
+  
+  //auto pSurface = Acts::Surface::makeShared<Acts::DiscSurface>(
+  //Acts::Transform3::Identity(), 0, 100.0);
+   
+  //DiscSurface(const Transform3& transform, double rmin, double rmax,
+  //            double hphisec = M_PI); 
     
 
   // Set the KalmanFitter options
@@ -124,22 +132,16 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
     //std::cout << "execute fitter test 2" << std::endl;
 
     ACTS_DEBUG("Invoke fitter");
-//<<<<<<< HEAD
-//    auto result = m_cfg.fit(trackSourceLinks, initialParams, kfOptions);
-//=======
 
     ACTS_DEBUG("Surface Sequence: ");
     
-    /*for (int i = 0; i < surfSequence.size(); i++) {
-		std::cout << surfSequence.at(i) << " ";
+    for (int i = 0; i < surfSequence.size(); i++) {
         ACTS_DEBUG("surf seq " << surfSequence.at(i) );
-        std::cout << std::endl;
 	}  
-    std::cout << std::endl;*/
+   // std::cout << std::endl;
 
     auto result =
         fitTrack(trackSourceLinks, initialParams, kfOptions, surfSequence);
-//>>>>>>> 07713dddefe49e8a4478635555bb19c900d83957
 
     if (result.ok()) {
       // Get the fit output object

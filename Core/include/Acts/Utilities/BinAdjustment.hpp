@@ -79,7 +79,7 @@ BinUtility adjustBinUtility(const BinUtility& bu, const RadialBounds& rBounds,
 ///
 /// @return new updated BinUtiltiy
 BinUtility adjustBinUtility(const BinUtility& bu, const ConeBounds& coBounds,
-                            const Transform3D& transform) {
+                            const Transform3& transform) {
   // Default constructor
   BinUtility uBinUtil(transform);
   

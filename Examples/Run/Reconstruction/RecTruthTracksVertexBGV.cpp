@@ -418,7 +418,7 @@ int main(int argc, char* argv[]) {
       std::make_shared<TrackFittingAlgorithm>(fitter, logLevel));   
       
     // write track states from fitting
-  RootTrajectoryStatesWriter::Config trackStatesWriter;
+  /*RootTrajectoryStatesWriter::Config trackStatesWriter;
   trackStatesWriter.inputTrajectories = fitter.outputTrajectories;
   trackStatesWriter.inputParticles = inputParticles;
   trackStatesWriter.inputSimHits = simHitReaderCfg.outputSimHits;
@@ -443,7 +443,34 @@ int main(int argc, char* argv[]) {
   trackParamsWriter.outputFilename = "trackparams_fitter.root";
   trackParamsWriter.outputTreename = "trackparams_fitter";
   sequencer.addWriter(std::make_shared<RootTrajectoryParametersWriter>(
-      trackParamsWriter, logLevel));  
+      trackParamsWriter, logLevel));  */
+      
+   // write track states from fitting
+  RootTrajectoryStatesWriter::Config trackStatesWriter;
+  trackStatesWriter.inputTrajectories = fitter.outputTrajectories;
+  trackStatesWriter.inputParticles = inputParticles;
+  trackStatesWriter.inputSimHits = simHitReaderCfg.outputSimHits;
+  trackStatesWriter.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  trackStatesWriter.inputMeasurementSimHitsMap =
+      hitSmearingCfg.outputMeasurementSimHitsMap;
+  trackStatesWriter.outputDir = outputDir;
+  trackStatesWriter.outputFilename = "trackstates_fitter.root";
+  trackStatesWriter.outputTreename = "trackstates_fitter";
+  sequencer.addWriter(std::make_shared<RootTrajectoryStatesWriter>(
+      trackStatesWriter, logLevel));
+
+  // write track parameters from fitting
+  RootTrajectoryParametersWriter::Config trackParamsWriter;
+  trackParamsWriter.inputTrajectories = fitter.outputTrajectories;
+  trackParamsWriter.inputParticles = inputParticles;
+  trackParamsWriter.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  trackParamsWriter.outputDir = outputDir;
+  trackParamsWriter.outputFilename = "trackparams_fitter.root";
+  trackParamsWriter.outputTreename = "trackparams_fitter";
+  sequencer.addWriter(std::make_shared<RootTrajectoryParametersWriter>(
+      trackParamsWriter, logLevel));   
 
   // write reconstruction performance data
   TrackFinderPerformanceWriter::Config perfFinder;
@@ -479,7 +506,7 @@ int main(int argc, char* argv[]) {
   fitVertices.inputProtoVertices = findVertices.outputProtoVertices;
   fitVertices.outputFittedVertices = "fitted_vertices";
   fitVertices.doConstrainedFit = false;
-  fitVertices.bField = Acts::Vector3D(0_T, 0_T, 0_T);
+  fitVertices.bField = Acts::Vector3(0_T, 0_T, 0_T);
   sequencer.addAlgorithm(
       std::make_shared<VertexFitterAlgorithmFromTrajBGV>(fitVertices, logLevel));
       

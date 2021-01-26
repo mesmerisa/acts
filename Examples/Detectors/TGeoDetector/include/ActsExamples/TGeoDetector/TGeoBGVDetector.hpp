@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <vector>
+#include <boost/program_options.hpp>
 
 namespace Acts {
 class TGeoDetectorElement;

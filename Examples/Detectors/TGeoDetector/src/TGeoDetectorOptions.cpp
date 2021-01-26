@@ -150,13 +150,16 @@ void ActsExamples::Options::addTGeoGeometryOptions(Description& desc) {
 
 std::vector<Acts::TGeoLayerBuilder::Config>
 ActsExamples::Options::readTGeoLayerBuilderConfigs(const Variables& vm) {
+  // std::cout << "test 2 "  << std::endl;
   std::vector<Acts::TGeoLayerBuilder::Config> detLayerConfigs;
+  // std::cout << "test 2 "  << std::endl;
 
   auto unitScalor = vm["geo-tgeo-unit-scalor"].template as<double>();
-
+ //std::cout << "test 2 "  << std::endl;
   // subdetector selection
   auto subDetectors =
       vm["geo-tgeo-volume"].template as<std::vector<std::string>>();
+   //    std::cout << "test 2 "  << std::endl;
   // per-volume automated binning configuration
   auto binToleranceR =
       vm["geo-tgeo-sfbin-r-tolerance"].template as<std::vector<Interval>>();
@@ -164,30 +167,35 @@ ActsExamples::Options::readTGeoLayerBuilderConfigs(const Variables& vm) {
       vm["geo-tgeo-sfbin-z-tolerance"].template as<std::vector<Interval>>();
   auto binTolerancePhi =
       vm["geo-tgeo-sfbin-phi-tolerance"].template as<std::vector<Interval>>();
+     //  std::cout << "test 2 "  << std::endl;
   // Whether any layers should be configured for a volume
   std::array<std::vector<bool>, 3> layers = {
       vm["geo-tgeo-nlayers"].template as<std::vector<bool>>(),
       vm["geo-tgeo-clayers"].template as<std::vector<bool>>(),
       vm["geo-tgeo-players"].template as<std::vector<bool>>(),
   };
+   std::cout << "test 2 "  << std::endl;
   // The volume names to parse layers from in the TGeo
   std::array<std::vector<std::string>, 3> volumeName = {
       vm["geo-tgeo-nvolume-name"].template as<std::vector<std::string>>(),
       vm["geo-tgeo-cvolume-name"].template as<std::vector<std::string>>(),
       vm["geo-tgeo-pvolume-name"].template as<std::vector<std::string>>(),
   };
+   std::cout << "test 2 "  << std::endl;
   // The sensitive surface/module names to parse for in the TGeo
   std::array<std::vector<std::string>, 3> sensitiveNames = {
       vm["geo-tgeo-nmodule-name"].template as<std::vector<std::string>>(),
       vm["geo-tgeo-cmodule-name"].template as<std::vector<std::string>>(),
       vm["geo-tgeo-pmodule-name"].template as<std::vector<std::string>>(),
   };
+   std::cout << "test 2 "  << std::endl;
   // The sensitive surface axes configuration to parse for in the TGeo
   std::array<std::vector<std::string>, 3> sensitiveAxes = {
       vm["geo-tgeo-nmodule-axes"].template as<std::vector<std::string>>(),
       vm["geo-tgeo-cmodule-axes"].template as<std::vector<std::string>>(),
       vm["geo-tgeo-pmodule-axes"].template as<std::vector<std::string>>(),
   };
+   std::cout << "test 2 "  << std::endl;
   // The layer transverse radius range
   std::array<std::vector<Interval>, 3> rRange = {
       vm["geo-tgeo-nlayer-r-range"].template as<std::vector<Interval>>(),
@@ -199,6 +207,7 @@ ActsExamples::Options::readTGeoLayerBuilderConfigs(const Variables& vm) {
       vm["geo-tgeo-clayer-z-range"].template as<std::vector<Interval>>(),
       vm["geo-tgeo-player-z-range"].template as<std::vector<Interval>>(),
   };
+   std::cout << "test 2 "  << std::endl;
   // The split tolerances in transverse radius
   std::array<std::vector<double>, 3> splitTolR = {
       vm["geo-tgeo-nlayer-r-split"].template as<std::vector<double>>(),
@@ -211,7 +220,7 @@ ActsExamples::Options::readTGeoLayerBuilderConfigs(const Variables& vm) {
       vm["geo-tgeo-clayer-z-split"].template as<std::vector<double>>(),
       vm["geo-tgeo-player-z-split"].template as<std::vector<double>>(),
   };
-
+ std::cout << "test 2 "  << std::endl;
   // Split the sensor names if there are mulitple ones
   auto splitAtOr =
       [](const std::string& sensorNames) -> std::vector<std::string> {
@@ -223,7 +232,7 @@ ActsExamples::Options::readTGeoLayerBuilderConfigs(const Variables& vm) {
     }
     return sensors;
   };
-
+ std::cout << "test 2 "  << std::endl;
   // iterate over all configured detector volumes
   //
   // current index within the negative/central/positive layers configuration

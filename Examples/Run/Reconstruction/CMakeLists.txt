@@ -21,6 +21,16 @@ target_link_libraries(
     ActsExamplesRecTracksCommon
     ActsExamplesDetectorTelescope)
 
+# Truth fitting for Telescope detector
+add_executable(
+  ActsExampleTruthTracksTelescopeBGV
+  TelescopeBGVRecTruthTracks.cpp)
+target_link_libraries(
+  ActsExampleTruthTracksTelescopeBGV
+  PRIVATE
+    ActsExamplesRecTracksCommon
+    ActsExamplesDetectorTGeo)    
+
 # CKF reco for Generic detector 
 add_executable(
   ActsExampleCKFTracksGeneric
@@ -45,6 +55,7 @@ install(
   TARGETS
     ActsExampleTruthTracksGeneric
     ActsExampleTruthTracksTelescope
+    ActsExampleTruthTracksTelescopeBGV
     ActsExampleCKFTracksGeneric
     ActsExampleCKFTracksTelescope
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

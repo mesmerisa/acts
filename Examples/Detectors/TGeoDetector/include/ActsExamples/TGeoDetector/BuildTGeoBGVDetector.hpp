@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Acts/Geometry/CylinderVolumeBuilder.hpp"
+/*#include "Acts/Geometry/CylinderVolumeBuilder.hpp"
 #include "Acts/Geometry/CylinderVolumeHelper.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Geometry/LayerArrayCreator.hpp"
@@ -32,14 +32,30 @@
 #include "Acts/Geometry/BoundarySurfaceT.hpp"
 #include "Acts/Geometry/CylinderLayer.hpp"
 #include "Acts/Geometry/CylinderVolumeBounds.hpp"
-//#include "Acts/Geometry/DiscLayer.hpp"
-#include "Acts/Geometry/GeometryStatics.hpp"
-//#include "Acts/Geometry/GlueVolumesDescriptor.hpp"
-#include "Acts/Geometry/ILayerArrayCreator.hpp"
-#include "Acts/Geometry/ITrackingVolumeArrayCreator.hpp"
-#include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Geometry/VolumeBounds.hpp"
-//#include "Acts/Material/ISurfaceMaterial.hpp"
+*/
+
+
+
+
+
+#include "Acts/Geometry/CylinderVolumeBuilder.hpp"
+#include "Acts/Geometry/CylinderVolumeHelper.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Geometry/LayerArrayCreator.hpp"
+#include "Acts/Geometry/LayerCreator.hpp"
+#include "Acts/Geometry/PassiveLayerBuilder.hpp"
+#include "Acts/Geometry/SurfaceArrayCreator.hpp"
+#include "Acts/Geometry/SurfaceBinningMatcher.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometryBuilder.hpp"
+#include "Acts/Geometry/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Material/Material.hpp"
+#include "Acts/Material/MaterialSlab.hpp"
+#include "Acts/Plugins/TGeo/TGeoDetectorElement.hpp"
+#include "Acts/Utilities/BinningType.hpp"
+#include "ActsExamples/TGeoDetector/BuildTGeoDetector.hpp"
+#include "ActsExamples/TGeoDetector/TGeoDetectorOptions.hpp"
+#include "ActsExamples/Utilities/Options.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Geometry/ConeLayer.hpp"
@@ -48,20 +64,39 @@
 #include "Acts/Geometry/ConeLayer.hpp"
 #include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Utilities/BinnedArrayXD.hpp"
+#include "Acts/Geometry/TrackingVolume.hpp"
+#include "Acts/Geometry/ILayerArrayCreator.hpp"
+#include "Acts/Geometry/ITrackingVolumeArrayCreator.hpp"
+#include "Acts/Geometry/VolumeBounds.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Definitions/Algebra.hpp"
+#include "Acts/Geometry/BoundarySurfaceT.hpp"
+#include "Acts/Geometry/CylinderLayer.hpp"
+#include "Acts/Geometry/CylinderVolumeBounds.hpp"
+
+#include <list>
+#include <vector>
+#include <cmath>
+
+#include <TGeoManager.h>
+#include <boost/program_options.hpp>
 
 
 #include "TGeoBBox.h"
 #include "TGeoCone.h"
 #include "TGeoTube.h"
 
-#include "TGeoNode.h"
-#include "TGeoVolume.h"
 
-#include <list>
-#include <vector>
-#include <cmath>
 
-#include "TGeoManager.h"
+
+
+
+
+
+
+
+
 
 using MutableTrackingVolumePtr = std::shared_ptr<Acts::TrackingVolume>;
 using MutableTrackingVolumeVector = std::vector<MutableTrackingVolumePtr>;
@@ -95,7 +130,7 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoBGVDetector(
       Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
   Acts::Logging::Level volumeLogLevel =
       Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
-      
+
 
   // configure surface array creator
   Acts::SurfaceArrayCreator::Config sacConfig;
@@ -141,6 +176,7 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoBGVDetector(
 
 
   std::string rootFileName = vm["geo-tgeo-filename"].template as<std::string>();
+  
   
   // import the file from
   TGeoManager::Import(rootFileName.c_str());
@@ -215,21 +251,21 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoBGVDetector(
   //Rmin2 is the inner radius of the larger side
 
   // create the rotation and translation for the cone, so it has the right orientation and place:
-  Acts::Vector3D xAxis(-1, 0, 0);
-  Acts::Vector3D yAxis(0, 1, 0);
-  Acts::Vector3D zAxis(0, 0, -1);
-  Acts::RotationMatrix3D mat; 
+  Acts::Vector3 xAxis(-1, 0, 0);
+  Acts::Vector3 yAxis(0, 1, 0);
+  Acts::Vector3 zAxis(0, 0, -1);
+  Acts::RotationMatrix3 mat; 
   mat.col(0) = xAxis;
   mat.col(1) = yAxis;
   mat.col(2) = zAxis;         
-  Acts::Translation3D trans(EWtranslation[0]*10,EWtranslation[1]*10,EWtranslation[2]*10 + LenCutOffTip + EWHalfLength);   
+  Acts::Translation3 trans(EWtranslation[0]*10,EWtranslation[1]*10,EWtranslation[2]*10 + LenCutOffTip + EWHalfLength );   
   std::cout << "z-len of cut off cone part " << LenCutOffTip  << std::endl;
   std::cout << "translation from tgeo " << 10*EWtranslation[0] << " " << 10*EWtranslation[1] << " " << 10*EWtranslation[2] << " " <<std::endl;   
-  Acts::Transform3D trafo(trans * mat);
+  Acts::Transform3 trafo(trans * mat);
 
   // create the cone layer 
   auto coneLayer = Acts::ConeLayer::create(trafo, coneBounds, nullptr);
-  auto exitWindowTransform = Acts::Transform3D( Acts::Translation3D(0.,0., 0.5 * (zMaxInteraction + zMaxTransition)) * Acts::Transform3D::Identity());
+  auto exitWindowTransform = Acts::Transform3( Acts::Translation3(0.,0., 0.5 * (zMaxInteraction + zMaxTransition)) * Acts::Transform3::Identity());
 
   //auto exitWindowBounds = std::make_shared<const Acts::CylinderVolumeBounds>(0.,rMax, 0.5 * (zMaxInteraction + zMaxTransition));
   auto exitWindowBounds = std::make_shared<const Acts::CylinderVolumeBounds>(0.,rMax, EWHalfLength);
@@ -239,25 +275,40 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoBGVDetector(
 
   std::unique_ptr<const LayerArray> coneLayerArray = std::make_unique<const Acts::BinnedArrayXD<LayerPtr>>(coneLayer);
   
+  std::cout << "test 1 "  << std::endl;
+  
   ///////////////////////////////////////////////////////////////////////////////////////////////
   // Create tracking volumes
+   MutableTrackingVolumeVector mtvVectorgap = {};
+   
+  /*bool addCone = true;
+  auto exitWindowVolume = Acts::TrackingVolume::create(exitWindowTransform, exitWindowBounds, nullptr,
+                            std::move(coneLayerArray), nullptr, {},
+                            "ExitWindowVolume");         
+   
+  if(addCone == true) {*/
   
   // Create the volume which hosts the exit window
   auto exitWindowVolume = Acts::TrackingVolume::create(exitWindowTransform, exitWindowBounds, nullptr,
                             std::move(coneLayerArray), nullptr, {},
                             "ExitWindowVolume");                   
+ /* } else {
+    exitWindowVolume = 
+    cylinderVolumeHelper->createGapTrackingVolume(geoCtx, mtvVectorgap, nullptr, 0., rMax, zMaxInteraction, zMaxTransition, 0, true, "ExitWindowVolume");
 
-  MutableTrackingVolumeVector mtvVectorgap = {};
+  }*/
+
+ 
 
   // we should now have the parameters needed for the 4 Volumes
   // interaction volume
   auto interactionVolume = 
-    cylinderVolumeHelper->createGapTrackingVolume(geoCtx, mtvVectorgap, nullptr, 0., rMax, zMinInteraction, zMaxInteraction, 0, true, "InteractionVolume");       
+    cylinderVolumeHelper->createGapTrackingVolume(geoCtx, mtvVectorgap, nullptr, 0., rMax, zMinInteraction, zMaxInteraction, 0, true, "InteractionVolume");      
 
   // beampipe volume
   auto bpVolume = 
     cylinderVolumeHelper->createGapTrackingVolume(geoCtx, mtvVectorgap, nullptr, 0., rBeamPipe, zMaxTransition, zMaxBeamPipe, 0, true, "BeamPipe");
-   
+    std::cout << "test 1 "  << std::endl;
     /*Acts::CylinderVolumeHelper::createTrackingVolume(
     const GeometryContext& gctx, const LayerVector& layers,
     MutableTrackingVolumeVector mtvVector,
@@ -268,16 +319,19 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoBGVDetector(
     
   ///////////////////////////////////////////////////////////////////////////////////////////////
   // Creating the layers for the BGV detector
-  auto layerBuilderConfigs =
-    ActsExamples::Options::readTGeoLayerBuilderConfigs<variable_maps_t>(vm);
+  //auto layerBuilderConfigs =
+  //  ActsExamples::Options::readTGeoLayerBuilderConfigs<variable_maps_t>(vm);
+        auto layerBuilderConfigs =
+      ActsExamples::Options::readTGeoLayerBuilderConfigs(vm);
 
+std::cout << "test 1 "  << std::endl;
   // remember the layer builders to collect the detector elements
   std::vector<std::shared_ptr<const Acts::TGeoLayerBuilder>> tgLayerBuilders;
   //std::shared_ptr<const Acts::TGeoLayerBuilder> tgLayerBuilders;
- 
+ std::cout << "test 1 "  << std::endl;
   for (auto& lbc : layerBuilderConfigs) {
     std::shared_ptr<const Acts::LayerCreator> layerCreatorLB = nullptr;
-
+std::cout << "test 1 "  << std::endl;
     if (lbc.autoSurfaceBinning) {
       std::cout << "autoSurfaceBinning "  << std::endl;
       // Configure surface array creator (optionally) per layer builder
@@ -326,7 +380,7 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoBGVDetector(
                            detElements.end());
   }
   ///////////////////////////////////////////////////////////////////////////////////////////////
-    
+     std::cout << "test 1 "  << std::endl;
   MutableTrackingVolumeVector mtvVector = {};
  
   // BGV volume 
