@@ -13,6 +13,7 @@
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/MagneticField/SharedBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/StraightLineStepper.hpp"
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Surfaces/Surface.hpp"
@@ -69,7 +70,9 @@ ActsExamples::TrackFittingAlgorithm::makeTrackFitterFunction(
         using InputMagneticField =
             typename std::decay_t<decltype(inputField)>::element_type;
         using MagneticField = Acts::SharedBField<InputMagneticField>;
+        //std::cout << " ++++++++++++++++++++++++++++++++++++++++++++++++ Stepper in Track Fitting Algorithm Function " << std::endl;
         using Stepper = Acts::EigenStepper<MagneticField>;
+        //using Stepper = Acts::StraightLineStepper;
         using Navigator = Acts::Navigator;
         using Propagator = Acts::Propagator<Stepper, Navigator>;
         using Fitter = Acts::KalmanFitter<Propagator, Updater, Smoother>;

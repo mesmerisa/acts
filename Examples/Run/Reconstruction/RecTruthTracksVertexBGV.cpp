@@ -336,8 +336,8 @@ int main(int argc, char* argv[]) {
   particleSmearingCfg.sigmaZ0 = 50_um;
   particleSmearingCfg.sigmaZ0PtA = 20_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaPhi = 0.5_degree; // 0.01_degree;
-  particleSmearingCfg.sigmaTheta = 0.001_degree; //0.001_degree;
+  particleSmearingCfg.sigmaPhi = 0.1_degree; // 0.01_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree; //0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;
    

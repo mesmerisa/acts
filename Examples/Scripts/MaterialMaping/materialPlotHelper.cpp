@@ -41,24 +41,34 @@ std::ostream& Acts::operator<<(std::ostream& os, Acts::GeometryIdentifier id) {
 
 void Parse_Json(const json& Det,
                 std::map<std::string, std::string>& surface_name) {
+                  
+  std::cout << "in parse json " << std::endl;                
+                  
   std::string name;
   for (auto& [key, value] : Det.items()) {
+    std::cout << "in parse json loop start " << std::endl;    
     // Check if this the volume key
     if (key == "volumes") {
+      std::cout << "in parse json if volumes " << std::endl;    
       // Get the volume json
       auto volj = value;
       for (auto& [vkey, vvalue] : volj.items()) {
+        std::cout << "in parse json " << std::endl;    
         // Get the volume name
-        name = vvalue["Name"];
+        name = vvalue["name"];
+        std::cout << "in parse json after vol name" << std::endl;    
         // If boundaries associate the vol name to their id
         if (!vvalue["boundaries"].empty()) {
           for (auto& [bkey, bvalue] : vvalue["boundaries"].items()) {
+            std::cout << "in parse json bound loop " << std::endl;    
             surface_name[bvalue["SGeoid"]] = name;
           }
         }
         // If layer associate the vol name to their id
         if (!vvalue["layers"].empty()) {
+          
           for (auto& [lkey, lvalue] : vvalue["layers"].items()) {
+            std::cout << "in parse json, layers loop " << std::endl;    
             surface_name[lvalue["Geoid"]] = name;
             // Finally loop over layer components
             for (auto& [lckey, lcvalue] : lvalue.items()) {

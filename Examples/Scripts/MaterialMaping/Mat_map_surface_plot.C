@@ -131,15 +131,21 @@ void Initialise_hist(std::vector<TH2F*>& surface_hist,
 void Fill(std::map<uint64_t,std::vector<TH2F*>>& surface_hist,  std::map<uint64_t,sinfo>& surface_info,
   const std::string& input_file, const std::string& json_surface_file, const int& nbprocess){
 
+  std::cout << "in Fill, begin " << std::endl;
+
   nlohmann::json Det;
   std::map<std::string,std::string> surface_name;
-
+  
+  
+std::cout << "in Fill, test 0 " << std::endl;
   if(json_surface_file != ""){
+    std::cout << "in Fill, test in if " << std::endl;
     std::ifstream lfile(json_surface_file.c_str());
     lfile >> Det;
-
+    std::cout << "in Fill, test in if , before parse " << std::endl;
     Parse_Json(Det, surface_name);
   }
+  std::cout << "in Fill, test 1 " << std::endl;
 
   std::map<uint64_t,float> surface_weight;
 

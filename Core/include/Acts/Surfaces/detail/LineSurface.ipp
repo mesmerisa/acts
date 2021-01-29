@@ -6,18 +6,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<<<<<<< HEAD
-inline Vector3D LineSurface::localToGlobal(const GeometryContext& gctx,
-                                           const Vector2D& lposition,
-                                           const Vector3D& momentum) const {
-                                           
-  //std::cout << "line surface ipp glob to loc 1" << std::endl;                                                 
-                                           
-=======
+
 inline Vector3 LineSurface::localToGlobal(const GeometryContext& gctx,
                                           const Vector2& lposition,
                                           const Vector3& momentum) const {
->>>>>>> f3f5479d2a3cfdf9fbf629160d211c687532f628
+//>>>>>>> f3f5479d2a3cfdf9fbf629160d211c687532f628
   const auto& sTransform = transform(gctx);
   const auto& tMatrix = sTransform.matrix();
   Vector3 lineDirection(tMatrix(0, 2), tMatrix(1, 2), tMatrix(2, 2));

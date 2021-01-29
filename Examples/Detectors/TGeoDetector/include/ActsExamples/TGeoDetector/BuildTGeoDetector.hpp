@@ -194,7 +194,7 @@ std::shared_ptr<const Acts::TrackingGeometry> buildTGeoDetector(
           if (scfg.first == Acts::binR and scfg.second > 0.) {
             volumeConfig.ringTolerance =
                 std::max(volumeConfig.ringTolerance, scfg.second);
-            volumeConfig.checkRingLayout = true ; // XXX set this to false for testing
+            volumeConfig.checkRingLayout = false ; // XXX set this to false for testing
           }
         }
       }

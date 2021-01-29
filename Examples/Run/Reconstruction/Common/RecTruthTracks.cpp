@@ -96,8 +96,8 @@ int runRecTruthTracks(int argc, char* argv[],
   hitSmearingCfg.outputSourceLinks = "sourcelinks";
   hitSmearingCfg.outputMeasurementParticlesMap = "measurement_particles_map";
   hitSmearingCfg.outputMeasurementSimHitsMap = "measurement_simhits_map";
-  hitSmearingCfg.sigmaLoc0 = 25_um;
-  hitSmearingCfg.sigmaLoc1 = 100_um;
+  hitSmearingCfg.sigmaLoc0 = 10_um;
+  hitSmearingCfg.sigmaLoc1 = 10_um; // 0.1_degree;
   hitSmearingCfg.randomNumbers = rnd;
   hitSmearingCfg.trackingGeometry = trackingGeometry;
   sequencer.addAlgorithm(
@@ -113,7 +113,10 @@ int runRecTruthTracks(int argc, char* argv[],
   particleSelectorCfg.inputMeasurementParticlesMap =
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.nHitsMin = 1;
+  particleSelectorCfg.nHitsMin = 3;
+  //particleSelectorCfg.nHitsMax = 4;
+   particleSelectorCfg.etaMin = 3;
+  particleSelectorCfg.etaMax = 4;
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
 
@@ -141,8 +144,8 @@ int runRecTruthTracks(int argc, char* argv[],
   particleSmearingCfg.sigmaZ0 = 20_um;
   particleSmearingCfg.sigmaZ0PtA = 30_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaPhi = 1_degree;
-  particleSmearingCfg.sigmaTheta = 1_degree;
+  particleSmearingCfg.sigmaPhi = 0.1_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(

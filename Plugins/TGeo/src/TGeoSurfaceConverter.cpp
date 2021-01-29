@@ -248,8 +248,14 @@ Acts::TGeoSurfaceConverter::discComponents(const TGeoShape& tgShape,
               "'(X)(y/Y)(*)' axes.");
         }
         halfPhi = 0.5 * (std::max(phi1, phi2) - std::min(phi1, phi2));
-        avgPhi = 0.5 * (phi1 + phi2);
+        
+        if (phi1 < phi2)  {avgPhi = 0.5 * (phi1 + phi2);}
+        else {  avgPhi = 0.5 * ( - phi1 + phi2); }
+        
+        std::cout << "----------------------------------- phi1 phi2   " << phi1 << " " << phi2 << std::endl;
       }
+      std::cout << "----------------------------------- avg phi   " << avgPhi << std::endl;
+      
       bounds = std::make_shared<RadialBounds>(minR, maxR, halfPhi, avgPhi);
       thickness = 2 * halfZ;
     }

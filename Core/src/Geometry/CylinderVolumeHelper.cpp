@@ -458,9 +458,13 @@ bool Acts::CylinderVolumeHelper::estimateAndCheckDimension(
       radial = true;
       // get the raw data
       double currentR = cylBounds->get(CylinderBounds::eR);
+      std::cout << "currentR " << currentR << std::endl;
       double centerZ = (layerIter->surfaceRepresentation()).center(gctx).z();
       // check for min/max in the cylinder bounds case
       currentRmin = currentR - (0.5 * (layerIter)->thickness());
+      
+      std::cout << "currentRmin " << currentRmin << std::endl;
+      
       currentRmax = currentR + (0.5 * (layerIter)->thickness());
       currentZmin = centerZ - cylBounds->get(CylinderBounds::eHalfLengthZ);
       currentZmax = centerZ + cylBounds->get(CylinderBounds::eHalfLengthZ);

@@ -455,7 +455,7 @@ bool Acts::LayerCreator::checkBinning(const GeometryContext& gctx,
       // have to choose BinningValue here
       ACTS_VERBOSE(" Surface: " << srf->associatedLayer());
       ACTS_VERBOSE(" Surface: " << srf->associatedDetectorElement());
-      Vector3D ctr = srf->binningPosition(gctx, binR);
+      Vector3 ctr = srf->binningPosition(gctx, binR);
       ACTS_VERBOSE(" Surface(x=" << ctr.x() << ", y=" << ctr.y()
                                << ", z=" << ctr.z() << ", r=" << perp(ctr)
                                << ", phi=" << phi(ctr) << ")");
