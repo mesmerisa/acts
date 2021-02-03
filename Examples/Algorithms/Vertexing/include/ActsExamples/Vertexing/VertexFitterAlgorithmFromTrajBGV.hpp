@@ -30,7 +30,7 @@ class VertexFitterAlgorithmFromTrajBGV final : public BareAlgorithm {
     /// The magnetic field.
     Acts::Vector3 bField = Acts::Vector3::Zero();
     bool doConstrainedFit = false;
-    /// Vertex constraint position
+    /// Vertex constraint position 
     Acts::Vector3 constraintPos = Acts::Vector3(0, 0, 0);
     /// Vertex constraint covariance matrix
     Acts::SymMatrix3 constraintCov =
