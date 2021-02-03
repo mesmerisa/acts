@@ -77,6 +77,33 @@ void plot(std::vector<TH2F*> Map, const sinfo& surface_info, const std::string& 
     delete surface;
     delete surface_r;
   }
+   // Rectangle
+  if(surface_info.type == 4){
+
+    TText *vol = new TText(.1,.95,surface_info.name.c_str());
+    vol->SetNDC();
+    TText *surface = new TText(.1,.9,surface_info.id.c_str());
+    surface->SetNDC();
+    TText *surface_r = new TText(.1,.85,("R = " + to_string(surface_info.pos)).c_str() );
+    surface_r->SetNDC();
+    TCanvas *c1 = new TCanvas("c1","mat_X0",1200,1200);
+    c1->SetRightMargin(0.14);
+    c1->SetTopMargin(0.14);
+    c1->SetLeftMargin(0.14);
+    c1->SetBottomMargin(0.14);
+    Map[0]->Draw("COLZ");
+    vol->Draw();
+    surface->Draw();
+    surface_r->Draw();
+    c1->Print( (out_name+"_X0.pdf").c_str());
+    //c1->Print( (out_name+"_X0.root").c_str());
+
+    delete c1;
+
+    delete vol;
+    delete surface;
+    delete surface_r;
+  }
   return;
 }
 
@@ -119,6 +146,21 @@ void Initialise_hist(std::vector<TH2F*>& surface_hist,
     Map_L0->GetYaxis()->SetTitle("Y [mm]");
     Map_L0->GetZaxis()->SetTitle("L0");
   }
+  if(surface_info.type == 4){
+    Map_X0    = new TH2F(("Map_X0_"+surface_info.idname).c_str(),("Map_X0_"+surface_info.idname).c_str(),
+                          50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
+    Map_L0    = new TH2F(("Map_L0_"+surface_info.idname).c_str(),("Map_L0_"+surface_info.idname).c_str(),
+                          50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
+    Map_scale = new TH2F(("Map_scale_"+surface_info.idname).c_str(),("Map_scale_"+surface_info.idname).c_str(),
+                          50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
+    Map_X0->GetXaxis()->SetTitle("X [mm]");
+    Map_X0->GetYaxis()->SetTitle("Y [mm]");
+    Map_X0->GetZaxis()->SetTitle("X0");
+    Map_L0->GetXaxis()->SetTitle("X [mm]");
+    Map_L0->GetYaxis()->SetTitle("Y [mm]");
+    Map_L0->GetZaxis()->SetTitle("L0");
+  }
+  
   std::vector<TH2F*> v_hist;
   v_hist.push_back(Map_X0);
   v_hist.push_back(Map_L0);
@@ -206,6 +248,9 @@ std::cout << "in Fill, test 0 " << std::endl;
         if(sur_type->at(j) == 2){
           pos = sur_z->at(j);
         }
+        if(sur_type->at(j) == 4){
+          pos = sur_z->at(j);
+        }
         surface_weight[sur_id->at(j)] = 0;
         Initialise_info(surface_info[sur_id->at(j)], surface_name, sur_id->at(j), sur_type->at(j), pos, sur_range_min->at(j), sur_range_max->at(j));
         Initialise_hist(surface_hist[sur_id->at(j)], surface_info[sur_id->at(j)]);
@@ -226,6 +271,11 @@ std::cout << "in Fill, test 0 " << std::endl;
         surface_hist[sur_id->at(j)][2]->Fill(v_eta, v_phi, (1/surface_weight[sur_id->at(j)]));
       }
       if(sur_type->at(j) == 2){
+        surface_hist[sur_id->at(j)][0]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_X0->at(j)));
+        surface_hist[sur_id->at(j)][1]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_L0->at(j)));
+        surface_hist[sur_id->at(j)][2]->Fill(sur_x->at(j), sur_y->at(j), (1/surface_weight[sur_id->at(j)]));
+      }
+      if(sur_type->at(j) == 4){
         surface_hist[sur_id->at(j)][0]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_X0->at(j)));
         surface_hist[sur_id->at(j)][1]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_L0->at(j)));
         surface_hist[sur_id->at(j)][2]->Fill(sur_x->at(j), sur_y->at(j), (1/surface_weight[sur_id->at(j)]));

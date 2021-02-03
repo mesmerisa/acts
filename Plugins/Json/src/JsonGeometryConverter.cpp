@@ -31,6 +31,7 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/SurfaceBounds.hpp>
 #include <Acts/Surfaces/ConeBounds.hpp>
+#include <Acts/Surfaces/RectangleBounds.hpp>
 
 #include <cstdio>
 #include <fstream>
@@ -873,7 +874,9 @@ void Acts::JsonGeometryConverter::addSurfaceToJson(json& sjson,
   const Acts::AnnulusBounds* annulusBounds =
       dynamic_cast<const Acts::AnnulusBounds*>(&surfaceBounds);
   const Acts::ConeBounds* coneBounds =
-      dynamic_cast<const Acts::ConeBounds*>(&surfaceBounds);    
+      dynamic_cast<const Acts::ConeBounds*>(&surfaceBounds); 
+  const Acts::RectangleBounds* rectBounds =
+      dynamic_cast<const Acts::RectangleBounds*>(&surfaceBounds);        
 
   if (radialBounds != nullptr) {
     sjson[m_cfg.surfacetypekey] = "Disk";
@@ -889,6 +892,13 @@ void Acts::JsonGeometryConverter::addSurfaceToJson(json& sjson,
     //sjson[m_cfg.surfacerangekey] = {
     //    -0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ)),
     //    0.5*(coneBounds->get(ConeBounds::eMaxZ) - coneBounds->get(ConeBounds::eMinZ))};
+  }
+  if (rectBounds != nullptr) {
+    sjson[m_cfg.surfacetypekey] = "Rectangle";
+    sjson[m_cfg.surfacepositionkey] = sTransform.translation().z();
+    //sjson[m_cfg.surfacerangekey] = {
+    //    rectBounds->,
+    //    coneBounds->r(coneBounds->get(ConeBounds::eMaxZ))};
   }
   if (cylinderBounds != nullptr) {
     sjson[m_cfg.surfacetypekey] = "Cylinder";

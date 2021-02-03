@@ -94,7 +94,7 @@ with open(inFileName,'r') as json_file:
         if 'material' in data['volumes'][kvol] :                  
             vconfig['material'] = getVolumeMateral(data['volumes'][kvol]['material'])
 
-        config[data['volumes'][kvol]['Name']] = vconfig
+        config[data['volumes'][kvol]['name']] = vconfig
 
 
 if len(sys.argv) < 3 :

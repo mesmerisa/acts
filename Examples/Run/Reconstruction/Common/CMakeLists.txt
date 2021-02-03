@@ -16,6 +16,7 @@ target_link_libraries(
     ActsExamplesMagneticField
     ActsExamplesTruthTracking
     ActsExamplesIoCsv
+    ActsExamplesVertexing
     ActsExamplesIoPerformance)
 if(ACTS_BUILD_PLUGIN_ONNX)
   target_compile_definitions(

@@ -39,7 +39,7 @@ with open(inFileName,'r+') as json_file:
         data = json.load(json_file)
     
         for kvol in data['volumes']:
-            Name = data['volumes'][kvol]['Name']
+            Name = data['volumes'][kvol]['name']
             
             if 'boundaries' in data['volumes'][kvol] :
                 for kbound in data['volumes'][kvol]['boundaries'] :

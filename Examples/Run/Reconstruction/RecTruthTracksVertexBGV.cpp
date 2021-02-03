@@ -277,8 +277,8 @@ int main(int argc, char* argv[]) {
   hitSmearingCfg.outputSourceLinks = "sourcelinks";
   hitSmearingCfg.outputMeasurementParticlesMap = "measurement_particles_map";
   hitSmearingCfg.outputMeasurementSimHitsMap = "measurement_simhits_map";
-  hitSmearingCfg.sigmaLoc0 = 50_um;
-  hitSmearingCfg.sigmaLoc1 = 50_um;
+  hitSmearingCfg.sigmaLoc0 = 30_um;
+  hitSmearingCfg.sigmaLoc1 = 30_um;
   hitSmearingCfg.randomNumbers = rnd;
   hitSmearingCfg.trackingGeometry = trackingGeometry;
   sequencer.addAlgorithm(

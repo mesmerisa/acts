@@ -29,6 +29,9 @@
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
 #include <Acts/Definitions/Units.hpp>
+#include "ActsExamples/Io/Root/RootVertexAndTrackWriterBGV.hpp"
+#include "ActsExamples/Vertexing/VertexFitterAlgorithmFromTrajBGV.hpp"
+#include "ActsExamples/TruthTracking/TruthVertexFinder.hpp"
 
 #include <memory>
 
@@ -96,8 +99,8 @@ int runRecTruthTracks(int argc, char* argv[],
   hitSmearingCfg.outputSourceLinks = "sourcelinks";
   hitSmearingCfg.outputMeasurementParticlesMap = "measurement_particles_map";
   hitSmearingCfg.outputMeasurementSimHitsMap = "measurement_simhits_map";
-  hitSmearingCfg.sigmaLoc0 = 10_um;
-  hitSmearingCfg.sigmaLoc1 = 10_um; // 0.1_degree;
+  hitSmearingCfg.sigmaLoc0 = 50_um;
+  hitSmearingCfg.sigmaLoc1 = 50_um; // 0.1_degree;
   hitSmearingCfg.randomNumbers = rnd;
   hitSmearingCfg.trackingGeometry = trackingGeometry;
   sequencer.addAlgorithm(
@@ -227,6 +230,35 @@ int runRecTruthTracks(int argc, char* argv[],
   perfFitter.outputDir = outputDir;
   sequencer.addWriter(
       std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
+      
+   //////////////////////////////////////////////////////////////////////////////////////
+  // find true primary vertices w/o secondary particles
+  TruthVertexFinder::Config findVertices;
+  findVertices.inputParticles = inputParticles; //selectParticles.outputParticles;
+  findVertices.outputProtoVertices = "protovertices";
+  findVertices.excludeSecondaries = true;
+  sequencer.addAlgorithm(
+      std::make_shared<TruthVertexFinder>(findVertices, logLevel));
+      
+  // fit vertices using the Billoir fitter
+  VertexFitterAlgorithmFromTrajBGV::Config fitVertices;
+  fitVertices.inputTrajectories = fitter.outputTrajectories; // smearParticles.outputTrackParameters;
+  fitVertices.inputProtoVertices = findVertices.outputProtoVertices;
+  fitVertices.outputFittedVertices = "fitted_vertices";
+  fitVertices.doConstrainedFit = false;
+  fitVertices.bField = Acts::Vector3(0_T, 0_T, 0_T);
+  sequencer.addAlgorithm(
+      std::make_shared<VertexFitterAlgorithmFromTrajBGV>(fitVertices, logLevel));
+      
+  RootVertexAndTrackWriterBGV::Config writerCfg;
+  writerCfg.collection = fitVertices.outputFittedVertices;
+  writerCfg.filePath = joinPaths(outputDir, fitVertices.outputFittedVertices + ".root");
+  sequencer.addWriter(
+      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));      
+     
+   //////////////////////////////////////////////////////////////////////////////////////    
+      
+      
 
   return sequencer.run();
 }

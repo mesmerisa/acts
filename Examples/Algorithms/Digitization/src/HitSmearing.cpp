@@ -80,19 +80,13 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
 
   // setup random number generator
   auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
-  
-  
-  
-  
+
   std::normal_distribution<double> stdNormal(0.0, 1.0);
 
   // setup local covariance
   Acts::SymMatrix2 cov = Acts::SymMatrix2::Zero();
   cov(0, 0) = m_cfg.sigmaLoc0 * m_cfg.sigmaLoc0;
   cov(1, 1) = m_cfg.sigmaLoc1 * m_cfg.sigmaLoc1;
-  
-  //cov(0, 0) = (m_cfg.sigmaLoc0*m_cfg.sigmaLoc0 + m_cfg.sigmaLoc1*m_cfg.sigmaLoc1);
-  //cov(1, 1) = atan2(m_cfg.sigmaLoc1, m_cfg.sigmaLoc0)*atan2(m_cfg.sigmaLoc1, m_cfg.sigmaLoc0);
 
   for (auto&& [moduleGeoId, moduleSimHits] : groupByModule(simHits)) {
     // check if we should create hits for this surface
@@ -105,44 +99,20 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       continue;
     }
      ACTS_INFO("surface: " << surface); 
-      ACTS_INFO("module geo id: " << moduleGeoId);
+     ACTS_INFO("module geo id: " << moduleGeoId);
     // use iterators manually so we can retrieve the hit index in the container
     for (auto ih = moduleSimHits.begin(); ih != moduleSimHits.end(); ++ih) {
       const auto& simHit = *ih;
       const auto simHitIdx = simHits.index_of(ih);
-      // std::cout << "+++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-      
-      //auto Pos_sm = simHit.position();
-      /*auto pos4_hit = simHit.fourPosition() ;
-      auto smear_pos_4 = pos4_hit;
-      smear_pos_4[0] +=  m_cfg.sigmaLoc0*stdNormal(rng);
-      smear_pos_4[1] += m_cfg.sigmaLoc1*stdNormal(rng);
-      //std::cout << Pos_sm[0] << " " << Pos_sm[1] << std::endl; 
-      
-      std::cout << pos4_hit[0] << " " << pos4_hit[1] << std::endl; 
-      std::cout << smear_pos_4[0] << " " << smear_pos_4[1] << std::endl; 
-      
-      //Pos_sm[0] += m_cfg.sigmaLoc0*stdNormal(rng);
-      //Pos_sm[1] += m_cfg.sigmaLoc1*stdNormal(rng);;
-    
-      auto newSimHit = SimHit(simHit.geometryId(), simHit.particleId(), smear_pos_4, simHit.momentum4Before(), simHit.momentum4After(), simHit.index());*/
-      //  Hit(Acts::GeometryIdentifier geometryId, Barcode particleId,
-      //const Vector4& pos4, const Vector4& before4, const Vector4& after4,
-      //int32_t index_ = -1)
-      //std::cout << "+++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-      
-      //std::cout << "--------------------------------------------" << std::endl;
-      
-      std::cout << "sigma loc 0 " << m_cfg.sigmaLoc0 << std::endl;
-      std::cout << "sigma loc 1 " << m_cfg.sigmaLoc1 << std::endl;
+
+      //std::cout << "sigma loc 0 " << m_cfg.sigmaLoc0 << std::endl;
+      //std::cout << "sigma loc 1 " << m_cfg.sigmaLoc1 << std::endl;
       
       std::cout << "Hit smearing loop, sim hit index:  " << simHitIdx << std::endl;  
       std::cout << simHit.position() << std::endl;
       std::cout <<  simHit.geometryId() << std::endl;
       // transform global position into local coordinates
-      
-      
-      
+
       auto lpResult = surface->globalToLocal(ctx.geoContext, simHit.position(),
                                              simHit.unitDirection(), 1_um);
       if (not lpResult.ok()) {
@@ -155,27 +125,13 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       //Acts::Vector2 loc1 = lpResult.value();
       
      std::cout << "local measurement " << loc[0] << " " << loc[1] << std::endl;
-      
-      //auto randadd1 = m_cfg.sigmaLoc0*stdNormal(rng);
-     // auto randadd2 = m_cfg.sigmaLoc1*stdNormal(rng);
-      
+
       loc[0] += m_cfg.sigmaLoc0 * stdNormal(rng);
       loc[1] += m_cfg.sigmaLoc1 * stdNormal(rng);
       
-     std::cout << "local measurement after smear 1 " << loc[0] << " " << loc[1] << std::endl;
-      
-      
+     std::cout << "local measurement after smear" << loc[0] << " " << loc[1] << std::endl;
  
-      //loc[0] += sqrt(m_cfg.sigmaLoc0*m_cfg.sigmaLoc0 + m_cfg.sigmaLoc1*m_cfg.sigmaLoc1) * randadd1;
-      //loc[1] += atan2(m_cfg.sigmaLoc1, m_cfg.sigmaLoc0)* randadd2;
-
-      //loc[0] += stdNormal(rng)*sqrt(randadd1*randadd1  + randadd2*randadd2);
-     // loc[1] += stdNormal(rng)*atan2(randadd2, randadd1 );            
-      
-      
       //std::cout << "local measurement after smear 2 " << loc[0] << " " << loc[1] << std::endl;
-      
-      std::cout << "--------------------------------------------" << std::endl;
 
       // the measurement container is unordered and the index under which the
       // measurement will be stored is known before adding it.

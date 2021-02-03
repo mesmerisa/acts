@@ -138,7 +138,16 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
        
        
      }
-     
+     /*std::cout << "------------------------------------" << std::endl;
+     std::vector<double> chi2_arr;
+     mj.visitBackwards(trackTip, [&](const auto& state1) {
+       std::cout << state1.chi2() << std::endl;
+       chi2_arr.push_back(state1.chi2());
+     });    
+     // cut on chi2 ? 
+     if (chi2_arr[2] > 20) continue;
+
+     */
      //std::cout <<  "cov    " << traj.trackParameters(trackTip).covariance().empty() << std::endl;
      //const auto& fittedParameters = traj.trackParameters(trackTip);
 

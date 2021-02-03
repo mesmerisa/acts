@@ -76,6 +76,36 @@ void plot_ratio(std::vector<TH2F*> Map_prop, std::vector<TH2F*> Map_geant, const
     delete surface;
     delete surface_r;
   }
+  
+   if(surface_info.type == 4){
+
+    TText *vol = new TText(.1,.95,surface_info.name.c_str());
+    vol->SetNDC();
+    TText *surface = new TText(.1,.9,surface_info.id.c_str());
+    surface->SetNDC();
+    TText *surface_z = new TText(.1,.85,("Z = " + to_string(surface_info.pos)).c_str() );
+    surface_z->SetNDC();
+
+    TCanvas *c1 = new TCanvas("c1","mat_X0",1200,1200);
+    c1->SetRightMargin(0.14);
+    c1->SetTopMargin(0.14);
+    c1->SetLeftMargin(0.14);
+    c1->SetBottomMargin(0.14);
+    Map_prop[0]->Divide(Map_geant[0]);
+    Map_prop[0]->GetZaxis()->SetTitle("X0 ratio");
+    Map_prop[0]->Draw("COLZ");
+    vol->Draw();
+    surface->Draw();
+    surface_z->Draw();
+    c1->Print( (out_name+"_X0.pdf").c_str());
+    //c1->Print( (out_name+"_X0.root").c_str());
+
+    delete c1;
+
+    delete vol;
+    delete surface;
+    delete surface_z;
+  }
 
   return;
 }
