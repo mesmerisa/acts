@@ -67,8 +67,8 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
       ctx.eventStore.get<TrajectoriesContainer>(m_cfg.inputTrajectories);
   
   
-  std::vector<Acts::BoundTrackParameters> trackParameters;
-
+  std::vector<Acts::BoundTrackParameters> inputTrackParameters;
+   inputTrackParameters.clear();
    /* // Get the majority truth particle for this trajectory
     const auto particleHitCount = traj.identifyMajorityParticle(trackTip);
     if (particleHitCount.empty()) {
@@ -93,12 +93,14 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
   std::vector<int> empty_traj;
   empty_traj.clear();
   
+  std::cout << "size of trajectories at start: " << trajectories.size() << std::endl;
+  
   
   for (size_t itraj = 0; itraj < trajectories.size(); ++itraj) {
     const auto& traj = trajectories[itraj];
   
      traj_counter += 1;
-     std::cout << "traj " << std::endl;
+     
      //std::cout << traj.hasTrackParameters() << std::endl;
      //const auto& [trackTips, mj] = traj;
      //m_trajNr = itraj;
@@ -136,7 +138,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
        empty_traj.push_back(traj_counter);
        continue;
        
-       
+       std::cout << "trajectory counter " << traj_counter << std::endl;
      }
      /*std::cout << "------------------------------------" << std::endl;
      std::vector<double> chi2_arr;
@@ -150,14 +152,14 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
      */
      //std::cout <<  "cov    " << traj.trackParameters(trackTip).covariance().empty() << std::endl;
      //const auto& fittedParameters = traj.trackParameters(trackTip);
-
-     trackParameters.push_back(traj.trackParameters(trackTip));
+     const auto fitted_params = traj.trackParameters(trackTip);
+     inputTrackParameters.push_back(fitted_params);
+     //trackParameters.push_back(traj.trackParameters(trackTip));
    
   }
 
-  
   for(auto btr_ : empty_traj) {
-     std::cout << "empty    " << btr_ << std::endl;
+     std::cout << "empty trajectory index   " << btr_ << std::endl;
   }
    
    
@@ -172,7 +174,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
   
   outputVertexCollection.clear();
 
-  std::cout << "proto len and empty len   " << protoVertices.size() << " " << empty_traj.size()  << std::endl;   
+  std::cout << "proto vertices len and empty len   " << protoVertices.size() << " " << empty_traj.size()  << std::endl;   
 
   for (const auto& protoVertex : protoVertices) {
     // un-constrained fit requires at least two tracks
@@ -195,20 +197,20 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
         track_index_not_empy -= 1;
         continue;
       }
-      inputTrackPtrCollection.push_back(&trackParameters[track_index_not_empy]);     
+      inputTrackPtrCollection.push_back(&inputTrackParameters[track_index_not_empy]);     
     }
     
-    std::cout << "traj after proto loop 1 " << std::endl;
+    //std::cout << "traj after proto loop 1 " << std::endl;
     Acts::Vertex<Acts::BoundTrackParameters> fittedVertex;
 
-    std::cout << "traj coll input length " << inputTrackPtrCollection.size() << std::endl;
+    //std::cout << "traj coll input length " << inputTrackPtrCollection.size() << std::endl;
 
     if (!m_cfg.doConstrainedFit and inputTrackPtrCollection.size() > 1) { // XXX added inputTrackPtrCollection.size() >1
       VertexFitterOptions vfOptions(ctx.geoContext, ctx.magFieldContext);
-      std::cout << "unconst traj after proto loop 2 " << std::endl;
+      //std::cout << "unconst traj after proto loop 2 " << std::endl;
       auto fitRes = vertexFitter.fit(inputTrackPtrCollection, linearizer,
                                      vfOptions, state);
-      std::cout << "unconst traj after proto loop 3 " << std::endl;
+      //std::cout << "unconst traj after proto loop 3 " << std::endl;
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
         outputVertexCollection.push_back(fittedVertex);
@@ -219,18 +221,18 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
     } else {
       // Vertex constraint
       Acts::Vertex<Acts::BoundTrackParameters> theConstraint;
-      std::cout << "const traj after proto  loop 5 " << std::endl;
+      //std::cout << "const traj after proto  loop 5 " << std::endl;
       theConstraint.setCovariance(m_cfg.constraintCov);
       theConstraint.setPosition(m_cfg.constraintPos);
-      std::cout << "const traj after proto  loop 6 " << std::endl;
+      //std::cout << "const traj after proto  loop 6 " << std::endl;
       // Vertex fitter options
       VertexFitterOptions vfOptionsConstr(ctx.geoContext, ctx.magFieldContext,
                                           theConstraint);
-      std::cout << "const traj after proto  loop 7 " << std::endl;
+      //std::cout << "const traj after proto  loop 7 " << std::endl;
       auto fitRes = vertexFitter.fit(inputTrackPtrCollection, linearizer,
                                      vfOptionsConstr, state);
                                      
-      std::cout << "const traj after proto  loop 8 " << std::endl;                               
+      //std::cout << "const traj after proto  loop 8 " << std::endl;                               
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
         outputVertexCollection.push_back(fittedVertex);
@@ -240,7 +242,8 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTrajBGV::execut
       }
     }
 
-    ACTS_INFO("Fitted Vertex " << fittedVertex.fullPosition().transpose());
+     ACTS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy Fitted Vertex " << fittedVertex.fullPosition().transpose());
+     ACTS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy Fitted Vertex Cov " << fittedVertex.fullCovariance().diagonal());
   }
 
   // store vertices 

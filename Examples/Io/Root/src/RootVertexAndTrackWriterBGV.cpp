@@ -217,18 +217,14 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
   m_eventNr = context.eventNumber; 
 
   for(auto vertex : vertexAndTracksCollection) {
-    std::cout << "teeeeeeeeeeeeeeeeeeeeeeeeeeest " << m_eventNr << " vertex: " << vertex.position() << std::endl;
+    std::cout << "ROOT Vertex and Track Writer .... event: " << m_eventNr << ", vertex: " << vertex.position() << std::endl;
     m_vx.push_back(vertex.position().x());
     m_vy.push_back(vertex.position().y());
     m_vz.push_back(vertex.position().z());
 
-    
-    //int dof = 0;
-    
     auto chi2 = vertex.fitQuality().first;    
     auto ndof = vertex.fitQuality().second;
-    std::cout << "##################################################### teeeeeeeeeeeeeeeeeeeeeeeeeeest " << m_eventNr << " dof: " << vertex.fitQuality().second << std::endl;
-    
+      
     m_v_chi2.push_back(chi2);
     m_v_dof.push_back(ndof);
     
@@ -249,11 +245,11 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
 
     std::cout << "----------------------------------------------------" << std::endl;
     for (auto track : vertex.tracks() ) {
-           std::cout << "track parameters: " << std::endl;
-           std::cout << track.fittedParams.parameters()[Acts::BoundIndices::eBoundLoc0]  << std::endl;
-           std::cout << track.fittedParams.parameters() << std::endl;
-           std::cout << "all: " << std::endl;
-           std::cout << track.fittedParams  << std::endl;
+           //std::cout << "track parameters: " << std::endl;
+           //std::cout << track.fittedParams.parameters()[Acts::BoundIndices::eBoundLoc0]  << std::endl;
+           //std::cout << track.fittedParams.parameters() << std::endl;
+           //std::cout << "all: " << std::endl;
+           //std::cout << track.fittedParams  << std::endl;
            //std::cout << track.fittedParams.covariance()  << std::endl;
            m_d0.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundLoc0]);
            m_z0.push_back(track.fittedParams.parameters()[Acts::BoundIndices::eBoundLoc1]);
@@ -307,7 +303,7 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
            m_cov65.push_back(cov(5, 4));
            m_cov66.push_back(cov(5, 5));
     }
-    std::cout << "----------------------------------------------------" << std::endl;
+    //::cout << "----------------------------------------------------" << std::endl;
   }
 
 

@@ -18,6 +18,8 @@ Acts::Result<Acts::LinearizedTrack> Acts::
 
   const std::shared_ptr<PerigeeSurface> perigeeSurface =
       Surface::makeShared<PerigeeSurface>(linPointPos);
+      
+  std::cout << "linPointPos (perigee position )" << linPointPos << std::endl;    
 
   // Create propagator options
   auto logger = getDefaultLogger("HelTrkLinProp", Logging::INFO);
@@ -53,7 +55,9 @@ Acts::Result<Acts::LinearizedTrack> Acts::
     positionAtPCA[ePos1] = pos[ePos1];
     positionAtPCA[ePos2] = pos[ePos2];
     parCovarianceAtPCA = *(params.covariance());
-  }
+    
+    //std::cout << "determinate smaller eq 0 in linearizer ------------------- " << std::endl;
+   }
 
   // phiV and functions
   double phiV = paramsAtPCA(BoundIndices::eBoundPhi);
@@ -68,7 +72,7 @@ Acts::Result<Acts::LinearizedTrack> Acts::
   // q over p
   double qOvP = paramsAtPCA(BoundIndices::eBoundQOverP);
   double sgnH = (qOvP < 0.) ? -1 : 1;
-
+  
   Vector3 momentumAtPCA(phiV, th, qOvP);
 
   // get B-field z-component at current position
@@ -77,16 +81,19 @@ Acts::Result<Acts::LinearizedTrack> Acts::
   double rho;
   // Curvature is infinite w/o b field
   if (Bz == 0. || std::abs(qOvP) < m_cfg.minQoP) {
-    rho = m_cfg.maxRho;
+    rho = sgnH * m_cfg.maxRho;
+    //sgnH = 1;
   } else {
     rho = sinTh * (1. / qOvP) / Bz;
   }
+  //std::cout << qOvP << " " << rho << std::endl;
+  //rho = maxRho;  
 
   // Eq. 5.34 in Ref(1) (see .hpp)
-  double X = positionAtPCA(0) - linPointPos.x() + rho * sinPhiV;
-  double Y = positionAtPCA(1) - linPointPos.y() - rho * cosPhiV;
-  const double S2 = (X * X + Y * Y);
-  const double S = std::sqrt(S2);
+   double X = positionAtPCA(0) - linPointPos.x() + rho * sinPhiV;
+   double Y = positionAtPCA(1) - linPointPos.y() - rho * cosPhiV;
+  const  double S2 = (X * X + Y * Y);
+  const  double S = std::sqrt(S2);
 
   /// F(V, p_i) at PCA in Billoir paper
   /// (see FullBilloirVertexFitter.hpp for paper reference,
@@ -122,7 +129,7 @@ Acts::Result<Acts::LinearizedTrack> Acts::
   positionJacobian(0, 0) = -sgnH * X / S;
   positionJacobian(0, 1) = -sgnH * Y / S;
 
-  const double S2tanTh = S2 * tanTh;
+  const  double S2tanTh = S2 * tanTh;
 
   // Second row
   positionJacobian(1, 0) = rho * Y / S2tanTh;
@@ -141,19 +148,38 @@ Acts::Result<Acts::LinearizedTrack> Acts::
   ActsMatrix<eBoundSize, 3> momentumJacobian;
   momentumJacobian.setZero();
 
-  double R = X * cosPhiV + Y * sinPhiV;
-  double Q = X * sinPhiV - Y * cosPhiV;
-  double dPhi = phiAtPCA - phiV;
+   double R = X * cosPhiV + Y * sinPhiV;
+   double Q = X * sinPhiV - Y * cosPhiV;
+   double dPhi = phiAtPCA - phiV;
 
   // First row
   momentumJacobian(0, 0) = -sgnH * rho * R / S;
 
   double qOvSred = 1 - sgnH * Q / S;
-
+  /*std::cout << "sinPhiV " << sinPhiV << std::endl;
+  std::cout << "cosPhiV " << cosPhiV << std::endl;
+  std::cout << "X " << X << std::endl;
+  std::cout << "Y " << Y << std::endl;
+  std::cout << "S2 " << S2 << std::endl;
+  std::cout << "S = sqrt(S2) " << S << std::endl;
+  std::cout << "Q = X * sinPhiV - Y * cosPhiV " << Q << std::endl;
+  std::cout << "qOvSred = 1 - sgnH * Q / S  " << qOvSred << std::endl;
+  std::cout << "tanTh " << tanTh << std::endl;
+  std::cout << "rho " << rho << std::endl;
+  std::cout << "rho / tanTh " << rho / tanTh << std::endl;
+  std::cout << "momentumJacobian(0, 2) = -qOvSred * rho / qOvP   " << -qOvSred * rho / qOvP << std::endl;
+  std::cout << "momentumJacobian(0, 1) = qOvSred * rho / tanTh   " <<  qOvSred * rho / tanTh << std::endl;*/
+  //double QoS
   momentumJacobian(0, 1) = qOvSred * rho / tanTh;
   momentumJacobian(0, 2) = -qOvSred * rho / qOvP;
 
   const double rhoOverS2 = rho / S2;
+
+
+  //std::cout << "dPhi " << dPhi << std::endl;
+  //std::cout << "R = X * cosPhiV + Y * sinPhiV " << R << std::endl;
+  //std::cout << " momentumJacobian(1, 1) = (dPhi + rho * R / (S2tanTh * tanTh)) * rho " << (dPhi - rhoOverS2 * R) * rho / (qOvP * tanTh) << std::endl;
+
 
   // Second row
   momentumJacobian(1, 0) = (1 - rhoOverS2 * Q) * rho / tanTh;

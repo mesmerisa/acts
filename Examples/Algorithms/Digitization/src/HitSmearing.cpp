@@ -67,7 +67,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
 
   // retrieve input
   const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimHits);
-  std::cout << "Hit smearing execute, number of hits " << simHits.size() << std::endl;  
+ // std::cout << "Hit smearing execute, number of hits " << simHits.size() << std::endl;  
   // prepare output containers
   IndexSourceLinkContainer sourceLinks;
   MeasurementContainer measurements;
@@ -98,8 +98,8 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       ACTS_ERROR("module geo id: " << moduleGeoId);
       continue;
     }
-     ACTS_INFO("surface: " << surface); 
-     ACTS_INFO("module geo id: " << moduleGeoId);
+     //ACTS_INFO("surface: " << surface); 
+     //ACTS_INFO("module geo id: " << moduleGeoId);
     // use iterators manually so we can retrieve the hit index in the container
     for (auto ih = moduleSimHits.begin(); ih != moduleSimHits.end(); ++ih) {
       const auto& simHit = *ih;
@@ -108,9 +108,9 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       //std::cout << "sigma loc 0 " << m_cfg.sigmaLoc0 << std::endl;
       //std::cout << "sigma loc 1 " << m_cfg.sigmaLoc1 << std::endl;
       
-      std::cout << "Hit smearing loop, sim hit index:  " << simHitIdx << std::endl;  
+      /*std::cout << "Hit smearing loop, sim hit index:  " << simHitIdx << std::endl;  
       std::cout << simHit.position() << std::endl;
-      std::cout <<  simHit.geometryId() << std::endl;
+      std::cout <<  simHit.geometryId() << std::endl;*/
       // transform global position into local coordinates
 
       auto lpResult = surface->globalToLocal(ctx.geoContext, simHit.position(),
@@ -124,12 +124,12 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       Acts::Vector2 loc = lpResult.value();
       //Acts::Vector2 loc1 = lpResult.value();
       
-     std::cout << "local measurement " << loc[0] << " " << loc[1] << std::endl;
+     //std::cout << "local measurement " << loc[0] << " " << loc[1] << std::endl;
 
       loc[0] += m_cfg.sigmaLoc0 * stdNormal(rng);
       loc[1] += m_cfg.sigmaLoc1 * stdNormal(rng);
       
-     std::cout << "local measurement after smear" << loc[0] << " " << loc[1] << std::endl;
+     //std::cout << "local measurement after smear" << loc[0] << " " << loc[1] << std::endl;
  
       //std::cout << "local measurement after smear 2 " << loc[0] << " " << loc[1] << std::endl;
 
@@ -137,7 +137,7 @@ ActsExamples::ProcessCode ActsExamples::HitSmearing::execute(
       // measurement will be stored is known before adding it.
       Index hitIdx = measurements.size();
       
-      std::cout << "Hit smearing loop, hit index:  " << hitIdx << std::endl; 
+      //std::cout << "Hit smearing loop, hit index:  " << hitIdx << std::endl; 
       
       IndexSourceLink sourceLink(moduleGeoId, hitIdx);
       auto meas = Acts::makeMeasurement(sourceLink, loc, cov, Acts::eBoundLoc0,

@@ -99,8 +99,8 @@ int runRecTruthTracks(int argc, char* argv[],
   hitSmearingCfg.outputSourceLinks = "sourcelinks";
   hitSmearingCfg.outputMeasurementParticlesMap = "measurement_particles_map";
   hitSmearingCfg.outputMeasurementSimHitsMap = "measurement_simhits_map";
-  hitSmearingCfg.sigmaLoc0 = 50_um;
-  hitSmearingCfg.sigmaLoc1 = 50_um; // 0.1_degree;
+  hitSmearingCfg.sigmaLoc0 = 10_um;
+  hitSmearingCfg.sigmaLoc1 = 10_um; // 0.1_degree;
   hitSmearingCfg.randomNumbers = rnd;
   hitSmearingCfg.trackingGeometry = trackingGeometry;
   sequencer.addAlgorithm(

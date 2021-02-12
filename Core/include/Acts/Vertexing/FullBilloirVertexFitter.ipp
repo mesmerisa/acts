@@ -12,7 +12,137 @@
 #include "Acts/Vertexing/TrackAtVertex.hpp"
 #include "Acts/Vertexing/VertexingError.hpp"
 
+
 namespace {
+/*
+double getDeterminantBernie(const std::vector<std::vector<double>> vect) {
+    if(vect.size() != vect[0].size()) {
+        throw std::runtime_error("Matrix is not quadratic");
+    } 
+    int dimension = vect.size();
+
+    if(dimension == 0) {
+        return 1;
+    }
+
+    if(dimension == 1) {
+        return vect[0][0];
+    }
+
+    //Formula for 2x2-matrix
+    if(dimension == 2) {
+        return vect[0][0] * vect[1][1] - vect[0][1] * vect[1][0];
+    }
+
+    double result = 0;
+    int sign = 1;
+    for(int i = 0; i < dimension; i++) {
+
+        //Submatrix
+        std::vector<std::vector<double>> subVect(dimension - 1, std::vector<double> (dimension - 1));
+        for(int m = 1; m < dimension; m++) {
+            int z = 0;
+            for(int n = 0; n < dimension; n++) {
+                if(n != i) {
+                    subVect[m-1][z] = vect[m][n];
+                    z++;
+                }
+            }
+        }
+
+        //recursive call
+        result = result + sign * vect[0][i] * getDeterminantBernie(subVect);
+        sign = -sign;
+    }
+
+    return result;
+}
+
+std::vector<std::vector<double>> getTransposeBernie(const std::vector<std::vector<double>> matrix1) {
+
+    //Transpose-matrix: height = width(matrix), width = height(matrix)
+    std::vector<std::vector<double>> solution(matrix1[0].size(), std::vector<double> (matrix1.size()));
+
+    //Filling solution-matrix
+    for(size_t i = 0; i < matrix1.size(); i++) {
+        for(size_t j = 0; j < matrix1[0].size(); j++) {
+            solution[j][i] = matrix1[i][j];
+        }
+    }
+    return solution;
+}
+
+std::vector<std::vector<double>> getCofactorBernie(const std::vector<std::vector<double>> vect) {
+    if(vect.size() != vect[0].size()) {
+        throw std::runtime_error("Matrix is not quadratic");
+    } 
+
+    std::vector<std::vector<double>> solution(vect.size(), std::vector<double> (vect.size()));
+    std::vector<std::vector<double>> subVect(vect.size() - 1, std::vector<double> (vect.size() - 1));
+
+    for(std::size_t i = 0; i < vect.size(); i++) {
+        for(std::size_t j = 0; j < vect[0].size(); j++) {
+
+            int p = 0;
+            for(size_t x = 0; x < vect.size(); x++) {
+                if(x == i) {
+                    continue;
+                }
+                int q = 0;
+
+                for(size_t y = 0; y < vect.size(); y++) {
+                    if(y == j) {
+                        continue;
+                    }
+
+                    subVect[p][q] = vect[x][y];
+                    q++;
+                }
+                p++;
+            }
+            solution[i][j] = pow(-1, i + j) * getDeterminantBernie(subVect);
+        }
+    }
+    return solution;
+}
+
+
+std::vector<std::vector<double>> getInverseBernie(const std::vector<std::vector<double>> vect) {
+   std::cout << "Determinant: " << getDeterminantBernie(vect) << std::endl;
+    if(getDeterminantBernie(vect) == 0) {
+        std::cout << "Determinant is 0, det: " << getDeterminantBernie(vect) << std::endl;
+        return std::vector<std::vector<double>>();
+    } 
+
+    double d = 1.0/getDeterminantBernie(vect);
+    std::vector<std::vector<double>> solution(vect.size(), std::vector<double> (vect.size()));
+
+    for(size_t i = 0; i < vect.size(); i++) {
+        for(size_t j = 0; j < vect.size(); j++) {
+            solution[i][j] = vect[i][j]; 
+        }
+    }
+
+    solution = getTransposeBernie(getCofactorBernie(solution));
+
+    for(size_t i = 0; i < vect.size(); i++) {
+        for(size_t j = 0; j < vect.size(); j++) {
+            solution[i][j] *= d;
+        }
+    }
+
+    return solution;
+}
+
+void printMatrixBernie(const std::vector<std::vector<double>> vect) {
+    for(std::size_t i = 0; i < vect.size(); i++) {
+        for(std::size_t j = 0; j < vect[0].size(); j++) {
+            std::cout << std::setw(8) << vect[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+}
+*/
 
 /// @struct BilloirTrack
 ///
@@ -69,6 +199,10 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
   if (nTracks == 0) {
     return Vertex<input_track_t>(Vector3(0., 0., 0.));
   }
+  
+  //if (nTracks != 2) {
+  //  return Vertex<input_track_t>(Vector3(0., 0., 0.));
+  //}
 
   // Set number of degrees of freedom
   // ndf = (5-3) * nTracks - 3;
@@ -101,13 +235,22 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
     BilloirVertex billoirVertex;
     int iTrack = 0;
     // iterate over all tracks
+    
+    std::cout << "loop over input tracks -----------------------" << std::endl;
+    
     for (const input_track_t* trackContainer : paramVector) {
       const auto& trackParams = extractParameters(*trackContainer);
       if (nIter == 0) {
         double phi = trackParams.parameters()[BoundIndices::eBoundPhi];
         double theta = trackParams.parameters()[BoundIndices::eBoundTheta];
         double qop = trackParams.parameters()[BoundIndices::eBoundQOverP];
+        
+        //if (qop > 0) qop = 0.010000000000;
+        //else qop = -0.010000000000;
+        
         trackMomenta.push_back(Vector3(phi, theta, qop));
+               
+        //std::cout << "iter 0, qop " << qop << std::endl;
       }
 
       auto result = linearizer.linearizeTrack(
@@ -121,13 +264,17 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
         double phi = parametersAtPCA[BoundIndices::eBoundPhi];
         double theta = parametersAtPCA[BoundIndices::eBoundTheta];
         double qOverP = parametersAtPCA[BoundIndices::eBoundQOverP];
-
+        //if (qOverP > 0) qOverP = 0.010000000000;
+        //else qOverP = -0.010000000000;
+        
         // calculate f(V_0,p_0)  f_d0 = f_z0 = 0
         double fPhi = trackMomenta[iTrack][0];
         double fTheta = trackMomenta[iTrack][1];
-        double fQOvP = trackMomenta[iTrack][2];
+        double fQOvP =  trackMomenta[iTrack][2];
         BilloirTrack<input_track_t> currentBilloirTrack(trackContainer,
                                                         linTrack);
+                                                        
+        //std::cout << "if result of linearizer is ok, qop " << qOverP << " fqop "<< fQOvP << std::endl;                                                
 
         currentBilloirTrack.deltaQ << d0, z0, phi - fPhi, theta - fTheta,
             qOverP - fQOvP, 0;
@@ -156,6 +303,19 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
             EtWmat * currentBilloirTrack.deltaQ;  // EiMat^T * Wi * dqi
         currentBilloirTrack.CiInv =
             (EtWmat * Emat).inverse();  // (EiMat^T * Wi * EiMat)^-1
+
+
+        auto test_mat = (EtWmat * Emat); //;.inverse();
+        
+        std::cout << "Wi +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ " << std::endl;
+        std::cout << Wi  << std::endl;
+        
+        std::cout << "Emat +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ " << std::endl;
+        std::cout << Emat  << std::endl;
+        
+        std::cout << "CiInv determinante oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo " << test_mat.determinant()  << std::endl;
+        std::cout << "CiInv inverse +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ " << std::endl;
+        std::cout << test_mat.inverse()  << std::endl;
 
         // sum up over all tracks
         billoirVertex.Tvec +=
@@ -187,9 +347,11 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
     // beam-const
     // Vdel = Tvec-sum{BiMat*Ci^-1*UiVec}
     Vector4 Vdel = billoirVertex.Tvec - billoirVertex.BCUvec;
+    
     SymMatrix4 VwgtMat =
         billoirVertex.Amat -
         billoirVertex.BCBmat;  // VwgtMat = Amat-sum{BiMat*Ci^-1*BiMat^T}
+        
     if (isConstraintFit) {
       // this will be 0 for first iteration but != 0 from second on
       Vector4 posInBilloirFrame =
@@ -201,7 +363,32 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
     }
 
     // cov(deltaV) = VwgtMat^-1
+    
+    std::cout << "VwgtMat ------ " << std::endl;
+    std::cout << VwgtMat << std::endl;
+    
+    /*std::vector<std::vector<double>> matrix(4, std::vector<double> (4));
+    /matrix = {
+        {VwgtMat(0,0),VwgtMat(0,1),VwgtMat(0,2), VwgtMat(0,3)},
+        {VwgtMat(1,0),VwgtMat(1,1),VwgtMat(1,2), VwgtMat(1,3)},
+        {VwgtMat(2,0),VwgtMat(2,1),VwgtMat(2,2), VwgtMat(2,3)},
+        {VwgtMat(3,0),VwgtMat(3,1),VwgtMat(3,2), VwgtMat(3,3)}
+    };*/
+
+    //printMatrixBernie(getInverseBernie(matrix));
+    
+    std::cout << "determinante xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx " << VwgtMat.determinant()  << std::endl;
+    //std::cout << VwgtMat.isInvertible() << std::endl;
+    Eigen::FullPivLU<SymMatrix4> lu(VwgtMat);
+    std::cout << lu.isInvertible() << std::endl;
+    
     SymMatrix4 covDeltaVmat = VwgtMat.inverse();
+    
+    std::cout << "covDeltaVmat ------ " << std::endl;
+    std::cout << covDeltaVmat << std::endl;
+    
+    
+    
     // deltaV = cov_(deltaV) * Vdel;
     Vector4 deltaV = covDeltaVmat * Vdel;
     //--------------------------------------------------------------------------------------
@@ -210,18 +397,25 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
     std::vector<std::optional<BoundSymMatrix>> covDeltaPmat(nTracks);
 
     iTrack = 0;
+    
+    std::cout << "loop over billoirt tracks -----------------------" << std::endl;
+    
     for (auto& bTrack : billoirTracks) {
       Vector3 deltaP =
           (bTrack.CiInv) * (bTrack.UiVec - bTrack.BiMat.transpose() * deltaV);
 
       // update track momenta
       trackMomenta[iTrack] += deltaP;
+      
+      //std::cout << "track momenta " << trackMomenta[iTrack] << std::endl;
 
       // correct for 2PI / PI periodicity
       const auto correctedPhiTheta = detail::normalizePhiTheta(
           trackMomenta[iTrack][0], trackMomenta[iTrack][1]);
       trackMomenta[iTrack][0] = correctedPhiTheta.first;
       trackMomenta[iTrack][1] = correctedPhiTheta.second;
+      
+      //std::cout << "track momenta corr " << trackMomenta[iTrack] << std::endl;
 
       // calculate 5x5 covdelta_P matrix
       // d(d0,z0,phi,theta,qOverP, t)/d(x,y,z,phi,theta,qOverP,
@@ -294,12 +488,26 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
 
     // assign new linearization point (= new vertex position in global frame)
     linPoint += deltaV;
+    
+    //std::cout << "old chi2 " << chi2 << ", new chi2 " << newChi2 << std::endl;
+    
+    std::cout << "lin point ---------------------- " << std::endl;
+    std::cout << linPoint << std::endl;
+    
+    //std::cout << "covariance matrix "<< covDeltaVmat.diagonal()[0] << std::endl;
+    
     if (newChi2 < chi2) {
       chi2 = newChi2;
+      
+      //std::cout << " adding this track!" << std::endl;
 
       Vector4 vertexPos(linPoint);
 
       fittedVertex.setFullPosition(vertexPos);
+      
+      
+      
+      
       fittedVertex.setFullCovariance(covDeltaVmat);
       fittedVertex.setFitQuality(chi2, ndf);
 
@@ -324,6 +532,9 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
         ++iTrack;
       }
       fittedVertex.setTracksAtVertex(tracksAtVertex);
+    }
+    else {
+    //std::cout << "chi2 is larger than before!" << std::endl;
     }
   }  // end loop iterations
   return fittedVertex;
