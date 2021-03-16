@@ -12,6 +12,7 @@ add_library(
   src/RootTrackParameterWriter.cpp
   src/RootTrajectoryStatesWriter.cpp
   src/RootTrajectoryParametersWriter.cpp
+  src/RootVertexAndTrackWriterBGV.cpp
 )
 target_include_directories(
   ActsExamplesIoRoot

@@ -5,6 +5,7 @@ add_library(
   src/MeasurementCreation.cpp
   src/PlanarSteppingAlgorithm.cpp
   src/SmearingAlgorithm.cpp
+  src/HitSmearing.cpp
   src/DigitizationOptions.cpp)
 target_include_directories(
   ActsExamplesDigitization

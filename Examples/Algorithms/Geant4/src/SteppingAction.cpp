@@ -41,7 +41,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
   G4Material* material = step->GetPreStepPoint()->GetMaterial();
 
   if (material && material->GetName() != "Vacuum" &&
-      material->GetName() != "Air") {
+      material->GetName() != "Air" && material->GetName() != "galactic" && material->GetName() != "Galactic" ) {
     // Quantities valid for elemental materials and mixtures
     double X0 = (material->GetRadlen() / CLHEP::mm) * Acts::UnitConstants::mm;
     double L0 = (material->GetNuclearInterLength() / CLHEP::mm) *

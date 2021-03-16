@@ -30,6 +30,7 @@
 #include "ActsExamples/TrackFitting/TrackFittingOptions.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 #include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
+#include "ActsExamples/Digitization/HitSmearing.hpp"
 
 #include "RecInput.hpp"
 
@@ -43,8 +44,8 @@ ActsExamples::CsvSimHitReader::Config setupSimHitReading(
 
   // Read truth hits from CSV files
   auto simHitReaderCfg = Options::readCsvSimHitReaderConfig(vars);
-  simHitReaderCfg.inputStem = "hits";
-  simHitReaderCfg.outputSimHits = "hits";
+  simHitReaderCfg.inputStem = "simhits";
+  simHitReaderCfg.outputSimHits = "simhits";
   sequencer.addReader(
       std::make_shared<CsvSimHitReader>(simHitReaderCfg, logLevel));
 
@@ -120,12 +121,40 @@ ActsExamples::ParticleSmearing::Config setupParticleSmearing(
   particleSmearingCfg.sigmaZ0 = 20_um;
   particleSmearingCfg.sigmaZ0PtA = 30_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaPhi = 1_degree;
-  particleSmearingCfg.sigmaTheta = 1_degree;
+  particleSmearingCfg.sigmaPhi = 0.1_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
 
   return particleSmearingCfg;
+}
+
+ActsExamples::HitSmearing::Config setupSimHitSmearing(
+    const ActsExamples::Options::Variables& vars,
+    ActsExamples::Sequencer& sequencer,
+    std::shared_ptr<const ActsExamples::RandomNumbers> rnd,
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+    const std::string& inputSimHits) {
+  using namespace ActsExamples;
+
+  // Read some standard options
+  auto logLevel = Options::readLogLevel(vars);
+
+  // Create smeared measurements
+  HitSmearing::Config hitSmearingCfg;
+  hitSmearingCfg.inputSimHits = inputSimHits;
+  hitSmearingCfg.outputMeasurements = "measurements";
+  hitSmearingCfg.outputSourceLinks = "sourcelinks";
+  hitSmearingCfg.outputMeasurementParticlesMap = "measurement_particles_map";
+  hitSmearingCfg.outputMeasurementSimHitsMap = "measurement_simhits_map";
+  hitSmearingCfg.sigmaLoc0 = 10_um;
+  hitSmearingCfg.sigmaLoc1 = 10_um;
+  hitSmearingCfg.randomNumbers = rnd;
+  hitSmearingCfg.trackingGeometry = trackingGeometry;
+  sequencer.addAlgorithm(
+      std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
+
+  return hitSmearingCfg;
 }

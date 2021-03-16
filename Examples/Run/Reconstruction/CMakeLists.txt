@@ -20,6 +20,16 @@ target_link_libraries(
   PRIVATE
     ActsExamplesRecTracksCommon
     ActsExamplesDetectorTelescope)
+    
+# Truth fitting for TGeo detector
+add_executable(
+  ActsExampleTruthTracksTGeo
+  TGeoRecTruthTracks.cpp)
+target_link_libraries(
+  ActsExampleTruthTracksTGeo
+  PRIVATE
+    ActsExamplesRecTracksCommon
+    ActsExamplesDetectorTGeo)    
 
 # CKF reco for Generic detector 
 add_executable(
@@ -56,6 +66,7 @@ install(
   TARGETS
     ActsExampleTruthTracksGeneric
     ActsExampleTruthTracksTelescope
+    ActsExampleTruthTracksTGeo
     ActsExampleCKFTracksGeneric
     ActsExampleCKFTracksTelescope
     ActsExampleSeedingGeneric 

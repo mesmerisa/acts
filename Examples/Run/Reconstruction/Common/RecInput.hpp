@@ -17,6 +17,7 @@
 #include "ActsExamples/Io/Csv/CsvSimHitReader.hpp"
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
+#include "ActsExamples/Digitization/HitSmearing.hpp"
 
 #include <memory>
 #include <string>
@@ -73,3 +74,20 @@ ActsExamples::ParticleSmearing::Config setupParticleSmearing(
     ActsExamples::Sequencer& sequencer,
     std::shared_ptr<const ActsExamples::RandomNumbers> randomNumbers,
     const std::string& inputParticles);
+
+
+/// Setup sim hit smearing
+///
+/// @param variables The configuration variables
+/// @param sequencer The framework sequencer
+/// @param randomNumbers The random number service
+/// @param trackingGeometry The TrackingGeometry for the tracking setup
+/// @param inputSimHits The input sim hit collection (e.g. from sim hit reader)
+///
+/// @return config for hit smearing
+ActsExamples::HitSmearing::Config setupSimHitSmearing(
+    const ActsExamples::Options::Variables& vars,
+    ActsExamples::Sequencer& sequencer,
+    std::shared_ptr<const ActsExamples::RandomNumbers> randomNumbers,
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+    const std::string& inputSimHits);
