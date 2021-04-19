@@ -103,17 +103,19 @@ int runRecTruthTracks(int argc, char* argv[],
   particleSelectorCfg.inputMeasurementParticlesMap =
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.nHitsMin = 3;
+  particleSelectorCfg.nHitsMin = 2;
   
   // 1 ring detector:
-  //particleSelectorCfg.etaMin = 2.814708661281755;
-  //particleSelectorCfg.etaMax = 3.453280970676263;
+  particleSelectorCfg.etaMin = 2.814708661281755;
+  particleSelectorCfg.etaMax = 3.453280970676263;
   
   
   // 2 ring detector:
   
-  particleSelectorCfg.etaMin = 2.428760570711203;
-  particleSelectorCfg.etaMax = 3.453280970676263;  
+  //particleSelectorCfg.rhoMax = 60;
+  
+  //particleSelectorCfg.etaMin = 2.428760570711203;
+  //particleSelectorCfg.etaMax = 3.453280970676263;  
   
   sequencer.addAlgorithm(
       std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));

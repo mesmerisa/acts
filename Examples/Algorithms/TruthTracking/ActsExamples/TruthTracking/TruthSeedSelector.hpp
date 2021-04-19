@@ -32,6 +32,10 @@ class TruthSeedSelector final : public BareAlgorithm {
     std::string inputParticles;
     /// The input hit-particles map collection.
     std::string inputMeasurementParticlesMap;
+    
+    std::string inputSourceLinks;
+    
+    std::string inputMeasurements;
     /// The output proto tracks collection.
     std::string outputParticles;
     /// Maximum distance from the origin in the transverse plane
@@ -45,6 +49,7 @@ class TruthSeedSelector final : public BareAlgorithm {
     double etaMax = std::numeric_limits<double>::max();
     double absEtaMin = std::numeric_limits<double>::lowest();
     double absEtaMax = std::numeric_limits<double>::max();
+    //double ChargeCut = -1;
     double ptMin = 0.0;
     double ptMax = std::numeric_limits<double>::max();
     /// Keep neutral particles

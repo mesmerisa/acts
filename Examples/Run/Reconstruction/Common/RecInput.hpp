@@ -18,6 +18,7 @@
 #include "ActsExamples/TruthTracking/ParticleSmearing.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Digitization/HitSmearing.hpp"
+#include "ActsExamples/TruthTracking/ParticleSmearingCombFinder.hpp"
 
 #include <memory>
 #include <string>
@@ -74,6 +75,15 @@ ActsExamples::ParticleSmearing::Config setupParticleSmearing(
     ActsExamples::Sequencer& sequencer,
     std::shared_ptr<const ActsExamples::RandomNumbers> randomNumbers,
     const std::string& inputParticles);
+
+
+   
+ActsExamples::ParticleSmearingCombFinder::Config setupParticleSmearingCombFinder(
+    const ActsExamples::Options::Variables& vars,
+    ActsExamples::Sequencer& sequencer,
+    std::shared_ptr<const ActsExamples::RandomNumbers> randomNumbers,
+    const std::string& inputParticles, const std::string& trackCandidates, const std::string& inputMeas);   
+
 
 
 /// Setup sim hit smearing

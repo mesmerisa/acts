@@ -29,7 +29,19 @@ target_link_libraries(
   ActsExampleTruthTracksTGeo
   PRIVATE
     ActsExamplesRecTracksCommon
-    ActsExamplesDetectorTGeo)    
+    ActsExamplesDetectorTGeo)   
+    
+    
+# Truth fitting for TGeo detector
+add_executable(
+  ActsExampleCombFinderTracksTGeo
+  TGeoRecCombFinderTracks.cpp)
+target_link_libraries(
+  ActsExampleCombFinderTracksTGeo
+  PRIVATE
+    ActsExamplesRecTracksCommon
+    ActsExamplesDetectorTGeo)       
+     
 
 # CKF reco for Generic detector 
 add_executable(

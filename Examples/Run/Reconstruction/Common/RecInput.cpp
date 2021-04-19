@@ -122,7 +122,7 @@ ActsExamples::ParticleSmearing::Config setupParticleSmearing(
   particleSmearingCfg.sigmaZ0PtA = 30_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaPhi = 0.1_degree;
-  particleSmearingCfg.sigmaTheta = 0.01_degree;
+  particleSmearingCfg.sigmaTheta = 0.001_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(
@@ -130,6 +130,54 @@ ActsExamples::ParticleSmearing::Config setupParticleSmearing(
 
   return particleSmearingCfg;
 }
+
+
+ActsExamples::ParticleSmearingCombFinder::Config setupParticleSmearingCombFinder(
+    const ActsExamples::Options::Variables& vars,
+    ActsExamples::Sequencer& sequencer,
+    std::shared_ptr<const ActsExamples::RandomNumbers> rnd,
+    const std::string& inputParticles,
+    const std::string& trackCandidates,
+    const std::string& inputMeas) {
+  using namespace ActsExamples;
+
+  // Read some standard options
+  auto logLevel = Options::readLogLevel(vars);
+
+  // Create smeared particles states
+  ParticleSmearingCombFinder::Config particleSmearingCfg;
+  particleSmearingCfg.inputParticles = inputParticles;
+  particleSmearingCfg.inputTrackCandidates = trackCandidates;
+  particleSmearingCfg.inputMeasurements = inputMeas;
+  particleSmearingCfg.outputTrackParameters = "smearedparameters";
+  particleSmearingCfg.randomNumbers = rnd;
+  // Gaussian sigmas to smear particle parameters
+  /*  particleSmearingCfg.sigmaD0 = 200_um;
+  particleSmearingCfg.sigmaD0PtA = 300_um;
+  particleSmearingCfg.sigmaD0PtB = 3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0 = 200_um;
+  particleSmearingCfg.sigmaZ0PtA = 300_um;
+  particleSmearingCfg.sigmaZ0PtB = 3 / 1_GeV;
+  particleSmearingCfg.sigmaPhi = 0.5_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree;
+  particleSmearingCfg.sigmaPRel = 0.1;
+  particleSmearingCfg.sigmaT0 = 1_ns;*/
+ particleSmearingCfg.sigmaD0 = 20_um;
+  particleSmearingCfg.sigmaD0PtA = 30_um;
+  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0 = 20_um;
+  particleSmearingCfg.sigmaZ0PtA = 30_um;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaPhi = 0.01_degree;
+  particleSmearingCfg.sigmaTheta = 0.001_degree;
+  particleSmearingCfg.sigmaPRel = 0.01;
+  particleSmearingCfg.sigmaT0 = 1_ns;
+  sequencer.addAlgorithm(
+      std::make_shared<ParticleSmearingCombFinder>(particleSmearingCfg, logLevel));
+
+  return particleSmearingCfg;
+}
+
 
 ActsExamples::HitSmearing::Config setupSimHitSmearing(
     const ActsExamples::Options::Variables& vars,

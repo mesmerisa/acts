@@ -14,6 +14,9 @@
 #include "ActsExamples/Framework/WhiteBoard.hpp"
 #include "ActsExamples/Utilities/Range.hpp"
 
+#include "ActsExamples/EventData/Measurement.hpp"
+#include "Acts/EventData/Measurement.hpp"
+
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
@@ -45,10 +48,30 @@ ProcessCode TruthSeedSelector::execute(const AlgorithmContext& ctx) const {
   // compute particle_id -> {hit_id...} map from the
   // hit_id -> {particle_id...} map on the fly.
   const auto& particleHitsMap = invertIndexMultimap(hitParticlesMap);
+  
+ // const auto& measurements = ctx.eventStore.get<MeasurementContainer>(m_cfg.inputMeasurements);
+
+  /*const auto& sourceLinks =
+      ctx.eventStore.get<IndexSourceLinkContainer>(m_cfg.inputSourceLinks);
+  
+
+
+  //auto calib = MeasurementCalibrator(measurements);
+  
+  
+  
+  for (auto &sl : sourceLinks) {
+  std::cout << "meas " << sl.index() << std::endl;
+  
+  }*/
+  
 
   // prepare output collection
   SimParticleContainer selectedParticles;
   selectedParticles.reserve(inputParticles.size());
+   
+ // MeasurementContainer measurements;
+
 
   auto within = [](double x, double min, double max) {
     return (min <= x) and (x < max);
@@ -68,6 +91,7 @@ ProcessCode TruthSeedSelector::execute(const AlgorithmContext& ctx) const {
            within(phi, m_cfg.phiMin, m_cfg.phiMax) and
            within(p.transverseMomentum(), m_cfg.ptMin, m_cfg.ptMax) and
            within(nHits, m_cfg.nHitsMin, m_cfg.nHitsMax) and
+           //(p.charge() == m_cfg.ChargeCut) and
            (m_cfg.keepNeutral or (p.charge() != 0));
   };
 
@@ -75,6 +99,11 @@ ProcessCode TruthSeedSelector::execute(const AlgorithmContext& ctx) const {
   for (const auto& particle : inputParticles) {
     if (isValidparticle(particle)) {
       selectedParticles.insert(particle);
+      
+      // XXX select here also the hits that belong to the selected particles
+     //auto hits2 = makeRange(particleHitsMap.equal_range(particle.particleId()));        
+    //measurements.emplace_back(std::move(hits2));
+      
     }
   }
 
