@@ -29,7 +29,7 @@ void PointwiseMaterialInteraction::covarianceContributions(
   // Compute contributions from interactions
   if (multipleScattering) {
     // TODO use momentum before or after energy loss in backward mode?
-    const auto theta0 =
+    const auto theta0 = 
         computeMultipleScatteringTheta0(slab, pdg, mass, qOverP, q);
     // sigmaPhi = theta0 / sin(theta)
     const auto sigmaPhi = theta0 * (dir.norm() / VectorHelpers::perp(dir));

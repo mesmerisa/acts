@@ -320,7 +320,7 @@ ActsExamples::ProcessCode ActsExamples::RootTrajectoryStatesWriter::writeT(
         if (not typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
           return true;
         }
-
+ 
         const auto& surface = state.referenceSurface();
 
         // get the truth hits corresponding to this trackState

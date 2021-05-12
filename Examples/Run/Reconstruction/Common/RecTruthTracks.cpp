@@ -103,13 +103,13 @@ int runRecTruthTracks(int argc, char* argv[],
   particleSelectorCfg.inputMeasurementParticlesMap =
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
-  particleSelectorCfg.nHitsMin = 2;
+  particleSelectorCfg.nHitsMin = 3;
   
   // 1 ring detector:
-  particleSelectorCfg.etaMin = 2.814708661281755;
-  particleSelectorCfg.etaMax = 3.453280970676263;
-  
-  
+  //particleSelectorCfg.etaMin = 2.814708661281755;
+  //particleSelectorCfg.etaMax = 3.453280970676263;
+  particleSelectorCfg.absPMax = 1;
+  //particleSelectorCfg.absPMin = 15; //00_MeV;
   // 2 ring detector:
   
   //particleSelectorCfg.rhoMax = 60;
@@ -228,6 +228,8 @@ int runRecTruthTracks(int argc, char* argv[],
   fitVertices.inputTrajectories = fitter.outputTrajectories; // smearParticles.outputTrackParameters;
   fitVertices.inputProtoVertices = findVertices.outputProtoVertices;
   fitVertices.outputFittedVertices = "fitted_vertices";
+  fitVertices.inputSimHits = simHitReaderCfg.outputSimHits;
+  fitVertices.inputMeasurementSimHitsMap = hitSmearingCfg.outputMeasurementSimHitsMap;
   fitVertices.doConstrainedFit = false;
   //fitVertices.bField = Acts::Vector3(0_T, 0_T, 0_T);
   sequencer.addAlgorithm(

@@ -52,6 +52,8 @@ class TruthSeedSelector final : public BareAlgorithm {
     //double ChargeCut = -1;
     double ptMin = 0.0;
     double ptMax = std::numeric_limits<double>::max();
+    double absPMin = 0.0;
+    double absPMax = std::numeric_limits<double>::max();
     /// Keep neutral particles
     bool keepNeutral = false;
     /// Requirement on number of recorded hits

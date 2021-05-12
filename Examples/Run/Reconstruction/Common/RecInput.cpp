@@ -122,7 +122,7 @@ ActsExamples::ParticleSmearing::Config setupParticleSmearing(
   particleSmearingCfg.sigmaZ0PtA = 30_um;
   particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
   particleSmearingCfg.sigmaPhi = 0.1_degree;
-  particleSmearingCfg.sigmaTheta = 0.001_degree;
+  particleSmearingCfg.sigmaTheta = 0.01_degree;
   particleSmearingCfg.sigmaPRel = 0.01;
   particleSmearingCfg.sigmaT0 = 1_ns;
   sequencer.addAlgorithm(

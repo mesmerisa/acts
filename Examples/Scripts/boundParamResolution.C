@@ -312,6 +312,10 @@ boundParamResolution(const std::string& inFile,
     tree->GetEvent(j);
   
     for (int i = 0; i < nMeasurements; i++) {
+    
+      //if (layer_id->at(i) == 2) {
+    
+    
       if (predicted->at(i)) {
         res_prt[paramNames[0]]->Fill(res_LOC0_prt->at(i), 1);
         res_prt[paramNames[1]]->Fill(res_LOC1_prt->at(i), 1);
@@ -353,7 +357,11 @@ boundParamResolution(const std::string& inFile,
         pull_smt[paramNames[3]]->Fill(pull_THETA_smt->at(i), 1);
         pull_smt[paramNames[4]]->Fill(pull_QOP_smt->at(i), 1);
         pull_smt[paramNames[5]]->Fill(pull_T_smt->at(i), 1);
+        
+        
       }
+      
+     // } // layer
     }
   }
 
@@ -388,6 +396,11 @@ boundParamResolution(const std::string& inFile,
     pull_smt[paramNames.at(ipar)]->Draw("");
     pull_prt[paramNames.at(ipar)]->Draw("same");
     pull_flt[paramNames.at(ipar)]->Draw("same");
+    
+    std::cout << "pull std smooth " << pull_smt[paramNames.at(ipar)]->GetStdDev() << std::endl;
+    std::cout << "pull std flt " << pull_flt[paramNames.at(ipar)]->GetStdDev() << std::endl;
+    std::cout << "pull std prt " << pull_flt[paramNames.at(ipar)]->GetStdDev() << std::endl;
+    std::cout << std::endl;
 
     int binmax     = pull_smt[paramNames.at(ipar)]->GetMaximumBin();
     int bincontent = pull_smt[paramNames.at(ipar)]->GetBinContent(binmax);

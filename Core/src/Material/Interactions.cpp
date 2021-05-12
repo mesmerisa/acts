@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 using namespace Acts::UnitLiterals;
 
@@ -476,7 +477,10 @@ inline float theta0Highland(float xOverX0, float momentumInv,
   const auto t = std::sqrt(xOverX0 * q2OverBeta2);
   // log((x/X0) * (q²/beta²)) = log((sqrt(x/X0) * (q/beta))²)
   //                          = 2 * log(sqrt(x/X0) * (q/beta))
-  return 13.6_MeV * momentumInv * t * (1.0f + 0.038f * 2 * std::log(t));
+  
+  //std::cout << momentumInv << std::endl;
+  
+  return 13.6_MeV * momentumInv * t * (1.0f + 0.038f * 2.0 * std::log(t));
 }
 
 /// Multiple scattering theta0 for electrons.

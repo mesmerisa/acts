@@ -32,6 +32,9 @@ class VertexFitterAlgorithmFromTraj final : public BareAlgorithm {
     std::string outputFittedVertices;
     /// Input proto vertex collection
     std::string inputProtoVertices;
+    /// Input sim hits (for retrieving the truth info) 
+    std::string inputSimHits;
+    std::string inputMeasurementSimHitsMap;
     /// The magnetic field
     std::shared_ptr<Acts::MagneticFieldProvider> bField;
     /// Constraint vertex fit bool

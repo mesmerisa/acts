@@ -63,10 +63,10 @@ ActsExamples::ProcessCode ActsExamples::TrackFittingAlgorithm::execute(
   trajectories.reserve(protoTracks.size());
 
   // Construct a perigee surface as the target surface
-  auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
-      Acts::Vector3{0., 0., 0.});
+  //auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
+  //    Acts::Vector3{0., 0., 0.});
 
-  //auto pSurface = m_cfg.trackingGeometry->findSurface(72057868915834881);
+  auto pSurface = m_cfg.trackingGeometry->findSurface(72057868915834881); // 72057731476881409); // 72057868915834881); //72057868915834881);
 
   // Set the KalmanFitter options
   Acts::KalmanFitterOptions<MeasurementCalibrator, Acts::VoidOutlierFinder>

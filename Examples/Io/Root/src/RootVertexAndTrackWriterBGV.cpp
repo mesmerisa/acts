@@ -217,7 +217,7 @@ ActsExamples::ProcessCode ActsExamples::RootVertexAndTrackWriterBGV::writeT(
   m_eventNr = context.eventNumber; 
 
   for(auto vertex : vertexAndTracksCollection) {
-    std::cout << "ROOT Vertex and Track Writer .... event: " << m_eventNr << ", vertex: " << vertex.position() << std::endl;
+    //std::cout << "ROOT Vertex and Track Writer .... event: " << m_eventNr << ", vertex: " << vertex.position() << std::endl;
     m_vx.push_back(vertex.position().x());
     m_vy.push_back(vertex.position().y());
     m_vz.push_back(vertex.position().z());

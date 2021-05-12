@@ -90,6 +90,7 @@ ProcessCode TruthSeedSelector::execute(const AlgorithmContext& ctx) const {
            within(eta, m_cfg.etaMin, m_cfg.etaMax) and
            within(phi, m_cfg.phiMin, m_cfg.phiMax) and
            within(p.transverseMomentum(), m_cfg.ptMin, m_cfg.ptMax) and
+           within(p.absoluteMomentum(), m_cfg.absPMin, m_cfg.absPMax) and
            within(nHits, m_cfg.nHitsMin, m_cfg.nHitsMax) and
            //(p.charge() == m_cfg.ChargeCut) and
            (m_cfg.keepNeutral or (p.charge() != 0));

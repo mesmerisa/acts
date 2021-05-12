@@ -22,6 +22,8 @@
 #include "ActsExamples/EventData/Track.hpp"
 #include "ActsExamples/Framework/WhiteBoard.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
+#include "ActsExamples/EventData/AverageSimHits.hpp"
+#include "ActsExamples/EventData/SimHit.hpp"
 
 #include <stdexcept>
 
@@ -45,7 +47,12 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTraj::execute(
       Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
   using VertexFitterOptions =
       Acts::VertexingOptions<Acts::BoundTrackParameters>;
-
+  using HitSimHitsMap = IndexMultimap<Index>;
+       
+  const auto& simHits = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimHits);     
+  const auto& hitSimHitsMap =
+      ctx.eventStore.get<HitSimHitsMap>(m_cfg.inputMeasurementSimHitsMap);
+      
   // Set up EigenStepper
   Acts::EigenStepper<> stepper(m_cfg.bField);
 
@@ -80,7 +87,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTraj::execute(
   std::vector<int> empty_traj;
   empty_traj.clear();
   
-  std::cout << "size of trajectories at start: " << trajectories.size() << std::endl;
+  //std::cout << "size of trajectories at start: " << trajectories.size() << std::endl;
   
   
   for (size_t itraj = 0; itraj < trajectories.size(); ++itraj) {
@@ -104,7 +111,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTraj::execute(
      // Check the size of the trajectory entry indices. For track fitting, there
      // should be at most one trajectory
      //if (trackTips.size() > 1) {
-     //  ACTS_ERROR("Track fitting should not result in multiple trajectories.");
+     //  ACTS_ERROR("Track fitting should not result in multiple trajectories."); 
      //  return ProcessCode::ABORT;
      //}
      auto& trackTip = trackTips.front();
@@ -125,10 +132,64 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTraj::execute(
        empty_traj.push_back(traj_counter);
        continue;
        
-       std::cout << "trajectory counter " << traj_counter << std::endl;
+      // std::cout << "trajectory counter " << traj_counter << std::endl; 
      }
      const auto fitted_params = traj.trackParameters(trackTip);
      inputTrackParameters.push_back(fitted_params);
+     
+     if(trajectories.size() >= 2) {
+     
+       /*auto ts = mj.getTrackState(1);
+     
+       const auto& surface =fitted_params.referenceSurface();
+
+       // get the truth hits corresponding to this trackState
+       // Use average truth in the case of multiple contributing sim hits
+       const auto hitIdx = ts.uncalibrated().index();
+       auto indices = makeRange(hitSimHitsMap.equal_range(hitIdx));
+     
+       auto [truthLocal, truthPos4, truthUnitDir] =
+            averageSimHits(ctx.geoContext, surface, simHits, indices);
+     
+       const auto trackicovi = *traj.trackParameters(trackTip).covariance();
+        
+     
+        float truthLOC0 = truthLocal[Acts::ePos0];
+        float truthLOC1 = truthLocal[Acts::ePos1];
+        //float truthTIME = truthPos4[Acts::eTime];
+        float truthPHI = Acts::VectorHelpers::phi(truthUnitDir);
+        float truthTHETA = Acts::VectorHelpers::theta(truthUnitDir);
+        
+    
+        
+       std::cout << truthLOC0 << " ";
+       std::cout << truthLOC1 << " ";
+       std::cout << truthPHI << " ";
+       std::cout << truthTHETA << " ";
+     
+     
+       
+       std::cout << fitted_params.parameters()[Acts::eBoundLoc0] << " ";
+       std::cout << fitted_params.parameters()[Acts::eBoundLoc1] << " ";
+       std::cout << fitted_params.parameters()[Acts::eBoundPhi] << " ";
+       std::cout << fitted_params.parameters()[Acts::eBoundTheta] << " ";
+       std::cout << fitted_params.parameters()[Acts::eBoundQOverP] << " ";
+       
+     
+       
+        std::cout << sqrt(trackicovi(Acts::eBoundLoc0, Acts::eBoundLoc0)) << " ";
+        std::cout << sqrt(trackicovi(Acts::eBoundLoc1, Acts::eBoundLoc1)) << " ";
+        std::cout << sqrt(trackicovi(Acts::eBoundPhi, Acts::eBoundPhi)) << " ";
+        std::cout << sqrt(trackicovi(Acts::eBoundTheta, Acts::eBoundTheta)) << " ";
+        std::cout << sqrt(trackicovi(Acts::eBoundQOverP, Acts::eBoundQOverP)) << " ";
+       
+        std::cout << std::endl;
+        //std::cout << " -------------- " << std::endl;*/
+     }
+        
+        
+        
+     //const auto& measvec = traj.calibrated();
      //trackParameters.push_back(traj.trackParameters(trackTip));
    
   }
@@ -136,7 +197,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithmFromTraj::execute(
   for(auto btr_ : empty_traj) {
      std::cout << "empty trajectory index   " << btr_ << std::endl;
   }
-   
+   //std::cout << " ------------------------------------------- " << std::endl;
   
   
    std::vector<Acts::Vertex<Acts::BoundTrackParameters>> outputVertexCollection;

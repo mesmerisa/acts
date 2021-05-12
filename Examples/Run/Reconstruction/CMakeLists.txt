@@ -29,18 +29,7 @@ target_link_libraries(
   ActsExampleTruthTracksTelescope
   PRIVATE
     ActsExamplesRecTracksCommon
-    ActsExamplesDetectorTelescope)
-    
-# Truth fitting for TGeo detector
-add_executable(
-  ActsExampleTruthTracksTGeo
-  TGeoRecTruthTracks.cpp)
-target_link_libraries(
-  ActsExampleTruthTracksTGeo
-  PRIVATE
-    ActsExamplesRecTracksCommon
-    ActsExamplesDetectorTGeo)   
-    
+    ActsExamplesDetectorTelescope)    
     
 # Truth fitting for TGeo detector
 add_executable(

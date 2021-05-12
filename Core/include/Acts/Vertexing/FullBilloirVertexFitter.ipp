@@ -90,6 +90,8 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
   std::vector<Vector3> trackMomenta;
 
   Vector4 linPoint(vertexingOptions.vertexConstraint.fullPosition());
+  
+  //std::cout << "linPoint " << linPoint[0] << " " << linPoint[1] << " " << linPoint[2] << " " << std::endl;
 
   Vertex<input_track_t> fittedVertex;
 
@@ -102,12 +104,35 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
     int iTrack = 0;
     // iterate over all tracks
     for (const input_track_t* trackContainer : paramVector) {
+      //std::cout << "track start ---------------------------------- at iteration " << nIter << std::endl;  
       const auto& trackParams = extractParameters(*trackContainer);
+      
+      
+      
+      
+      
       if (nIter == 0) {
         double phi = trackParams.parameters()[BoundIndices::eBoundPhi];
         double theta = trackParams.parameters()[BoundIndices::eBoundTheta];
         double qop = trackParams.parameters()[BoundIndices::eBoundQOverP];
         trackMomenta.push_back(Vector3(phi, theta, qop));
+        
+
+        /*std::cout << trackParams.parameters()[BoundIndices::eBoundLoc0] << " ";
+        std::cout << trackParams.parameters()[BoundIndices::eBoundLoc1] << " ";
+        std::cout << trackParams.parameters()[BoundIndices::eBoundPhi] << " ";
+        std::cout << trackParams.parameters()[BoundIndices::eBoundTheta] << " ";
+        std::cout << trackParams.parameters()[BoundIndices::eBoundQOverP] << " ";
+        
+        const auto& trackicovi = *trackParams.covariance();
+        
+        
+        std::cout << sqrt(trackicovi(BoundIndices::eBoundLoc0, BoundIndices::eBoundLoc0)) << " ";
+        std::cout << sqrt(trackicovi(BoundIndices::eBoundLoc1, BoundIndices::eBoundLoc1)) << " ";
+        std::cout << sqrt(trackicovi(BoundIndices::eBoundPhi, BoundIndices::eBoundPhi)) << " ";
+        std::cout << sqrt(trackicovi(BoundIndices::eBoundTheta, BoundIndices::eBoundTheta)) << " ";
+        std::cout << sqrt(trackicovi(BoundIndices::eBoundQOverP, BoundIndices::eBoundQOverP)) << " ";
+        std::cout << std::endl;*/
       }
 
       auto result = linearizer.linearizeTrack(
@@ -116,11 +141,28 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
       if (result.ok()) {
         const auto& linTrack = *result;
         const auto& parametersAtPCA = linTrack.parametersAtPCA;
+        //const auto& CovsAtPCA = linTrack.covarianceAtPCA;
+        
         double d0 = parametersAtPCA[BoundIndices::eBoundLoc0];
         double z0 = parametersAtPCA[BoundIndices::eBoundLoc1];
         double phi = parametersAtPCA[BoundIndices::eBoundPhi];
         double theta = parametersAtPCA[BoundIndices::eBoundTheta];
         double qOverP = parametersAtPCA[BoundIndices::eBoundQOverP];
+        
+        /*if (nIter == 0) { 
+          std::cout << d0 << " ";
+          std::cout << z0 << " ";
+          std::cout << phi << " ";
+          std::cout << theta << " ";
+          std::cout << qOverP << " ";
+          
+          std::cout << sqrt(CovsAtPCA(BoundIndices::eBoundLoc0, BoundIndices::eBoundLoc0)) << " ";
+          std::cout << sqrt(CovsAtPCA(BoundIndices::eBoundLoc1, BoundIndices::eBoundLoc1)) << " ";
+          std::cout << sqrt(CovsAtPCA(BoundIndices::eBoundPhi, BoundIndices::eBoundPhi)) << " ";
+          std::cout << sqrt(CovsAtPCA(BoundIndices::eBoundTheta, BoundIndices::eBoundTheta)) << " ";
+          std::cout << sqrt(CovsAtPCA(BoundIndices::eBoundQOverP, BoundIndices::eBoundQOverP)) << " ";
+          std::cout << std::endl;
+        }*/
 
         // calculate f(V_0,p_0)  f_d0 = f_z0 = 0
         double fPhi = trackMomenta[iTrack][0];
@@ -131,6 +173,9 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
 
         currentBilloirTrack.deltaQ << d0, z0, phi - fPhi, theta - fTheta,
             qOverP - fQOvP, 0;
+            
+        //std::cout << "deltaQ of phi = phi (at PCA) - fPhi " <<     phi - fPhi << std::endl;
+        //std::cout << "deltaQ of theta = theta (at PCA) - fTheta " <<     theta - fTheta << std::endl;
 
         // position jacobian (D matrix)
         ActsMatrix<eBoundSize, 4> Dmat;
@@ -268,6 +313,24 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
                    (bTrack.deltaQ - bTrack.DiMat * deltaV -
                     bTrack.EiMat * deltaP));
       newChi2 += bTrack.chi2;
+      
+      /*std::cout << "d: " << (bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP)[0]  << ",   z: "
+      << (bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP)[1]  << ",  phi: "
+      << (bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP)[2] << ",   theta: "
+      << (bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP)[3] << ",   QoP:   "
+      << (bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP)[4] << " "
+      << std::endl;*/
+      
+      //std::cout << "deltaQ phi: " << bTrack.deltaQ[2] << ", theta " << bTrack.deltaQ[3] << std::endl;
+      
+      //std::cout << "((bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP).transpose())" << ((bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP).transpose())[2] << std::endl;
+               
+              //std::cout << "second entry +++++++++++++++++++++++++++++++++++ "<< ((bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP).transpose())[2]*(bTrack.linTrack.weightAtPCA*(bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP))[2] << std::endl;
+              
+              ///std::cout << "third entry +++++++++++++++++++++++++++++++++++ "<< ((bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP).transpose())[3]*(bTrack.linTrack.weightAtPCA*(bTrack.deltaQ - bTrack.DiMat * deltaV - bTrack.EiMat * deltaP))[3] << std::endl;
+
+                //std::cout << testvar << std::endl;
+
 
       ++iTrack;
     }
@@ -296,6 +359,8 @@ Acts::FullBilloirVertexFitter<input_track_t, linearizer_t>::fit(
     linPoint += deltaV;
     if (newChi2 < chi2) {
       chi2 = newChi2;
+       
+      //std::cout << "c#################################################################################hi2 accepted" << std::endl;
 
       Vector4 vertexPos(linPoint);
 
