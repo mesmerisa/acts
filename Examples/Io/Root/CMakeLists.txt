@@ -7,6 +7,7 @@ add_library(
   src/RootMaterialTrackWriter.cpp
   src/RootPlanarClusterWriter.cpp
   src/RootParticleWriter.cpp
+  src/RootParticleReader.cpp
   src/RootPropagationStepsWriter.cpp
   src/RootSimHitWriter.cpp
   src/RootTrackParameterWriter.cpp
@@ -14,6 +15,8 @@ add_library(
   src/RootTrajectoryStatesWriterBGV.cpp
   src/RootTrajectoryParametersWriter.cpp
   src/RootVertexAndTrackWriterBGV.cpp
+  src/RootTrajectoryParametersReader.cpp
+  src/RootVertexPerformanceWriter.cpp
 )
 target_include_directories(
   ActsExamplesIoRoot

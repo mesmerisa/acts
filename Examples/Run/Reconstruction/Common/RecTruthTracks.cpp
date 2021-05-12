@@ -6,6 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "Acts/Definitions/Units.hpp"
 #include "ActsExamples/Detector/IBaseDetector.hpp"
 #include "ActsExamples/Digitization/DigitizationOptions.hpp"
 #include "ActsExamples/Digitization/HitSmearing.hpp"
@@ -29,10 +30,12 @@
 #include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
+
 #include <Acts/Definitions/Units.hpp>
 #include "ActsExamples/Io/Root/RootVertexAndTrackWriterBGV.hpp"
 #include "ActsExamples/Vertexing/VertexFitterAlgorithmFromTraj.hpp"
 #include "ActsExamples/TruthTracking/TruthVertexFinder.hpp"
+
 
 #include <memory>
 
@@ -43,8 +46,10 @@ using namespace ActsExamples;
 
 int runRecTruthTracks(int argc, char* argv[],
                       std::shared_ptr<ActsExamples::IBaseDetector> detector) {
+  using boost::program_options::value;
+
   // setup and parse options
-  auto desc = ActsExamples::Options::makeDefaultOptions();
+  auto desc = Options::makeDefaultOptions();
   Options::addSequencerOptions(desc);
   Options::addRandomNumbersOptions(desc);
   Options::addGeometryOptions(desc);
@@ -55,6 +60,7 @@ int runRecTruthTracks(int argc, char* argv[],
   Options::addMagneticFieldOptions(desc);
   Options::addFittingOptions(desc);
   Options::addDigitizationOptions(desc);
+  TruthSeedSelector::addOptions(desc);
 
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) {
@@ -68,7 +74,7 @@ int runRecTruthTracks(int argc, char* argv[],
   auto outputDir = ensureWritableDirectory(vm["output-dir"].as<std::string>());
   auto rnd = std::make_shared<const ActsExamples::RandomNumbers>(
       Options::readRandomNumbersConfig(vm));
-  auto dirNav = vm["directed-navigation"].as<bool>();
+  auto dirNav = vm["fit-directed-navigation"].as<bool>();
 
   // Setup detector geometry
   auto geometry = Geometry::build(vm, *detector);
@@ -98,11 +104,13 @@ int runRecTruthTracks(int argc, char* argv[],
   // The pre-selection will select truth particles satisfying provided criteria
   // from all particles read in by particle reader for further processing. It
   // has no impact on the truth hits read-in by the cluster reader.
-  TruthSeedSelector::Config particleSelectorCfg;
+  TruthSeedSelector::Config particleSelectorCfg =
+      TruthSeedSelector::readConfig(vm);
   particleSelectorCfg.inputParticles = particleReader.outputParticles;
   particleSelectorCfg.inputMeasurementParticlesMap =
       hitSmearingCfg.outputMeasurementParticlesMap;
   particleSelectorCfg.outputParticles = "particles_selected";
+
   particleSelectorCfg.nHitsMin = 3;
   
   // 1 ring detector:
@@ -162,6 +170,10 @@ int runRecTruthTracks(int argc, char* argv[],
       particleSmearingCfg.outputTrackParameters;
   fitter.outputTrajectories = "trajectories";
   fitter.directNavigation = dirNav;
+  fitter.multipleScattering =
+      vm["fit-multiple-scattering-correction"].as<bool>();
+  fitter.energyLoss = vm["fit-energy-loss-correction"].as<bool>();
+  fitter.pickTrack = vm["fit-pick-track"].as<int>();
   fitter.trackingGeometry = trackingGeometry;
   fitter.dFit = TrackFittingAlgorithm::makeTrackFitterFunction(magneticField);
   fitter.fit = TrackFittingAlgorithm::makeTrackFitterFunction(trackingGeometry,
