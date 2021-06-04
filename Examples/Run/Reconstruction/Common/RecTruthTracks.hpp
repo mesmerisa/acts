@@ -21,3 +21,6 @@ class IBaseDetector;
 /// @param detector is the detector to be used
 int runRecTruthTracks(int argc, char* argv[],
                       std::shared_ptr<ActsExamples::IBaseDetector> detector);
+                      
+int runRecTruthTracksVertex(int argc, char* argv[],
+                      std::shared_ptr<ActsExamples::IBaseDetector> detector);                      

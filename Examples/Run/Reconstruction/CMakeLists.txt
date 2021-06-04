@@ -21,6 +21,16 @@ target_link_libraries(
     ActsExamplesRecTracksCommon 
     ActsExamplesDetectorTGeo)
 
+# Truth vertexing for TGeo detector 
+add_executable(
+  ActsExampleTruthTracksVertexTGeo
+  TGeoRecTruthTracksVertex.cpp)
+target_link_libraries(
+  ActsExampleTruthTracksVertexTGeo
+  PRIVATE
+    ActsExamplesRecTracksCommon 
+    ActsExamplesDetectorTGeo)  
+
 # Truth fitting for Telescope detector
 add_executable(
   ActsExampleTruthTracksTelescope

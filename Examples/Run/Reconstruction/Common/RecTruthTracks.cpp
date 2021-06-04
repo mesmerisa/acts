@@ -30,11 +30,18 @@
 #include "ActsExamples/TruthTracking/TruthTrackFinder.hpp"
 #include "ActsExamples/Utilities/Options.hpp"
 #include "ActsExamples/Utilities/Paths.hpp"
+#include "ActsExamples/TruthTracking/TrackSelector.hpp"
+#include "ActsExamples/Io/Root/RootTrajectoryParametersReader.hpp"
 
 #include <Acts/Definitions/Units.hpp>
-#include "ActsExamples/Io/Root/RootVertexAndTrackWriterBGV.hpp"
+#include "ActsExamples/Io/Root/RootVertexPerformanceWriter.hpp"
+
+// XXX BGV old case:
 #include "ActsExamples/Vertexing/VertexFitterAlgorithmFromTraj.hpp"
+// XXX BGV new case:
+#include "ActsExamples/Vertexing/VertexFitterAlgorithm.hpp"
 #include "ActsExamples/TruthTracking/TruthVertexFinder.hpp"
+#include "ActsExamples/Io/Root/RootVertexAndTrackWriterBGV.hpp"
 
 
 #include <memory>
@@ -95,7 +102,7 @@ int runRecTruthTracks(int argc, char* argv[],
   auto hitSmearingCfg = setupDigitization(vm, sequencer, rnd, trackingGeometry,
                                    simHitReaderCfg.outputSimHits);
                                    
-                                
+  auto inputDir = vm["input-dir-vtx"].as<std::string>();                              
   // Run the sim hits smearing
  // auto hitSmearingCfg = setupSimHitSmearing(
   //    vm, sequencer, rnd, trackingGeometry, simHitReaderCfg.outputSimHits);
@@ -116,7 +123,7 @@ int runRecTruthTracks(int argc, char* argv[],
   // 1 ring detector:
   //particleSelectorCfg.etaMin = 2.814708661281755;
   //particleSelectorCfg.etaMax = 3.453280970676263;
-  particleSelectorCfg.absPMax = 1;
+  //particleSelectorCfg.absPMax = 1;
   //particleSelectorCfg.absPMin = 15; //00_MeV;
   // 2 ring detector:
   
@@ -159,7 +166,7 @@ int runRecTruthTracks(int argc, char* argv[],
   }
 
   // setup the fitter
-  TrackFittingAlgorithm::Config fitter;
+ TrackFittingAlgorithm::Config fitter;
   fitter.inputMeasurements = hitSmearingCfg.outputMeasurements;
   fitter.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
   fitter.inputProtoTracks = trackFinderCfg.outputProtoTracks;
@@ -226,14 +233,16 @@ int runRecTruthTracks(int argc, char* argv[],
   sequencer.addWriter(
       std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
       
-  //////////////////////////////////////////////////////////////////////////////////////
-  // find true primary vertices w/o secondary particles
+      
+// find true primary vertices w/o secondary particles
   TruthVertexFinder::Config findVertices;
   findVertices.inputParticles = inputParticles; //selectParticles.outputParticles;
   findVertices.outputProtoVertices = "protovertices";
   findVertices.excludeSecondaries = true;
   sequencer.addAlgorithm(
       std::make_shared<TruthVertexFinder>(findVertices, logLevel));
+      
+  // BGV old case:     
       
   // fit vertices using the Billoir fitter
   VertexFitterAlgorithmFromTraj::Config fitVertices(magneticField);
@@ -245,13 +254,196 @@ int runRecTruthTracks(int argc, char* argv[],
   fitVertices.doConstrainedFit = false;
   //fitVertices.bField = Acts::Vector3(0_T, 0_T, 0_T);
   sequencer.addAlgorithm(
-      std::make_shared<VertexFitterAlgorithmFromTraj>(fitVertices, logLevel));
+      std::make_shared<VertexFitterAlgorithmFromTraj>(fitVertices, logLevel));    
       
+    
   RootVertexAndTrackWriterBGV::Config writerCfg;
   writerCfg.collection = fitVertices.outputFittedVertices;
   writerCfg.filePath = joinPaths(outputDir, fitVertices.outputFittedVertices + ".root");
   sequencer.addWriter(
-      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));      
+      std::make_shared<RootVertexAndTrackWriterBGV>(writerCfg, logLevel));  
+      
+      return sequencer.run();
+      
+  }
+  
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+
+int runRecTruthTracksVertex(int argc, char* argv[],
+                      std::shared_ptr<ActsExamples::IBaseDetector> detector) {
+  using boost::program_options::value;
+
+  // setup and parse options
+  auto desc = Options::makeDefaultOptions();
+  Options::addSequencerOptions(desc);
+  Options::addRandomNumbersOptions(desc);
+  Options::addGeometryOptions(desc);
+  Options::addMaterialOptions(desc);
+  Options::addInputOptions(desc);
+  Options::addOutputOptions(desc, OutputFormat::DirectoryOnly);
+  detector->addOptions(desc);
+  Options::addMagneticFieldOptions(desc);
+  Options::addFittingOptions(desc);
+  Options::addDigitizationOptions(desc);
+  TruthSeedSelector::addOptions(desc);
+
+  auto vm = Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
+  }
+
+  Sequencer sequencer(Options::readSequencerConfig(vm));
+
+  // Read some standard options
+  auto logLevel = Options::readLogLevel(vm);
+  auto outputDir = ensureWritableDirectory(vm["output-dir"].as<std::string>());
+  auto rnd = std::make_shared<const ActsExamples::RandomNumbers>(
+      Options::readRandomNumbersConfig(vm));
+  auto dirNav = vm["fit-directed-navigation"].as<bool>();
+
+  // Setup detector geometry
+  auto geometry = Geometry::build(vm, *detector);
+  auto trackingGeometry = geometry.first;
+  // Add context decorators
+  for (auto cdr : geometry.second) {
+    sequencer.addContextDecorator(cdr);
+  }
+  // Setup the magnetic field
+  auto magneticField = Options::readMagneticField(vm);
+
+  // Read the sim hits
+  auto simHitReaderCfg = setupSimHitReading(vm, sequencer);
+  // Read the particles
+  auto particleReader = setupParticleReading(vm, sequencer);
+
+  // Run the sim hits smearing
+  auto hitSmearingCfg = setupDigitization(vm, sequencer, rnd, trackingGeometry,
+                                   simHitReaderCfg.outputSimHits);
+                                   
+  auto inputDir = vm["input-dir-vtx"].as<std::string>();                              
+  // Run the sim hits smearing
+ // auto hitSmearingCfg = setupSimHitSmearing(
+  //    vm, sequencer, rnd, trackingGeometry, simHitReaderCfg.outputSimHits);
+      
+  // Run the particle selection
+  // The pre-selection will select truth particles satisfying provided criteria
+  // from all particles read in by particle reader for further processing. It
+  // has no impact on the truth hits read-in by the cluster reader.
+  TruthSeedSelector::Config particleSelectorCfg =
+      TruthSeedSelector::readConfig(vm);
+  particleSelectorCfg.inputParticles = particleReader.outputParticles;
+  particleSelectorCfg.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  particleSelectorCfg.outputParticles = "particles_selected";
+
+  particleSelectorCfg.nHitsMin = 3;
+  
+  // 1 ring detector:
+  //particleSelectorCfg.etaMin = 2.814708661281755;
+  //particleSelectorCfg.etaMax = 3.453280970676263;
+  //particleSelectorCfg.absPMax = 1;
+  //particleSelectorCfg.absPMin = 15; //00_MeV;
+  // 2 ring detector:
+  
+  //particleSelectorCfg.rhoMax = 60;
+  
+  //particleSelectorCfg.etaMin = 2.428760570711203;
+  //particleSelectorCfg.etaMax = 3.453280970676263;  
+  
+  sequencer.addAlgorithm(
+      std::make_shared<TruthSeedSelector>(particleSelectorCfg, logLevel));
+
+  // The selected particles
+  const auto& inputParticles = particleSelectorCfg.outputParticles;
+
+  // Run the particle smearing
+  auto particleSmearingCfg =
+      setupParticleSmearing(vm, sequencer, rnd, inputParticles);
+
+  // The fitter needs the measurements (proto tracks) and initial
+  // track states (proto states). The elements in both collections
+  // must match and must be created from the same input particles.
+  // Create truth tracks
+  TruthTrackFinder::Config trackFinderCfg;
+  trackFinderCfg.inputParticles = inputParticles;
+  trackFinderCfg.inputMeasurementParticlesMap =
+      hitSmearingCfg.outputMeasurementParticlesMap;
+  trackFinderCfg.outputProtoTracks = "prototracks";
+  sequencer.addAlgorithm(
+      std::make_shared<TruthTrackFinder>(trackFinderCfg, logLevel));
+
+  SurfaceSortingAlgorithm::Config sorterCfg;
+  // Setup the surface sorter if running direct navigator
+  sorterCfg.inputProtoTracks = trackFinderCfg.outputProtoTracks;
+  sorterCfg.inputSimulatedHits = simHitReaderCfg.outputSimHits;
+  sorterCfg.inputMeasurementSimHitsMap = hitSmearingCfg.outputMeasurementSimHitsMap;
+  sorterCfg.outputProtoTracks = "sortedprototracks";
+  if (dirNav) {
+    sequencer.addAlgorithm(
+        std::make_shared<SurfaceSortingAlgorithm>(sorterCfg, logLevel));
+  }  
+  
+  
+
+      
+  //////////////////////////////////////////////////////////////////////////////////////
+  RootTrajectoryParametersReader::Config trackParamsReader;
+  trackParamsReader.outputTracks = "fittedTrackParameters";
+  trackParamsReader.outputParticles = "associatedTruthParticles";
+  trackParamsReader.inputFile = "trackparams_fitter.root";
+  trackParamsReader.inputDir = inputDir;
+  sequencer.addReader(
+      std::make_shared<RootTrajectoryParametersReader>(trackParamsReader));
+
+  // Apply some primary vertexing selection cuts
+  TrackSelector::Config trackSelectorConfig;
+  trackSelectorConfig.inputTrackParameters = trackParamsReader.outputTracks;
+  trackSelectorConfig.outputTrackParameters = "selectedTracks";
+  trackSelectorConfig.outputTrackIndices = "outputTrackIndices";
+  //trackSelectorConfig.removeNeutral = true;
+  //trackSelectorConfig.absEtaMax = vars["vertexing-eta-max"].as<double>();
+  //trackSelectorConfig.loc0Max = vars["vertexing-rho-max"].as<double>() * 1_mm;
+  //trackSelectorConfig.ptMin = vars["vertexing-pt-min"].as<double>() * 1_MeV;
+  sequencer.addAlgorithm(
+      std::make_shared<TrackSelector>(trackSelectorConfig, logLevel));  
+  
+     
+// find true primary vertices w/o secondary particles
+  TruthVertexFinder::Config findVertices;
+  findVertices.inputParticles = inputParticles; //selectParticles.outputParticles;
+  findVertices.outputProtoVertices = "protovertices";
+  findVertices.excludeSecondaries = true;
+  sequencer.addAlgorithm(
+      std::make_shared<TruthVertexFinder>(findVertices, logLevel));   
+      
+  // fit vertices using the Billoir fitter
+  VertexFitterAlgorithm::Config fitVertices(magneticField);
+  fitVertices.inputTrackParameters = trackSelectorConfig.outputTrackParameters ; //fitter.outputTrajectories; // smearParticles.outputTrackParameters;
+  fitVertices.inputProtoVertices = findVertices.outputProtoVertices;
+  fitVertices.outputFittedVertices = "fitted_vertices";
+  //fitVertices.inputSimHits = simHitReaderCfg.outputSimHits;
+  //fitVertices.inputMeasurementSimHitsMap = hitSmearingCfg.outputMeasurementSimHitsMap;
+  fitVertices.doConstrainedFit = false;
+  //fitVertices.bField = Acts::Vector3(0_T, 0_T, 0_T);
+  sequencer.addAlgorithm(
+      std::make_shared<VertexFitterAlgorithm>(fitVertices, logLevel));
+ 
+  // write track parameters from fitting
+  RootVertexPerformanceWriter::Config vertexWriterConfig;
+  vertexWriterConfig.inputAllTruthParticles =
+      particleReader.outputParticles;
+  vertexWriterConfig.inputSelectedTruthParticles = particleReader.outputParticles;
+  vertexWriterConfig.inputAssociatedTruthParticles =
+      trackParamsReader.outputParticles;
+  vertexWriterConfig.inputFittedTracks = trackParamsReader.outputTracks;
+  vertexWriterConfig.inputVertices = fitVertices.outputFittedVertices;
+  vertexWriterConfig.outputFilename = "vertexperformance_Billoir.root";
+  vertexWriterConfig.outputTreename = "Billoir";
+  vertexWriterConfig.outputDir = outputDir;
+  sequencer.addWriter(std::make_shared<RootVertexPerformanceWriter>(
+      vertexWriterConfig, logLevel));    
+      
      
    //////////////////////////////////////////////////////////////////////////////////////    
 

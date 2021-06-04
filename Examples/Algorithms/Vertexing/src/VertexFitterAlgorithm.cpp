@@ -63,6 +63,10 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithm::execute(
 
   const auto& trackParameters =
       ctx.eventStore.get<TrackParametersContainer>(m_cfg.inputTrackParameters);
+  
+  std::vector<Acts::Vertex<Acts::BoundTrackParameters>> outputVertexCollection;
+  outputVertexCollection.clear();     
+      
   const auto& protoVertices =
       ctx.eventStore.get<ProtoVertexContainer>(m_cfg.inputProtoVertices);
   std::vector<const Acts::BoundTrackParameters*> inputTrackPtrCollection;
@@ -91,6 +95,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithm::execute(
                                      vfOptions, state);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
+        outputVertexCollection.push_back(fittedVertex);
       } else {
         ACTS_ERROR("Error in vertex fit.");
         ACTS_ERROR(fitRes.error().message());
@@ -110,6 +115,7 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithm::execute(
                                      vfOptionsConstr, state);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
+        outputVertexCollection.push_back(fittedVertex);
       } else {
         ACTS_ERROR("Error in vertex fit with constraint.");
         ACTS_ERROR(fitRes.error().message());
@@ -119,5 +125,8 @@ ActsExamples::ProcessCode ActsExamples::VertexFitterAlgorithm::execute(
     ACTS_INFO("Fitted Vertex " << fittedVertex.fullPosition().transpose());
     ACTS_INFO("Tracks at fitted Vertex: " << fittedVertex.tracks().size());
   }
+  
+  ctx.eventStore.add(m_cfg.outputFittedVertices, std::move(outputVertexCollection));
+  
   return ProcessCode::SUCCESS;
 }

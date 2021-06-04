@@ -20,6 +20,7 @@ target_link_libraries(
     ActsExamplesTruthTracking
     ActsExamplesVertexing
     ActsExamplesIoCsv
+    ActsExamplesIoRoot
     ActsExamplesIoPerformance)
 if(ACTS_BUILD_PLUGIN_ONNX)
   target_compile_definitions(

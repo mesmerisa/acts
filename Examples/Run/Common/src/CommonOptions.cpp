@@ -120,6 +120,8 @@ void ActsExamples::Options::addInputOptions(
   // Add specific options for this example
   opt.add_options()("input-dir", value<std::string>()->default_value(""),
                     "Input directory location.")(
+      "input-dir-vtx", value<std::string>()->default_value(""),
+                    "Input directory location.")(              
       "input-files", value<std::vector<std::string>>(),
       "Input files, can occur multiple times.")(
       "input-root", value<bool>()->default_value(false),
